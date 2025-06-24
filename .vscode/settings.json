@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "int-ll64.h": "c",
+        "types.h": "c",
+        "typeinfo": "cpp",
+        "build_bug.h": "c",
+        "compiler.h": "c",
+        "stringify.h": "c"
+    }
+}

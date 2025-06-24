@@ -3,8 +3,6 @@
 
 #include "libudev.h"
 
-#include "forward.h"
-
 struct udev_device;
 
 struct udev_device* udev_device_new(struct udev *udev, sd_device *device);

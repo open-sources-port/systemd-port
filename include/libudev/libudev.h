@@ -4,7 +4,6 @@
 #define _LIBUDEV_H_
 
 #include <stdarg.h>
-#include <sys/sysmacros.h>
 #include <sys/types.h>
 
 #ifdef __cplusplus

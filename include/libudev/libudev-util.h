@@ -3,8 +3,6 @@
 
 #include "libudev.h"
 
-#include "forward.h"
-
 /* Cleanup functions */
 DEFINE_TRIVIAL_CLEANUP_FUNC(struct udev*, udev_unref);
 DEFINE_TRIVIAL_CLEANUP_FUNC(struct udev_device*, udev_device_unref);

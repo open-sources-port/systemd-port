@@ -3,8 +3,6 @@
 
 #include "libudev.h"
 
-#include "forward.h"
-
 struct udev_list;
 
 struct udev_list* udev_list_new(bool unique);
