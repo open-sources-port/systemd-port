@@ -2,23 +2,36 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Test Init",
+      "name": "Debug Linux-port (macOS)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/builddir/test/linux/test_init",
+      "program": "${workspaceFolder}/builddir/test/linux/test_init", 
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
       "externalConsole": false,
-      "MIMode": "gdb",
+      "MIMode": "lldb",
+      "preLaunchTask": "Build project",
       "setupCommands": [
         {
-          "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
+          "description": "Enable pretty-printing for lldb",
+          "text": "command script import /path/to/lldb-python",
           "ignoreFailures": true
         }
       ]
+    },
+    {
+      "name": "Debug Linux-port (Windows)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/builddir/test/linux/test_init.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "preLaunchTask": "Build project"
     }
   ]
 }

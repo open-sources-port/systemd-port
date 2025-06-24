@@ -2,23 +2,64 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Meson Configure",
+      "label": "Build Linux-port (macOS)",
       "type": "shell",
-      "command": "meson setup builddir",
-      "group": "build",
-      "problemMatcher": []
+      "command": "meson",
+      "args": [
+        "builddir",
+        "--buildtype",
+        "debug",
+        "--prefix",
+        "/usr/local"
+      ],
+      "options": {
+        "env": {
+          "CC": "clang",
+          "CXX": "clang++"
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "detail": "Configure build with meson on macOS"
     },
     {
-      "label": "Meson Build",
+      "label": "Build Linux-port (Windows)",
       "type": "shell",
-      "command": "meson compile -C builddir",
+      "command": "meson",
+      "args": [
+        "builddir",
+        "--buildtype",
+        "debug",
+        "--prefix",
+        "C:/linux-port/install"
+      ],
+      "options": {
+        "env": {
+          "CC": "cl.exe",
+          "CXX": "cl.exe"
+        }
+      },
       "group": "build",
-      "problemMatcher": ["$gcc"]
+      "problemMatcher": ["$msCompile"],
+      "detail": "Configure build with meson on Windows"
     },
     {
-      "label": "Meson Test",
+      "label": "Build project",
       "type": "shell",
-      "command": "meson test -C builddir",
+      "command": "meson",
+      "args": ["compile", "-C", "builddir"],
+      "group": "build",
+      "problemMatcher": ["$gcc", "$msCompile"],
+      "dependsOn": ["Build Linux-port (macOS)", "Build Linux-port (Windows)"]
+    },
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "command": "meson",
+      "args": ["test", "-C", "builddir"],
       "group": "test",
       "problemMatcher": []
     }
