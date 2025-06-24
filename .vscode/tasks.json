@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Meson Configure",
+      "type": "shell",
+      "command": "meson setup builddir",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Meson Build",
+      "type": "shell",
+      "command": "meson compile -C builddir",
+      "group": "build",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "Meson Test",
+      "type": "shell",
+      "command": "meson test -C builddir",
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}
