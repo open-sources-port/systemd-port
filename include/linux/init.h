@@ -10,6 +10,10 @@
 extern "C" {
 #endif
 
+// Registration macro
+#define REGISTER_INITCALL(fn) \
+    static int fn(void); \
+    static initcall_t __initcall_##fn __attribute__((used, section("__DATA,__initcalls"))) = fn
 typedef int (*initcall_t)(void);
 
 #if defined(__linux__) || defined(__APPLE__)

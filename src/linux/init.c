@@ -1,4 +1,4 @@
-#include <linux/init.h>
+#include "linux/init.h"
 #include <stdio.h>
 
 int do_one_initcall(initcall_t fn) {
@@ -20,16 +20,44 @@ int run_initcalls(initcall_t *start, initcall_t *end) {
     return ret;
 }
 
+#if defined(__APPLE__)
+#include <mach-o/getsect.h>
+#include <mach-o/dyld.h>
+#include <mach-o/loader.h>
+
+extern const struct mach_header_64 _mh_execute_header;
+
 int run_early_initcalls(void) {
-#if defined(__linux__) || defined(__APPLE__)
-    if (&__start_initcall0 && &__stop_initcall0)
-        return run_initcalls(__start_initcall0, __stop_initcall0);
-    return 0;
-#elif defined(_MSC_VER)
-    if (__start_initcall0 && __stop_initcall0)
-        return run_initcalls(__start_initcall0, __stop_initcall0);
-    return 0;
-#else
-    return 0; /* unsupported */
-#endif
+    unsigned long size = 0;
+    initcall_t *start = (initcall_t *)getsectiondata(&_mh_execute_header, "__DATA", "__initcalls", &size);
+    if (!start || size == 0) return 0;
+    initcall_t *end = (initcall_t *)((char *)start + size);
+    return run_initcalls(start, end);
 }
+
+#elif defined(__linux__)
+
+// These symbols are created automatically by the linker
+extern initcall_t __start___initcalls[];
+extern initcall_t __stop___initcalls[];
+
+int run_early_initcalls(void) {
+    return run_initcalls(__start___initcalls, __stop___initcalls);
+}
+
+#elif defined(_MSC_VER)
+
+extern initcall_t __start_initcalls[];
+extern initcall_t __stop_initcalls[];
+
+int run_early_initcalls(void) {
+    return run_initcalls(__start_initcalls, __stop_initcalls);
+}
+
+#else
+
+int run_early_initcalls(void) {
+    return 0; // Unsupported platform
+}
+
+#endif
