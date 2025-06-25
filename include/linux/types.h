@@ -182,14 +182,17 @@ struct ustat {
     #define PTR_ALIGN 4
   #endif
   #define ALIGNED_PTR __declspec(align(PTR_ALIGN))
-#else
-  #define ALIGNED_PTR __attribute__((aligned(sizeof(void *))))
-#endif
-
-ALIGNED_PTR struct callback_head {
+  ALIGNED_PTR struct callback_head {
 	struct callback_head *next;
 	void (*func)(struct callback_head *head);
-};
+  };
+#else
+  #define ALIGNED_PTR __attribute__((aligned(sizeof(void *))))
+  struct callback_head {
+	struct callback_head *next;
+	void (*func)(struct callback_head *head);
+  } ALIGNED(sizeof(void *));
+#endif
 
 #define rcu_head callback_head
 
