@@ -20,7 +20,9 @@
   #define __noinline                  __attribute__((__noinline__))
   #define __noreturn                  __attribute__((__noreturn__))
   #define __packed                    __attribute__((__packed__))
-  #define __pure                      __attribute__((__pure__))
+  #ifndef __pure
+     #define __pure                      __attribute__((__pure__))
+  #endif
   #define __section(x)                __attribute__((__section__(x)))
   #define __used                      __attribute__((__used__))
   #define __unused                    __attribute__((__unused__))
@@ -28,7 +30,9 @@
   #define __maybe_unused              __attribute__((__unused__))
   #define __always_used               __used __maybe_unused
   #define __must_check                __attribute__((__warn_unused_result__))
-  #define __weak                      __attribute__((__weak__))
+  #ifndef __weak
+    #define __weak                      __attribute__((__weak__))
+  #endif
   #define __printf(a, b)              __attribute__((__format__(printf, a, b)))
   #define __scanf(a, b)               __attribute__((__format__(scanf, a, b)))
   #define __no_stack_protector        __attribute__((__no_stack_protector__))

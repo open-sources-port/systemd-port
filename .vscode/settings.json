@@ -6,5 +6,7 @@
         "build_bug.h": "c",
         "compiler.h": "c",
         "stringify.h": "c"
-    }
+    },
+    "C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild",
+    "C_Cpp.default.compileCommands": "/Users/trung_bao.d/data/personal/systemd-port/builddir/compile_commands.json"
 }

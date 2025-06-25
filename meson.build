@@ -3,8 +3,8 @@ project('linux-port', 'c',
   default_options : ['warning_level=3', 'c_std=gnu11'])
 
 # Include directory for headers
-inc = include_directories('include')
+# inc = include_directories('include')
 
 # Subprojects (modules)
-subdir('src')
-subdir('tests')
+subdir('src/linux')
+subdir('tests/linux')

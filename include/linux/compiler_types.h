@@ -24,14 +24,12 @@
 #define __releases(x)
 
 /* Attributes */
-#if defined(_MSC_VER)
-  #define __aligned(x) __declspec(align(x))
-  #define __section(x)
-  #define __maybe_unused
-#else
-  #define __aligned(x) __attribute__((aligned(x)))
-  #define __section(x) __attribute__((section(x)))
-  #define __maybe_unused __attribute__((unused))
+#ifndef __aligned
+  #if defined(_MSC_VER)
+    #define __aligned(x) __declspec(align(x))
+  #else
+    #define __aligned(x) __attribute__((aligned(x)))
+  #endif
 #endif
 
 /* typeof and type compatibility */

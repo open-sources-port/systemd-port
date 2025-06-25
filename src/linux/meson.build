@@ -12,5 +12,7 @@ linux_port = static_library(
   install: false
 )
 
-# Export the library for use by tests or other modules
-declare_dependency(link_with: linux_port, include_directories: linux_port_inc)
+# The library for use by tests or other modules
+linux_port_dep  = declare_dependency(link_with: linux_port, include_directories: linux_port_inc)
+
+meson.override_dependency('linux-port', linux_port_dep)

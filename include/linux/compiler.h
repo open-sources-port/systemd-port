@@ -10,7 +10,6 @@
 /* Compiler detection and attributes */
 #if defined(_MSC_VER)
   #define __forceinline __forceinline
-  #define __noinline __declspec(noinline)
   #define barrier() _ReadWriteBarrier()
   #define likely(x) (x)
   #define unlikely(x) (x)
@@ -18,7 +17,6 @@
 
 #elif defined(__GNUC__) || defined(__clang__)
   #define __forceinline inline __attribute__((always_inline))
-  #define __noinline __attribute__((noinline))
   #define barrier() __asm__ __volatile__("" ::: "memory")
   #define likely(x) __builtin_expect(!!(x), 1)
   #define unlikely(x) __builtin_expect(!!(x), 0)
@@ -26,7 +24,6 @@
 
 #else
   #define __forceinline inline
-  #define __noinline
   #define barrier()
   #define likely(x) (x)
   #define unlikely(x) (x)
@@ -103,21 +100,27 @@ static inline void *offset_to_ptr(const int *off) {
 }
 
 #if defined(__GNUC__) || defined(__clang__)
-  #define __section(name) __attribute__((section(name)))
-  #define __used __attribute__((used))
+  #ifndef __used
+    #define __used __attribute__((used))
+  #endif
   #define noinline __attribute__((noinline))
-  #define __cold __attribute__((cold))
+  #ifndef __cold
+    #define __cold __attribute__((cold))
+  #endif
   #define __latent_entropy
   #define notrace
-  #define __ADDRESSABLE __used
+  // #define __ADDRESSABLE __used
 #else
-  #define __section(name)
-  #define __used
+  #ifndef __used
+    #define __used
+  #endif
   #define noinline
-  #define __cold
+  #ifndef __cold
+    #define __cold
+  #endif
   #define __latent_entropy
   #define notrace
-  #define __ADDRESSABLE
+  // #define __ADDRESSABLE
 #endif
 
 /* 

@@ -6,11 +6,13 @@
       "includePath": [
         "${workspaceFolder}/include",
         "${workspaceFolder}/src/linux",
-        "${workspaceFolder}/src/other_module",
+        // "${workspaceFolder}/src/other_module",
         "${workspaceFolder}/tests/linux",
-        "${workspaceFolder}/tests/other_module",
-        "/usr/include",
-        "/usr/local/include"
+        // "${workspaceFolder}/tests/other_module",
+        // "/usr/include",
+        // "/usr/local/include",
+        "/opt/homebrew/include",
+        "/Library/Developer/CommandLineTools/usr/include"
       ],
       "defines": [
         "_DEBUG",
@@ -24,8 +26,8 @@
       "browse": {
         "path": [
           "${workspaceFolder}/include",
-          "${workspaceFolder}/src/linux",
-          "${workspaceFolder}/src/other_module"
+          "${workspaceFolder}/src/linux"
+          // "${workspaceFolder}/src/other_module"
         ],
         "limitSymbolsToIncludedHeaders": true
       }
