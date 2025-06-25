@@ -49,8 +49,12 @@ typedef __kernel_gid32_t gid_t;
 typedef __kernel_uid16_t uid16_t;
 typedef __kernel_gid16_t gid16_t;
 
-typedef unsigned long uintptr_t;
-typedef long           intptr_t;
+#ifndef _MSC_VER
+  typedef unsigned long uintptr_t;
+  typedef long           intptr_t;
+#else
+  #include <stdint.h>
+#endif
 
 #ifdef CONFIG_HAVE_UID16
 typedef __kernel_old_uid_t old_uid_t;
@@ -171,10 +175,21 @@ struct ustat {
 	char f_fpack[6];
 };
 
-struct callback_head {
+#if defined(_MSC_VER)
+  #if defined(_WIN64)
+    #define PTR_ALIGN 8
+  #else
+    #define PTR_ALIGN 4
+  #endif
+  #define ALIGNED_PTR __declspec(align(PTR_ALIGN))
+#else
+  #define ALIGNED_PTR __attribute__((aligned(sizeof(void *))))
+#endif
+
+ALIGNED_PTR struct callback_head {
 	struct callback_head *next;
 	void (*func)(struct callback_head *head);
-} ALIGNED(sizeof(void *));
+};
 
 #define rcu_head callback_head
 

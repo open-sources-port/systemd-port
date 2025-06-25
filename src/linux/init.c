@@ -9,11 +9,11 @@ int do_one_initcall(initcall_t fn) {
 
 int run_initcalls(initcall_t *start, initcall_t *end) {
     int ret = 0;
-    for (initcall_t *fn = start; fn != end; ++fn) {
+    for (initcall_t *fn = start; fn < end; ++fn) {
         if (*fn) {
             int r = do_one_initcall(*fn);
             if (r != 0) {
-                fprintf(stderr, "Initcall failed: %p\n", (void*)*fn);
+                fprintf(stderr, "Initcall failed: %p\n", (void *)*fn);
                 ret = r;
             }
         }
@@ -22,6 +22,7 @@ int run_initcalls(initcall_t *start, initcall_t *end) {
 }
 
 #if defined(__APPLE__)
+
 #include <mach-o/getsect.h>
 #include <mach-o/dyld.h>
 #include <mach-o/loader.h>
@@ -36,17 +37,24 @@ int run_early_initcalls(void) {
     return run_initcalls(start, end);
 }
 
-#elif defined(__linux__)
+#elif defined(_MSC_VER)
 
-// These symbols are created automatically by the linker
-extern initcall_t __start___initcalls[];
-extern initcall_t __stop___initcalls[];
+#pragma section("INIT$A", read)
+#pragma section("INIT$Z", read)
+
+__declspec(allocate("INIT$A")) initcall_t __start_initcalls = 0;
+__declspec(allocate("INIT$Z")) initcall_t __stop_initcalls = 0;
+
+#pragma comment(linker, "/merge:INIT=.rdata")
+
+extern initcall_t __start_initcalls;
+extern initcall_t __stop_initcalls;
 
 int run_early_initcalls(void) {
-    return run_initcalls(__start___initcalls, __stop___initcalls);
+    return run_initcalls(&__start_initcalls, &__stop_initcalls);
 }
 
-#elif defined(_MSC_VER)
+#elif defined(__linux__)
 
 extern initcall_t __start_initcalls[];
 extern initcall_t __stop_initcalls[];
@@ -58,7 +66,7 @@ int run_early_initcalls(void) {
 #else
 
 int run_early_initcalls(void) {
-    return 0; // Unsupported platform
+    return 0;
 }
 
 #endif

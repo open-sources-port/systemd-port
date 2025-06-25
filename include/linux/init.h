@@ -29,17 +29,17 @@ typedef int (*initcall_t)(void);
 #endif
 
 #if defined(_MSC_VER)
-  #pragma section(".initcalls$a", read)  // custom section name with ordering
-  #define __define_initcall(fn) \
-      __declspec(allocate(".initcalls$a")) initcall_t __initcall_##fn = fn;
-  #define __define_initcall(fn) \
-      static initcall_t __initcall_##fn __attribute__((section("__initcalls"))) = fn;
+  extern initcall_t __start_initcalls;
+  extern initcall_t __stop_initcalls;
+
+  #define DEFINE_INITCALL(fn) \
+      __declspec(allocate("INIT$M")) initcall_t __initcall_##fn = fn;
+#else
+  typedef int (*initcall_t)(void);
 
   #define __define_initcall(fn, id) \
-    static initcall_t __initcall_##fn SECTION_ATTR("initcall" #id) = fn
-#else
-  #define __define_initcall(fn, id) \
-    static initcall_t __initcall_##fn SECTION_ATTR(".initcall" #id) = fn
+      static initcall_t __initcall_##fn __attribute__((used, section(".initcall" #id ".init"))) = fn;
+
 #endif
 
 #define early_initcall(fn) __define_initcall(fn, 0)
