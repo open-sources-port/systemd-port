@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup project (Unix)",
+      "type": "shell",
+      "command": "chmod +x ./scripts/build.sh && ./scripts/build.sh",
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "Setup project (Windows)",
+      "type": "shell",
+      "command": "scripts\\build.cmd",
+      "problemMatcher": [],
+      "group": "none"
+    },
+    {
+      "label": "Build project (Unix)",
+      "type": "shell",
+      "command": "meson",
+      "args": ["compile", "-C", "build"],
+      "problemMatcher": ["$gcc"],
+      "dependsOn": ["Setup project (Unix)"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Build project (Windows)",
+      "type": "shell",
+      "command": "meson",
+      "args": ["compile", "-C", "build"],
+      "problemMatcher": ["$msCompile"],
+      "dependsOn": ["Setup project (Windows)"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "command": "meson",
+      "args": ["test", "-C", "build"],
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}
