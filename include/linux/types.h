@@ -11,6 +11,15 @@
 #define DECLARE_BITMAP(name,bits) \
 	unsigned long name[BITS_TO_LONGS(bits)]
 
+typedef unsigned char u8;
+typedef signed char   s8;
+typedef unsigned short u16;
+typedef signed short   s16;
+typedef unsigned int   u32;
+typedef signed int     s32;
+typedef unsigned long long u64;
+typedef signed long long   s64;
+
 #ifdef __SIZEOF_INT128__
 typedef __s128 s128;
 typedef __u128 u128;
@@ -33,7 +42,7 @@ typedef __kernel_timer_t     timer_t;
 typedef __kernel_clockid_t   clockid_t;
 typedef __kernel_mqd_t       mqd_t;
 
-typedef _Bool bool;
+// typedef _Bool bool;
 
 typedef __kernel_uid32_t uid_t;
 typedef __kernel_gid32_t gid_t;

@@ -4,5 +4,5 @@
 /*
  * int-ll64 is used everywhere now.
  */
-#include <asm-generic/int-ll64.h>
+#include <linux/uapi/asm-generic/int-ll64.h>
 #endif /* _ASM_GENERIC_TYPES_H */

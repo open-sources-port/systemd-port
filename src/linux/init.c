@@ -1,4 +1,5 @@
 #include "linux/init.h"
+#include "linux/types.h"
 #include <stdio.h>
 
 int do_one_initcall(initcall_t fn) {

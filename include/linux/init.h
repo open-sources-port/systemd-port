@@ -29,6 +29,12 @@ typedef int (*initcall_t)(void);
 #endif
 
 #if defined(_MSC_VER)
+  #pragma section(".initcalls$a", read)  // custom section name with ordering
+  #define __define_initcall(fn) \
+      __declspec(allocate(".initcalls$a")) initcall_t __initcall_##fn = fn;
+  #define __define_initcall(fn) \
+      static initcall_t __initcall_##fn __attribute__((section("__initcalls"))) = fn;
+
   #define __define_initcall(fn, id) \
     static initcall_t __initcall_##fn SECTION_ATTR("initcall" #id) = fn
 #else
