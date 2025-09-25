@@ -33,3 +33,5 @@
 
 # Generated files
 /**/.DS_Store
+/**/builddir
+/**/build
