@@ -1,6 +1,6 @@
 linux_port_sources = [
   'init.c',
-  # add other source files here
+  'netfilter.c'
 ]
 
 linux_port_inc = include_directories('../../include')
