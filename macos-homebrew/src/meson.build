@@ -1,0 +1,5 @@
+subdir('fundamental')
+subdir('basic')
+subdir('libsystemd')
+subdir('shared')
+subdir('libudev')

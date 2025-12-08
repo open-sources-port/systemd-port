@@ -2,50 +2,46 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Setup project (Unix)",
+      "label": "Setup macos-homebrew",
       "type": "shell",
-      "command": "chmod +x ./scripts/build.sh && ./scripts/build.sh",
-      "problemMatcher": [],
-      "group": "none"
+      // "command": "CC=clang CXX=clang++ meson setup build --buildtype=debug --prefix=/opt/homebrew --reconfigure",
+      "command": "zsh build.sh config",
+      "options": {
+        "cwd": "${workspaceFolder}/macos-homebrew"
+      },
+      "problemMatcher": [
+        "$meson-gcc"
+      ]
     },
     {
-      "label": "Setup project (Windows)",
+      "label": "Build macos-homebrew",
       "type": "shell",
-      "command": "scripts\\build.cmd",
-      "problemMatcher": [],
-      "group": "none"
-    },
-    {
-      "label": "Build project (Unix)",
-      "type": "shell",
-      "command": "meson",
-      "args": ["compile", "-C", "build"],
-      "problemMatcher": ["$gcc"],
-      "dependsOn": ["Setup project (Unix)"],
+      // "command": "ninja -C build",
+      "command": "zsh build.sh build",
+      "options": {
+        "cwd": "${workspaceFolder}/macos-homebrew"
+      },
       "group": {
         "kind": "build",
         "isDefault": true
       }
     },
     {
-      "label": "Build project (Windows)",
+      "label": "Setup windows-cygwin",
       "type": "shell",
-      "command": "meson",
-      "args": ["compile", "-C", "build"],
-      "problemMatcher": ["$msCompile"],
-      "dependsOn": ["Setup project (Windows)"],
-      "group": {
-        "kind": "build",
-        "isDefault": false
+      "command": "meson setup build --buildtype=debug --prefix=/usr/local --reconfigure",
+      "options": {
+        "cwd": "${workspaceFolder}/windows-cygwin"
       }
     },
     {
-      "label": "Run Tests",
+      "label": "Build windows-cygwin",
       "type": "shell",
-      "command": "meson",
-      "args": ["test", "-C", "build"],
-      "group": "test",
-      "problemMatcher": []
+      "command": "ninja -C build",
+      "options": {
+        "cwd": "${workspaceFolder}/windows-cygwin"
+      },
+      "group": "build"
     }
   ]
 }

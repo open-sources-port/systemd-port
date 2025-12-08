@@ -2,15 +2,13 @@
   "version": 4,
   "configurations": [
     {
-      "name": "Linux-port-macos",
+      "name": "macos-systemd",
       "includePath": [
-        "${workspaceFolder}/include",
-        "${workspaceFolder}/src/linux",
-        // "${workspaceFolder}/src/other_module",
-        "${workspaceFolder}/tests/linux",
-        // "${workspaceFolder}/tests/other_module",
-        // "/usr/include",
-        // "/usr/local/include",
+        "${workspaceFolder}/macos-homebrew/include",
+        "${workspaceFolder}/macos-homebrew/include/shared",
+        "${workspaceFolder}/macos-homebrew/include/systemd",
+        "${workspaceFolder}/macos-homebrew/include/basic",
+        "${workspaceFolder}/macos-homebrew/include/fundamental",
         "/opt/homebrew/include",
         "/Library/Developer/CommandLineTools/usr/include"
       ],
@@ -26,20 +24,22 @@
       "browse": {
         "path": [
           "${workspaceFolder}/include",
-          "${workspaceFolder}/src/linux"
-          // "${workspaceFolder}/src/other_module"
+          "${workspaceFolder}/macos-homebrew/src/libsystemd",
+          "${workspaceFolder}/macos-homebrew/src/libudev"
         ],
         "limitSymbolsToIncludedHeaders": true
-      }
+      },
+      "macFrameworkPath": [
+        "/System/Library/Frameworks",
+        "/Library/Frameworks"
+      ]
     },
     {
-      "name": "Linux-port-windows",
+      "name": "windows-systemd",
       "includePath": [
         "${workspaceFolder}/include",
-        "${workspaceFolder}/src/linux",
-        "${workspaceFolder}/src/other_module",
-        "${workspaceFolder}/tests/linux",
-        "${workspaceFolder}/tests/other_module",
+        "${workspaceFolder}/include/shared",
+        "${workspaceFolder}/include/systemd",
         "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/ucrt",
         "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/shared",
         "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um"
@@ -57,8 +57,7 @@
       "browse": {
         "path": [
           "${workspaceFolder}/include",
-          "${workspaceFolder}/src/linux",
-          "${workspaceFolder}/src/other_module"
+          "${workspaceFolder}/windows-cygwin/src"
         ],
         "limitSymbolsToIncludedHeaders": true
       }

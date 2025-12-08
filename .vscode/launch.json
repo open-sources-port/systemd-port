@@ -2,36 +2,20 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Linux-port (macOS)",
+      "name": "Debug macos-homebrew",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/builddir/test/linux/test_init", 
-      "args": [],
-      "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",
-      "environment": [],
-      "externalConsole": false,
-      "MIMode": "lldb",
-      "preLaunchTask": "Build project",
-      "setupCommands": [
-        {
-          "description": "Enable pretty-printing for lldb",
-          "text": "command script import /path/to/lldb-python",
-          "ignoreFailures": true
-        }
-      ]
+      "program": "${workspaceFolder}/macos-homebrew/build/your_binary",
+      "cwd": "${workspaceFolder}/macos-homebrew",
+      "MIMode": "lldb"
     },
     {
-      "name": "Debug Linux-port (Windows)",
-      "type": "cppvsdbg",
+      "name": "Debug windows-cygwin",
+      "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/builddir/test/linux/test_init.exe",
-      "args": [],
-      "stopAtEntry": false,
-      "cwd": "${workspaceFolder}",
-      "environment": [],
-      "externalConsole": false,
-      "preLaunchTask": "Build project"
+      "program": "${workspaceFolder}/windows-cygwin/build/your_binary.exe",
+      "cwd": "${workspaceFolder}/windows-cygwin",
+      "MIMode": "gdb"
     }
   ]
 }
