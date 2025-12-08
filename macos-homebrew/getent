@@ -1,0 +1,38 @@
+#!/bin/bash
+# getent for macOS
+# Usage: getent passwd|group|hosts [key]
+
+command="$1"
+key="$2"
+
+case "$command" in
+    passwd)
+        if [ -n "$key" ]; then
+            dscl . -read /Users/"$key" 2>/dev/null | awk '/^UniqueID:/{uid=$2} /^PrimaryGroupID:/{gid=$2} /^NFSHomeDirectory:/{home=$2} /^UserShell:/{shell=$2} END{print "'"$key"'" ":" "x:" uid ":" gid ":" "'"$key"'" ":" home ":" shell}'
+        else
+            dscl . -list /Users | while read user; do
+                dscl . -read /Users/"$user" 2>/dev/null | awk '/^UniqueID:/{uid=$2} /^PrimaryGroupID:/{gid=$2} /^NFSHomeDirectory:/{home=$2} /^UserShell:/{shell=$2} END{print user ":" "x:" uid ":" gid ":" user ":" home ":" shell}' user="$user"
+            done
+        fi
+        ;;
+    group)
+        if [ -n "$key" ]; then
+            dscl . -read /Groups/"$key" 2>/dev/null | awk '/^PrimaryGroupID:/{gid=$2} /^GroupMembership:/{members=$2; for(i=2;i<=NF;i++){members=members","$i}} END{print "'"$key"'" ":" "x:" gid ":" members}'
+        else
+            dscl . -list /Groups | while read group; do
+                dscl . -read /Groups/"$group" 2>/dev/null | awk '/^PrimaryGroupID:/{gid=$2} /^GroupMembership:/{members=$2; for(i=2;i<=NF;i++){members=members","$i}} END{print group ":" "x:" gid ":" members}' group="$group"
+            done
+        fi
+        ;;
+    hosts)
+        if [ -n "$key" ]; then
+            dscacheutil -q host -a name "$key"
+        else
+            cat /etc/hosts
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {passwd|group|hosts} [name]"
+        exit 1
+        ;;
+esac
