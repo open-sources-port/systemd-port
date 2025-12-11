@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string.h"
 
 static inline size_t sc_arg_max(void) {

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "netlink-types.h"
 
 /* C.f. see 'struct nla_policy' at include/net/netlink.h. */

@@ -2340,7 +2340,7 @@ static VarlinkServerSocket* varlink_server_socket_destroy(VarlinkServerSocket *s
                 return NULL;
 
         if (ss->server)
-                LIST_REMOVE(sockets, ss->server->sockets, ss);
+                SD_LIST_REMOVE(sockets, ss->server->sockets, ss);
 
         sd_event_source_disable_unref(ss->event_source);
 
@@ -2396,7 +2396,7 @@ int varlink_server_attach_event(VarlinkServer *s, sd_event *e, int64_t priority)
                         return r;
         }
 
-        LIST_FOREACH(sockets, ss, s->sockets) {
+        SD_LIST_FOREACH(sockets, ss, s->sockets) {
                 r = varlink_server_add_socket_event_source(s, ss, priority);
                 if (r < 0)
                         goto fail;
@@ -2413,7 +2413,7 @@ fail:
 int varlink_server_detach_event(VarlinkServer *s) {
         assert_return(s, -EINVAL);
 
-        LIST_FOREACH(sockets, ss, s->sockets)
+        SD_LIST_FOREACH(sockets, ss, s->sockets)
                 ss->event_source = sd_event_source_disable_unref(ss->event_source);
 
         sd_event_unref(s->event);
@@ -2564,7 +2564,7 @@ int varlink_server_serialize(VarlinkServer *s, FILE *f, FDSet *fds) {
         if (!s)
                 return 0;
 
-        LIST_FOREACH(sockets, ss, s->sockets) {
+        SD_LIST_FOREACH(sockets, ss, s->sockets) {
                 int copy;
 
                 assert(ss->address);

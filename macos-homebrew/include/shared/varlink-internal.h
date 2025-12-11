@@ -23,7 +23,7 @@ struct VarlinkServer {
         unsigned n_ref;
         VarlinkServerFlags flags;
 
-        LIST_HEAD(VarlinkServerSocket, sockets);
+        SD_LIST_HEAD(VarlinkServerSocket, sockets);
 
         Hashmap *methods;
         VarlinkConnect connect_callback;

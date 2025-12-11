@@ -2,7 +2,7 @@
 #pragma once
 
 #include "hashmap.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "set.h"
 #include "unit-name.h"
 

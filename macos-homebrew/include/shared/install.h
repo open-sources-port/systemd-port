@@ -12,7 +12,7 @@ typedef struct UnitFileList UnitFileList;
 typedef struct InstallInfo InstallInfo;
 
 #include "hashmap.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "path-lookup.h"
 #include "strv.h"
 #include "unit-file.h"

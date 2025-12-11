@@ -12,7 +12,7 @@
 #include "ether-addr-util.h"
 #include "in-addr-util.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string-util.h"
 #include "strv.h"
 #include "time-util.h"

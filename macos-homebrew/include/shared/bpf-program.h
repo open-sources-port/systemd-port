@@ -8,7 +8,7 @@
 
 #include "fdset.h"
 #include "list.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef struct BPFProgram BPFProgram;
 

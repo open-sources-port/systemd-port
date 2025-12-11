@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "label.h"
 
 #if HAVE_SELINUX

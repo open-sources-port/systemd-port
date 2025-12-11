@@ -2,6 +2,7 @@
 #pragma once
 
 #include <sys/socket.h>
+#include <basic/macro.h>
 
 #if HAVE_LINUX_VM_SOCKETS_H
 #include <linux/vm_sockets.h>

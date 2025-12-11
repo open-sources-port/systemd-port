@@ -68,7 +68,7 @@ void netlink_slot_disconnect(sd_netlink_slot *slot, bool unref) {
 
                 break;
         case NETLINK_MATCH_CALLBACK:
-                LIST_REMOVE(match_callbacks, nl->match_callbacks, &slot->match_callback);
+                SD_LIST_REMOVE(match_callbacks, nl->match_callbacks, &slot->match_callback);
 
                 for (size_t i = 0; i < slot->match_callback.n_groups; i++)
                         (void) socket_broadcast_group_unref(nl, slot->match_callback.groups[i]);
@@ -83,7 +83,7 @@ void netlink_slot_disconnect(sd_netlink_slot *slot, bool unref) {
 
         slot->type = _NETLINK_SLOT_INVALID;
         slot->netlink = NULL;
-        LIST_REMOVE(slots, nl->slots, slot);
+        SD_LIST_REMOVE(slots, nl->slots, slot);
 
         if (!slot->floating)
                 sd_netlink_unref(nl);

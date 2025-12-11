@@ -8,7 +8,7 @@
 
 #include "sd-journal.h"
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "output-mode.h"
 #include "time-util.h"
 #include "util.h"

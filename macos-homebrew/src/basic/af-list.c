@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 
 #include "af-list.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 static const struct af_name* lookup_af(register const char *str, register GPERF_LEN_TYPE len);
 

@@ -5,7 +5,7 @@
 
 #include "sd-daemon.h"
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 #define NOTIFY_READY "READY=1\n" "STATUS=Processing requests..."
 #define NOTIFY_STOPPING "STOPPING=1\n" "STATUS=Shutting down..."

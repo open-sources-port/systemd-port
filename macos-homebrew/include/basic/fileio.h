@@ -9,10 +9,15 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "time-util.h"
+#include <basic/macos_file_handle.h>
 
 #define LONG_LINE_MAX (1U*1024U*1024U)
+
+#ifndef _FILE_OFFSET_BITS
+#define _FILE_OFFSET_BITS 64
+#endif
 
 typedef enum {
         WRITE_STRING_FILE_CREATE                     = 1 << 0,

@@ -20,7 +20,8 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <sys/stat.h>
-#include <sys/sysmacros.h>
+// #include <sys/sysmacros.h>
+
 #include <sys/types.h>
 
 #include "sd-event.h"
@@ -33,6 +34,16 @@ _SD_BEGIN_DECLARATIONS;
 typedef struct sd_device sd_device;
 typedef struct sd_device_enumerator sd_device_enumerator;
 typedef struct sd_device_monitor sd_device_monitor;
+
+#ifndef major
+#   define major(dev) ((int)(((dev) >> 24) & 0xff))
+#endif
+#ifndef minor
+#   define minor(dev) ((int)((dev) & 0xffffff))
+#endif
+#ifndef makedev
+#   define makedev(ma, mi) (((ma) << 24) | (mi))
+#endif
 
 __extension__ typedef enum sd_device_action_t {
         SD_DEVICE_ADD,

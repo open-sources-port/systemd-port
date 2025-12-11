@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "hashmap.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef struct Prioq Prioq;
 

@@ -249,7 +249,7 @@ static int rm_rf_inner_child(
                 if (subdir_fd < 0)
                         return subdir_fd;
 
-                /* We pass REMOVE_PHYSICAL here, to avoid doing the fstatfs() to check the file system type
+                /* We pass REMOVE_PHYSICAL here, to avoid doing the flinux_statfs() to check the file system type
                  * again for each directory */
                 q = rm_rf_children_impl(subdir_fd, flags | REMOVE_PHYSICAL, root_dev, old_mode);
 
@@ -349,7 +349,7 @@ static int rm_rf_children_impl(
                         if (!(flags & REMOVE_PHYSICAL)) {
                                 struct statfs sfs;
 
-                                if (fstatfs(fd, &sfs) < 0)
+                                if (flinux_statfs(fd, &sfs) < 0)
                                         return -errno;
 
                                 if (is_physical_fs(&sfs)) {
@@ -478,7 +478,7 @@ int rm_rf(const char *path, RemoveFlags flags) {
                 if (!FLAGS_SET(flags, REMOVE_PHYSICAL)) {
                         struct statfs s;
 
-                        if (statfs(path, &s) < 0)
+                        if (linux_statfs(path, &s) < 0)
                                 return -errno;
                         if (is_physical_fs(&s))
                                 return log_error_errno(SYNTHETIC_ERRNO(EPERM),

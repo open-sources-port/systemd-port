@@ -11,7 +11,7 @@
 #include "errno-util.h"
 #include "escape.h"
 #include "extract-word.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "parse-util.h"
 #include "path-util.h"
 #include "process-util.h"

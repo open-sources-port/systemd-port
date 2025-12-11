@@ -4,7 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
+#include <basic/macro.h>
+#include <compat/errno.h>
+#include "fundamental/macro-fundamental.h"
 
 /* strerror(3) says that glibc uses a maximum length of 1024 bytes. */
 #define ERRNO_BUF_LEN 1024

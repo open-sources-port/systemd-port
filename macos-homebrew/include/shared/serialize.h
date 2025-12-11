@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "fdset.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string-util.h"
 #include "time-util.h"
 

@@ -9,7 +9,7 @@
 
 #include "sd-device.h"
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 int device_new_from_mode_and_devnum(sd_device **ret, mode_t mode, dev_t devnum);
 int device_new_from_nulstr(sd_device **ret, char *nulstr, size_t len);

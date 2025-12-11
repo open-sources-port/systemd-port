@@ -9,3 +9,7 @@
 #define VALGRIND_DO_CLIENT_REQUEST(expr, default, ...) (default)
 
 #endif /* HAVE_VALGRIND_VALGRIND_H */
+
+#ifndef HAVE_VALGRIND_MEMCHECK_H
+#define HAVE_VALGRIND_MEMCHECK_H 0
+#endif

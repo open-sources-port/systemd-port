@@ -3,7 +3,7 @@
 
 #include <signal.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 int reset_all_signal_handlers(void);
 int reset_signal_mask(void);

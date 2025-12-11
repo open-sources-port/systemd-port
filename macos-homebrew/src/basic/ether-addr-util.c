@@ -8,7 +8,7 @@
 
 #include "ether-addr-util.h"
 #include "hexdecoct.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string-util.h"
 
 char *hw_addr_to_string_full(

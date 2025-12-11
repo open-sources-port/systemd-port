@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <compat/sys/vfs.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_stat.h"
 
 int is_symlink(const char *path);

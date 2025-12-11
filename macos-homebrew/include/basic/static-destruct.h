@@ -3,7 +3,7 @@
 #pragma once
 
 #include "alloc-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 /* A framework for registering static variables that shall be freed on shutdown of a process. It's a bit like gcc's
  * destructor attribute, but allows us to precisely schedule when we want to free the variables. This is supposed to

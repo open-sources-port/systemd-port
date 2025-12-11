@@ -16,7 +16,7 @@
 #include "fs-util.h"
 #include "io-util.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_threads.h"
 #include "missing_timerfd.h"
 #include "parse-util.h"

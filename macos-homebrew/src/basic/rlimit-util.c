@@ -7,7 +7,7 @@
 #include "extract-word.h"
 #include "fd-util.h"
 #include "format-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_resource.h"
 #include "rlimit-util.h"
 #include "string-table.h"

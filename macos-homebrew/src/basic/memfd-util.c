@@ -12,7 +12,7 @@
 #include "alloc-util.h"
 #include "errno-util.h"
 #include "fd-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memfd-util.h"
 #include "missing_fcntl.h"
 #include "missing_mman.h"

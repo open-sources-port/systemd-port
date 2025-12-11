@@ -15,7 +15,7 @@
 #include "errno-util.h"
 #include "fd-util.h"
 #include "fileio.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_threads.h"
 #include "process-util.h"
 #include "stat-util.h"

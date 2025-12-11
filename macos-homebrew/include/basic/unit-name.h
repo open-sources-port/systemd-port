@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "unit-def.h"
 
 #define UNIT_NAME_MAX 256

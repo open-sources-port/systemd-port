@@ -4,7 +4,7 @@
 #include <glob.h>
 #include <stdbool.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string-util.h"
 
 /* Note: this function modifies pglob to set various functions. */

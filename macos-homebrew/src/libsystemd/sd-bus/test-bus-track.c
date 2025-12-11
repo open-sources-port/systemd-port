@@ -5,7 +5,7 @@
 
 #include "sd-bus.h"
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "tests.h"
 
 static bool track_cb_called_x = false;

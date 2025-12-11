@@ -6,7 +6,7 @@
 #include "sd-id128.h"
 
 #include "hash-funcs.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 bool id128_is_valid(const char *s) _pure_;
 

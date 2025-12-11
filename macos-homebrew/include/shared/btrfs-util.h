@@ -132,7 +132,7 @@ static inline bool btrfs_might_be_subvol(const struct stat *st) {
                 return false;
 
         /* Returns true if this 'struct stat' looks like it could refer to a btrfs subvolume. To make a final
-         * decision, needs to be combined with an fstatfs() check to see if this is actually btrfs. */
+         * decision, needs to be combined with an flinux_statfs() check to see if this is actually btrfs. */
 
         return S_ISDIR(st->st_mode) && st->st_ino == 256;
 }

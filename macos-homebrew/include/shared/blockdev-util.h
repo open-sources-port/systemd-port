@@ -5,7 +5,7 @@
 
 #include "sd-device.h"
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "stdio-util.h"
 #include "string-util.h"
 

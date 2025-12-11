@@ -107,7 +107,7 @@ static int add_enumerated_to_set(
         assert(prefix);
         assert(s);
 
-        LIST_FOREACH(enumerators, c, first) {
+        SD_LIST_FOREACH(enumerators, c, first) {
                 char **children = NULL;
                 sd_bus_slot *slot;
 
@@ -185,7 +185,7 @@ static int add_subtree_to_set(
         if (bus->nodes_modified)
                 return 0;
 
-        LIST_FOREACH(siblings, i, n->child) {
+        SD_LIST_FOREACH(siblings, i, n->child) {
                 char *t;
 
                 if (!object_path_startswith(i->path, prefix))
@@ -253,7 +253,7 @@ static int node_callbacks_run(
         assert(m);
         assert(found_object);
 
-        LIST_FOREACH(callbacks, c, first) {
+        SD_LIST_FOREACH(callbacks, c, first) {
                 _cleanup_(sd_bus_error_free) sd_bus_error error_buffer = SD_BUS_ERROR_NULL;
                 sd_bus_slot *slot;
 
@@ -822,7 +822,7 @@ static int property_get_all_callbacks_run(
                                                "org.freedesktop.DBus.Peer",
                                                "org.freedesktop.DBus.Introspectable");
 
-        LIST_FOREACH(vtables, c, first) {
+        SD_LIST_FOREACH(vtables, c, first) {
                 _cleanup_(sd_bus_error_free) sd_bus_error error = SD_BUS_ERROR_NULL;
                 void *u;
 
@@ -893,14 +893,14 @@ static int bus_node_exists(
         if (!require_fallback && (n->enumerators || n->object_managers))
                 return true;
 
-        LIST_FOREACH(callbacks, k, n->callbacks) {
+        SD_LIST_FOREACH(callbacks, k, n->callbacks) {
                 if (require_fallback && !k->is_fallback)
                         continue;
 
                 return 1;
         }
 
-        LIST_FOREACH(vtables, c, n->vtables) {
+        SD_LIST_FOREACH(vtables, c, n->vtables) {
                 _cleanup_(sd_bus_error_free) sd_bus_error error = SD_BUS_ERROR_NULL;
 
                 if (require_fallback && !c->is_fallback)
@@ -953,7 +953,7 @@ int introspect_path(
 
         empty = ordered_set_isempty(s);
 
-        LIST_FOREACH(vtables, c, n->vtables) {
+        SD_LIST_FOREACH(vtables, c, n->vtables) {
                 if (require_fallback && !c->is_fallback)
                         continue;
 
@@ -1066,7 +1066,7 @@ static int object_manager_serialize_path(
         if (!require_fallback && n->object_managers)
                 *found_object_manager = true;
 
-        LIST_FOREACH(vtables, i, n->vtables) {
+        SD_LIST_FOREACH(vtables, i, n->vtables) {
                 void *u;
 
                 if (require_fallback && !i->is_fallback)
@@ -1550,7 +1550,7 @@ void bus_node_gc(sd_bus *b, struct node *n) {
         assert_se(hashmap_remove(b->nodes, n->path) == n);
 
         if (n->parent)
-                LIST_REMOVE(siblings, n->parent->child, n);
+                SD_LIST_REMOVE(siblings, n->parent->child, n);
 
         free(n->path);
         bus_node_gc(b, n->parent);
@@ -1824,7 +1824,7 @@ static int add_object_vtable_internal(
         if (!n)
                 return -ENOMEM;
 
-        LIST_FOREACH(vtables, i, n->vtables) {
+        SD_LIST_FOREACH(vtables, i, n->vtables) {
                 if (i->is_fallback != fallback) {
                         r = -EPROTOTYPE;
                         goto fail;
@@ -1972,7 +1972,7 @@ static int add_object_vtable_internal(
         }
 
         s->node_vtable.node = n;
-        LIST_INSERT_AFTER(vtables, n->vtables, existing, &s->node_vtable);
+        SD_LIST_INSERT_AFTER(vtables, n->vtables, existing, &s->node_vtable);
         bus->nodes_modified = true;
 
         if (slot)
@@ -2100,7 +2100,7 @@ static int emit_properties_changed_on_interface(
         key.path = prefix;
         key.interface = interface;
 
-        LIST_FOREACH(vtables, c, n->vtables) {
+        SD_LIST_FOREACH(vtables, c, n->vtables) {
                 if (require_fallback && !c->is_fallback)
                         continue;
 
@@ -2202,7 +2202,7 @@ static int emit_properties_changed_on_interface(
                 return r;
 
         if (has_invalidating) {
-                LIST_FOREACH(vtables, c, n->vtables) {
+                SD_LIST_FOREACH(vtables, c, n->vtables) {
                         if (require_fallback && !c->is_fallback)
                                 continue;
 
@@ -2369,7 +2369,7 @@ static int object_added_append_all_prefix(
         if (!n)
                 return 0;
 
-        LIST_FOREACH(vtables, c, n->vtables) {
+        SD_LIST_FOREACH(vtables, c, n->vtables) {
                 _cleanup_(sd_bus_error_free) sd_bus_error error = SD_BUS_ERROR_NULL;
                 void *u = NULL;
 
@@ -2591,7 +2591,7 @@ static int object_removed_append_all_prefix(
         if (!n)
                 return 0;
 
-        LIST_FOREACH(vtables, c, n->vtables) {
+        SD_LIST_FOREACH(vtables, c, n->vtables) {
                 _cleanup_(sd_bus_error_free) sd_bus_error error = SD_BUS_ERROR_NULL;
                 void *u = NULL;
 
@@ -2773,7 +2773,7 @@ static int interfaces_added_append_one_prefix(
         if (!n)
                 return 0;
 
-        LIST_FOREACH(vtables, c, n->vtables) {
+        SD_LIST_FOREACH(vtables, c, n->vtables) {
                 if (require_fallback && !c->is_fallback)
                         continue;
 

@@ -1,8 +1,6 @@
 // compat_nfnetlink_compat.h
 #pragma once
 
-#include <compat/compat_types.h>
-
 #ifdef __linux__
     #include <linux/netfilter/nfnetlink_compat.h>
 #else

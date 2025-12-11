@@ -5,7 +5,7 @@
 
 #include "sd-daemon.h"
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "static-destruct.h"
 #include "util.h"
 

@@ -10,7 +10,7 @@
 #include "alloc-util.h"
 #include "errno-util.h"
 #include "fd-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_syscall.h"
 #include "sparse-endian.h"
 #include "stat-util.h"

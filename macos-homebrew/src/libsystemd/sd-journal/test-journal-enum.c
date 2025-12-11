@@ -6,7 +6,7 @@
 
 #include "journal-internal.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "tests.h"
 
 int main(int argc, char *argv[]) {

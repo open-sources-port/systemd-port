@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef enum PagerFlags {
         PAGER_DISABLE     = 1 << 0,

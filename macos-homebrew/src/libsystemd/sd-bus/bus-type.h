@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 bool bus_type_is_valid(char c) _const_;
 bool bus_type_is_basic(char c) _const_;

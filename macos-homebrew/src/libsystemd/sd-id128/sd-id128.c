@@ -13,7 +13,7 @@
 #include "hmac.h"
 #include "id128-util.h"
 #include "io-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_syscall.h"
 #include "missing_threads.h"
 #include "random-util.h"

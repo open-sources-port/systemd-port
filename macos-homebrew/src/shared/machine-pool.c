@@ -11,11 +11,11 @@
 static int check_btrfs(void) {
         struct statfs sfs;
 
-        if (statfs("/var/lib/machines", &sfs) < 0) {
+        if (linux_statfs("/var/lib/machines", &sfs) < 0) {
                 if (errno != ENOENT)
                         return -errno;
 
-                if (statfs("/var/lib", &sfs) < 0)
+                if (linux_statfs("/var/lib", &sfs) < 0)
                         return -errno;
         }
 

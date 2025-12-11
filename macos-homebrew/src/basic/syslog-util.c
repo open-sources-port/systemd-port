@@ -6,7 +6,7 @@
 
 #include "glob-util.h"
 #include "hexdecoct.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "path-util.h"
 #include "string-table.h"
 #include "syslog-util.h"

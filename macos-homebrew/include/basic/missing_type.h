@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-// #include <uchar.h>
+// #include <shared/uchar.h>
 #include <stdint.h>
 
 #if !HAVE_CHAR32_T

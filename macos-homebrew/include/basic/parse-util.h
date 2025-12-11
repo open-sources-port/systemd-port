@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef unsigned long loadavg_t;
 

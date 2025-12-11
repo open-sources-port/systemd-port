@@ -11,7 +11,7 @@
 #include "cap-list.h"
 #include "fileio.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_prctl.h"
 #include "missing_threads.h"
 #include "parse-util.h"

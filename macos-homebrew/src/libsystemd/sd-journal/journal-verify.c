@@ -15,7 +15,7 @@
 #include "journal-file.h"
 #include "journal-verify.h"
 #include "lookup3.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "terminal-util.h"
 #include "tmpfile-util.h"
 #include "util.h"

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "strv.h"
 
 typedef enum GetHostnameFlags {

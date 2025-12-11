@@ -36,3 +36,4 @@
 /**/builddir
 /**/build
 /**/.venv
+/**/*.log

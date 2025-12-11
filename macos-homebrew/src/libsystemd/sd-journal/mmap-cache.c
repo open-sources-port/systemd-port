@@ -10,7 +10,7 @@
 #include "hashmap.h"
 #include "list.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 #include "mmap-cache.h"
 #include "sigbus.h"
@@ -34,7 +34,7 @@ struct Window {
         LIST_FIELDS(Window, by_fd);
         LIST_FIELDS(Window, unused);
 
-        LIST_HEAD(Context, contexts);
+        SD_LIST_HEAD(Context, contexts);
 };
 
 struct Context {
@@ -48,7 +48,7 @@ struct MMapFileDescriptor {
         int fd;
         int prot;
         bool sigbus;
-        LIST_HEAD(Window, windows);
+        SD_LIST_HEAD(Window, windows);
 };
 
 struct MMapCache {
@@ -59,7 +59,7 @@ struct MMapCache {
 
         Hashmap *fds;
 
-        LIST_HEAD(Window, unused);
+        SD_LIST_HEAD(Window, unused);
         Window *last_unused;
 
         Context contexts[MMAP_CACHE_MAX_CONTEXTS];
@@ -93,16 +93,16 @@ static void window_unlink(Window *w) {
                 munmap(w->ptr, w->size);
 
         if (w->fd)
-                LIST_REMOVE(by_fd, w->fd->windows, w);
+                SD_LIST_REMOVE(by_fd, w->fd->windows, w);
 
         if (w->in_unused) {
                 if (w->cache->last_unused == w)
                         w->cache->last_unused = w->unused_prev;
 
-                LIST_REMOVE(unused, w->cache->unused, w);
+                SD_LIST_REMOVE(unused, w->cache->unused, w);
         }
 
-        LIST_FOREACH(by_window, c, w->contexts) {
+        SD_LIST_FOREACH(by_window, c, w->contexts) {
                 assert(c->window == w);
                 c->window = NULL;
         }
@@ -194,7 +194,7 @@ static void context_detach_window(MMapCache *m, Context *c) {
                 return;
 
         w = TAKE_PTR(c->window);
-        LIST_REMOVE(by_window, w->contexts, c);
+        SD_LIST_REMOVE(by_window, w->contexts, c);
 
         if (!w->contexts && !w->keep_always) {
                 /* Not used anymore? */
@@ -226,7 +226,7 @@ static void context_attach_window(MMapCache *m, Context *c, Window *w) {
                 /* Used again? */
                 if (m->last_unused == w)
                         m->last_unused = w->unused_prev;
-                LIST_REMOVE(unused, m->unused, w);
+                SD_LIST_REMOVE(unused, m->unused, w);
 
                 w->in_unused = false;
         }
@@ -316,7 +316,7 @@ static int find_mmap(
         if (f->sigbus)
                 return -EIO;
 
-        LIST_FOREACH(by_fd, w, f->windows)
+        SD_LIST_FOREACH(by_fd, w, f->windows)
                 if (window_matches(w, offset, size)) {
                         found = w;
                         break;
@@ -495,7 +495,7 @@ static void mmap_cache_process_sigbus(MMapCache *m) {
 
                 ours = false;
                 HASHMAP_FOREACH(f, m->fds) {
-                        LIST_FOREACH(by_fd, w, f->windows) {
+                        SD_LIST_FOREACH(by_fd, w, f->windows) {
                                 if ((uint8_t*) addr >= (uint8_t*) w->ptr &&
                                     (uint8_t*) addr < (uint8_t*) w->ptr + w->size) {
                                         found = ours = f->sigbus = true;
@@ -525,7 +525,7 @@ static void mmap_cache_process_sigbus(MMapCache *m) {
                 if (!f->sigbus)
                         continue;
 
-                LIST_FOREACH(by_fd, w, f->windows)
+                SD_LIST_FOREACH(by_fd, w, f->windows)
                         window_invalidate(w);
         }
 }

@@ -9,7 +9,7 @@
 #ifndef _LINUX_DM_IOCTL_V4_H
 #define _LINUX_DM_IOCTL_V4_H
 
-#include <compat/compat_types.h>
+#include <linux/types.h>
 
 #define DM_DIR "mapper"		/* Slashes not supported */
 #define DM_CONTROL_NODE "control"

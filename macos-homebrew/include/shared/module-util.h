@@ -3,7 +3,7 @@
 
 #include <libkmod.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 DEFINE_TRIVIAL_CLEANUP_FUNC(struct kmod_ctx*, kmod_unref);
 DEFINE_TRIVIAL_CLEANUP_FUNC(struct kmod_module*, kmod_module_unref);

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 #if HAVE_PWQUALITY
 /* pwquality.h uses size_t but doesn't include sys/types.h on its own */

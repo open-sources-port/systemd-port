@@ -4,7 +4,7 @@
 
 #include <inttypes.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "sparse-endian.h"
 
 struct DosFileHeader {

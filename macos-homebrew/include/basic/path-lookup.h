@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "def.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef enum LookupPathsFlags {
         LOOKUP_PATHS_EXCLUDE_GENERATED   = 1 << 0,

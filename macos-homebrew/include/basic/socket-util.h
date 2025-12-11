@@ -16,10 +16,27 @@
 
 #include "errno-util.h"
 #include "in-addr-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_network.h"
 #include "missing_socket.h"
 #include "sparse-endian.h"
+
+#if !defined(__linux__)
+
+/* Linux-only socket error queue options — disable on macOS */
+#ifndef IP_RECVERR
+#define IP_RECVERR (-1)
+#endif
+
+#ifndef IPV6_RECVERR
+#define IPV6_RECVERR (-1)
+#endif
+
+#ifndef IPV6_RECVHOPLIMIT
+#define IPV6_RECVHOPLIMIT (-1)
+#endif
+
+#endif
 
 union sockaddr_union {
         /* The minimal, abstract version */

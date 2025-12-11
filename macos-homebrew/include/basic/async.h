@@ -3,7 +3,7 @@
 
 #include <sys/types.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 int asynchronous_job(void* (*func)(void *p), void *arg);
 

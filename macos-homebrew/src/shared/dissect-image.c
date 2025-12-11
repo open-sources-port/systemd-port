@@ -3218,7 +3218,7 @@ MountOptions* mount_options_free_all(MountOptions *options) {
         MountOptions *m;
 
         while ((m = options)) {
-                LIST_REMOVE(mount_options, options, m);
+                SD_LIST_REMOVE(mount_options, options, m);
                 free(m->options);
                 free(m);
         }
@@ -3227,7 +3227,7 @@ MountOptions* mount_options_free_all(MountOptions *options) {
 }
 
 const char* mount_options_from_designator(const MountOptions *options, PartitionDesignator designator) {
-        LIST_FOREACH(mount_options, m, options)
+        SD_LIST_FOREACH(mount_options, m, options)
                 if (designator == m->partition_designator && !isempty(m->options))
                         return m->options;
 

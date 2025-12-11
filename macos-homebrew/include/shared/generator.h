@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "main-func.h"
 
 int generator_open_unit_file(

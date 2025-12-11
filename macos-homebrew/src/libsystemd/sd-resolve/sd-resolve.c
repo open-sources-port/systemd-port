@@ -72,7 +72,7 @@ struct sd_resolve {
         sd_resolve **default_resolve_ptr;
         pid_t tid;
 
-        LIST_HEAD(sd_resolve_query, queries);
+        SD_LIST_HEAD(sd_resolve_query, queries);
 };
 
 struct sd_resolve_query {
@@ -1134,7 +1134,7 @@ static void resolve_query_disconnect(sd_resolve_query *q) {
         i = q->id % QUERIES_MAX;
         assert(resolve->query_array[i] == q);
         resolve->query_array[i] = NULL;
-        LIST_REMOVE(queries, resolve->queries, q);
+        SD_LIST_REMOVE(queries, resolve->queries, q);
         resolve->n_queries--;
 
         q->resolve = NULL;

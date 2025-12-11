@@ -3,7 +3,7 @@
 
 #include <sys/resource.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 const char *rlimit_to_string(int i) _const_;
 int rlimit_from_string(const char *s) _pure_;

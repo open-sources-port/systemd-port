@@ -7,7 +7,7 @@
 #include "alloc-util.h"
 #include "fs-util.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "nulstr-util.h"
 #include "path-lookup.h"
 #include "path-util.h"

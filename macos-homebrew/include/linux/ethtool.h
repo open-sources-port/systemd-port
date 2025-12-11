@@ -15,7 +15,7 @@
 #define _UAPI_LINUX_ETHTOOL_H
 
 #include <compat/linux_const.h>
-#include <compat/compat_types.h>
+#include <linux/types.h>
 #include <linux/if_ether.h>
 
 #ifndef __KERNEL__

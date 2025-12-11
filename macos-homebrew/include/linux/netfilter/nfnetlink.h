@@ -2,9 +2,9 @@
 #ifndef _UAPI_NFNETLINK_H
 #define _UAPI_NFNETLINK_H
 // Replaced #include <linux/types.h>
-#include <compat/compat_types.h>
+#include <linux/types.h>
 // Replaced #include <linux/netfilter/nfnetlink_compat.h>
-#include <compat/compat_types.h>
+#include <linux/types.h>
 
 enum nfnetlink_groups {
 	NFNLGRP_NONE,

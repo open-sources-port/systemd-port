@@ -8,8 +8,95 @@
 #include <sys/param.h>
 #include <compat/sys/sysmacros.h>
 #include <sys/types.h>
+#include <stddef.h> // for offsetof
+#include <assert.h> // for static_assert if needed
+#include <compat/errno.h>
 
-#include "macro-fundamental.h"
+#ifndef HAVE_LINUX_VM_SOCKETS_H
+#define HAVE_LINUX_VM_SOCKETS_H 0
+#endif
+
+#ifndef HAVE_LINUX_IF_TUN_H
+#define HAVE_LINUX_IF_TUN_H 0
+#endif
+
+#ifndef HAVE_LINUX_IF_ADDR_H
+#define HAVE_LINUX_IF_ADDR_H 0
+#endif
+
+#ifndef HAVE_LINUX_VSOCK_H
+#define HAVE_LINUX_VSOCK_H 0
+#endif
+
+#ifndef HAVE_LINUX_MEMFD_H
+#define HAVE_LINUX_MEMFD_H 0
+#endif
+
+#ifndef HAVE_LINUX_INPUT_H
+#define HAVE_LINUX_INPUT_H 0
+#endif
+
+#ifndef _pure_
+#define _pure_ __attribute__((pure))
+#endif
+
+#ifndef _warn_unused_result_
+#define _warn_unused_result_ __attribute__((warn_unused_result))
+#endif
+
+#ifndef _const_
+#define _const_ __attribute__((const))
+#endif
+
+#ifndef _PRINTF_
+    #if defined(__GNUC__) || defined(__clang__)
+        #define _printf_(fmtarg, firstvararg) __attribute__((format(printf, fmtarg, firstvararg)))
+    #else
+        #define _printf_(fmtarg, firstvararg)
+    #endif
+#endif
+
+// Branch prediction hints
+#ifndef likely
+#  define likely(x)   __builtin_expect(!!(x), 1)
+#endif
+#ifndef unlikely
+#  define unlikely(x) __builtin_expect(!!(x), 0)
+#endif
+
+// Alignment helpers
+#ifndef ALIGN
+#  define ALIGN(x, a)        (((x) + ((a) - 1)) & ~((a) - 1))
+#endif
+#ifndef IS_ALIGNED
+#  define IS_ALIGNED(x, a)   (((x) & ((typeof(x))(a) - 1)) == 0)
+#endif
+
+// Get number of elements in a static array
+#ifndef ARRAY_SIZE
+#  define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
+
+// Min/Max macros
+#ifndef min
+#  define min(x, y) ((x) < (y) ? (x) : (y))
+#endif
+#ifndef max
+#  define max(x, y) ((x) > (y) ? (x) : (y))
+#endif
+
+// Compile-time assert (C11 static_assert or fallback)
+#ifndef BUILD_BUG_ON
+#  if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#    define BUILD_BUG_ON(cond) _Static_assert(!(cond), "BUILD_BUG_ON failed")
+#  else
+#    define BUILD_BUG_ON(cond) extern int build_bug_on[(cond) ? -1 : 1]
+#  endif
+#endif
+
+#ifndef assert_cc
+#define assert_cc(expr) _Static_assert(expr, "assert_cc failed: " #expr)
+#endif
 
 #if !defined(HAS_FEATURE_MEMORY_SANITIZER)
 #  if defined(__has_feature)
@@ -190,6 +277,10 @@ static inline int __coverity_check_and_return__(int condition) {
 #define assert_log(expr, message) __coverity_check_and_return__(!!(expr))
 
 #else  /* ! __COVERITY__ */
+
+#ifndef log_assert_failed
+void log_assert_failed(const char *message, const char *file, int line, const char *func) __attribute__((noreturn));
+#endif
 
 #define assert_message_se(expr, message)                                \
         do {                                                            \

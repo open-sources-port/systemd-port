@@ -12,7 +12,7 @@
 #include "fileio.h"
 #include "hostname-util.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "parse-util.h"
 #include "stat-util.h"
 #include "string-util.h"

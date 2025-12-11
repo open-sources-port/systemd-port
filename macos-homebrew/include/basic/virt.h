@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "errno-list.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef enum Virtualization {
         VIRTUALIZATION_NONE = 0,

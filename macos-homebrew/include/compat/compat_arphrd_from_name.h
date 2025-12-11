@@ -11,15 +11,17 @@
 
 #include <net/if_arp.h>   /* for ARPHRD_* constants if needed */
 
-static inline int arphrd_from_name(const char *name) {
-    /* Always fail on macOS – no mapping available */
-    (void)name;
-    return -1;
-}
+inline int arphrd_from_name(const char *name) {
+    if (!name)
+        return -1;
 
-static inline const char *arphrd_to_name(int type) {
-    (void)type;
-    return "unknown";
+    if (strcmp(name, "ether") == 0)
+        return 1;  // ARPHRD_ETHER
+    if (strcmp(name, "loopback") == 0)
+        return 772; // ARPHRD_LOOPBACK
+    // add more mappings as needed
+
+    return -1; // unknown
 }
 
 #endif

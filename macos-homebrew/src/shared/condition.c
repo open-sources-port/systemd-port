@@ -93,9 +93,9 @@ Condition* condition_free(Condition *c) {
 }
 
 Condition* condition_free_list_type(Condition *head, ConditionType type) {
-        LIST_FOREACH(conditions, c, head)
+        SD_LIST_FOREACH(conditions, c, head)
                 if (type < 0 || c->type == type) {
-                        LIST_REMOVE(conditions, head, c);
+                        SD_LIST_REMOVE(conditions, head, c);
                         condition_free(c);
                 }
 
@@ -1208,7 +1208,7 @@ bool condition_test_list(
         /* Otherwise, if all of the non-trigger conditions apply and
          * if any of the trigger conditions apply (unless there are
          * none) we return true */
-        LIST_FOREACH(conditions, c, first) {
+        SD_LIST_FOREACH(conditions, c, first) {
                 int r;
 
                 r = condition_test(c, env);
@@ -1259,7 +1259,7 @@ void condition_dump(Condition *c, FILE *f, const char *prefix, condition_to_stri
 }
 
 void condition_dump_list(Condition *first, FILE *f, const char *prefix, condition_to_string_t to_string) {
-        LIST_FOREACH(conditions, c, first)
+        SD_LIST_FOREACH(conditions, c, first)
                 condition_dump(c, f, prefix, to_string);
 }
 

@@ -21,7 +21,7 @@ struct CGroupInfo {
 
         struct CGroupInfo *parent;
         LIST_FIELDS(struct CGroupInfo, siblings);
-        LIST_HEAD(struct CGroupInfo, children);
+        SD_LIST_HEAD(struct CGroupInfo, children);
         size_t n_children;
 };
 
@@ -123,7 +123,7 @@ static void remove_cgroup(Hashmap *cgroups, struct CGroupInfo *cg) {
         hashmap_free(cg->pids);
 
         if (cg->parent)
-                LIST_REMOVE(siblings, cg->parent->children, cg);
+                SD_LIST_REMOVE(siblings, cg->parent->children, cg);
 
         free(cg);
 }
@@ -205,7 +205,7 @@ static int dump_processes(
 
                 /* Order subcgroups by their name */
                 children = newa(struct CGroupInfo*, cg->n_children);
-                LIST_FOREACH(siblings, child, cg->children)
+                SD_LIST_FOREACH(siblings, child, cg->children)
                         children[n++] = child;
                 assert(n == cg->n_children);
                 typesafe_qsort(children, n, cgroup_info_compare_func);

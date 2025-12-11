@@ -3,7 +3,7 @@
 #include <sys/utsname.h>
 
 #include "architecture.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string-table.h"
 #include "string-util.h"
 

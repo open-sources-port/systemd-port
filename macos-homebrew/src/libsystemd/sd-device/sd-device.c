@@ -21,7 +21,7 @@
 #include "fs-util.h"
 #include "hashmap.h"
 #include "id128-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_magic.h"
 #include "netlink-util.h"
 #include "parse-util.h"

@@ -2,7 +2,7 @@
 #pragma once
 
 #include "in-addr-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "socket-util.h"
 
 int make_socket_fd(int log_level, const char* address, int type, int flags);

@@ -5,7 +5,7 @@
 #include "alloc-util.h"
 #include "bus-label.h"
 #include "hexdecoct.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 char *bus_label_escape(const char *s) {
         char *r, *t;

@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 /* On some optimization level, iszero(x) is converted to (x == 0.0), and emits warning -Wfloat-equal.
  * The argument must be a floating point, i.e. one of float, double, or long double. */

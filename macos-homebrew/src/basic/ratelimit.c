@@ -2,7 +2,7 @@
 
 #include <sys/time.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "ratelimit.h"
 
 /* Modelled after Linux' lib/ratelimit.c by Dave Young

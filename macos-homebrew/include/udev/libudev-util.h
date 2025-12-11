@@ -3,7 +3,7 @@
 
 #include "libudev.h"
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 /* Cleanup functions */
 DEFINE_TRIVIAL_CLEANUP_FUNC(struct udev*, udev_unref);

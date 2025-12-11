@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_sched.h"
 
 /**

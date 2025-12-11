@@ -8,7 +8,7 @@
 #include "architecture.h"
 #include "list.h"
 #include "loop-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef struct DissectedImage DissectedImage;
 typedef struct DissectedPartition DissectedPartition;

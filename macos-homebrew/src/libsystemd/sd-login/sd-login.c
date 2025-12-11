@@ -19,7 +19,7 @@
 #include "hostname-util.h"
 #include "io-util.h"
 #include "login-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "parse-util.h"
 #include "path-util.h"
 #include "socket-util.h"

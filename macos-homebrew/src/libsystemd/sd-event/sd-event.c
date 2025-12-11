@@ -16,7 +16,7 @@
 #include "glyph-util.h"
 #include "hashmap.h"
 #include "list.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 #include "missing_syscall.h"
 #include "missing_threads.h"
@@ -125,10 +125,10 @@ struct sd_event {
         Hashmap *inotify_data; /* indexed by priority */
 
         /* A list of inode structures that still have an fd open, that we need to close before the next loop iteration */
-        LIST_HEAD(struct inode_data, inode_data_to_close_list);
+        SD_LIST_HEAD(struct inode_data, inode_data_to_close_list);
 
         /* A list of inotify objects that already have events buffered which aren't processed yet */
-        LIST_HEAD(struct inotify_data, buffered_inotify_data_list);
+        SD_LIST_HEAD(struct inotify_data, buffered_inotify_data_list);
 
         pid_t original_pid;
 
@@ -152,7 +152,7 @@ struct sd_event {
 
         struct epoll_event *event_queue;
 
-        LIST_HEAD(sd_event_source, sources);
+        SD_LIST_HEAD(sd_event_source, sources);
 
         sd_event_source *sigint_event_source, *sigterm_event_source;
 
@@ -921,7 +921,7 @@ static void source_disconnect(sd_event_source *s) {
                         assert_se(inotify_data = inode_data->inotify_data);
 
                         /* Detach this event source from the inode object */
-                        LIST_REMOVE(inotify.by_inode_data, inode_data->event_sources, s);
+                        SD_LIST_REMOVE(inotify.by_inode_data, inode_data->event_sources, s);
                         s->inotify.inode_data = NULL;
 
                         if (s->pending) {
@@ -961,7 +961,7 @@ static void source_disconnect(sd_event_source *s) {
                 event_source_time_prioq_remove(s, &s->event->monotonic);
 
         event = TAKE_PTR(s->event);
-        LIST_REMOVE(sources, event->sources, s);
+        SD_LIST_REMOVE(sources, event->sources, s);
         event->n_sources--;
 
         /* Note that we don't invalidate the type here, since we still need it in order to close the fd or
@@ -1756,7 +1756,7 @@ static void event_free_inotify_data(sd_event *e, struct inotify_data *d) {
         assert(hashmap_isempty(d->wd));
 
         if (d->buffer_filled > 0)
-                LIST_REMOVE(buffered, e->buffered_inotify_data_list, d);
+                SD_LIST_REMOVE(buffered, e->buffered_inotify_data_list, d);
 
         hashmap_free(d->inodes);
         hashmap_free(d->wd);
@@ -1868,7 +1868,7 @@ static void event_free_inode_data(
         assert(!d->event_sources);
 
         if (d->fd >= 0) {
-                LIST_REMOVE(to_close, e->inode_data_to_close_list, d);
+                SD_LIST_REMOVE(to_close, e->inode_data_to_close_list, d);
                 safe_close(d->fd);
         }
 
@@ -2005,7 +2005,7 @@ static uint32_t inode_data_determine_mask(struct inode_data *d) {
          * API for that. Hence we need to subscribe to the maximum mask we ever might be interested in, and suppress
          * events we don't care for client-side. */
 
-        LIST_FOREACH(inotify.by_inode_data, s, d->event_sources) {
+        SD_LIST_FOREACH(inotify.by_inode_data, s, d->event_sources) {
 
                 if ((s->inotify.mask & IN_EXCL_UNLINK) == 0)
                         excl_unlink = false;
@@ -2416,7 +2416,7 @@ _public_ int sd_event_source_set_priority(sd_event_source *s, int64_t priority) 
                 }
 
                 /* Move the event source to the new inode data structure */
-                LIST_REMOVE(inotify.by_inode_data, old_inode_data->event_sources, s);
+                SD_LIST_REMOVE(inotify.by_inode_data, old_inode_data->event_sources, s);
                 LIST_PREPEND(inotify.by_inode_data, new_inode_data->event_sources, s);
                 s->inotify.inode_data = new_inode_data;
 
@@ -2424,7 +2424,7 @@ _public_ int sd_event_source_set_priority(sd_event_source *s, int64_t priority) 
                 r = inode_data_realize_watch(s->event, new_inode_data);
                 if (r < 0) {
                         /* Move it back */
-                        LIST_REMOVE(inotify.by_inode_data, new_inode_data->event_sources, s);
+                        SD_LIST_REMOVE(inotify.by_inode_data, new_inode_data->event_sources, s);
                         LIST_PREPEND(inotify.by_inode_data, old_inode_data->event_sources, s);
                         s->inotify.inode_data = old_inode_data;
                         goto fail;
@@ -3500,7 +3500,7 @@ static void event_inotify_data_drop(sd_event *e, struct inotify_data *d, size_t 
         d->buffer_filled -= sz;
 
         if (d->buffer_filled == 0)
-                LIST_REMOVE(buffered, e->buffered_inotify_data_list, d);
+                SD_LIST_REMOVE(buffered, e->buffered_inotify_data_list, d);
 }
 
 static int event_inotify_data_process(sd_event *e, struct inotify_data *d) {
@@ -3531,7 +3531,7 @@ static int event_inotify_data_process(sd_event *e, struct inotify_data *d) {
                          * object */
 
                         HASHMAP_FOREACH(inode_data, d->inodes)
-                                LIST_FOREACH(inotify.by_inode_data, s, inode_data->event_sources) {
+                                SD_LIST_FOREACH(inotify.by_inode_data, s, inode_data->event_sources) {
 
                                         if (event_source_is_offline(s))
                                                 continue;
@@ -3565,7 +3565,7 @@ static int event_inotify_data_process(sd_event *e, struct inotify_data *d) {
 
                         /* Trigger all event sources that are interested in these events. Also trigger all event
                          * sources if IN_IGNORED or IN_UNMOUNT is set. */
-                        LIST_FOREACH(inotify.by_inode_data, s, inode_data->event_sources) {
+                        SD_LIST_FOREACH(inotify.by_inode_data, s, inode_data->event_sources) {
 
                                 if (event_source_is_offline(s))
                                         continue;
@@ -3593,7 +3593,7 @@ static int process_inotify(sd_event *e) {
 
         assert(e);
 
-        LIST_FOREACH(buffered, d, e->buffered_inotify_data_list) {
+        SD_LIST_FOREACH(buffered, d, e->buffered_inotify_data_list) {
                 r = event_inotify_data_process(e, d);
                 if (r < 0)
                         return r;
@@ -3895,7 +3895,7 @@ static void event_close_inode_data_fds(sd_event *e) {
                 assert(d->fd >= 0);
                 d->fd = safe_close(d->fd);
 
-                LIST_REMOVE(to_close, e->inode_data_to_close_list, d);
+                SD_LIST_REMOVE(to_close, e->inode_data_to_close_list, d);
         }
 }
 

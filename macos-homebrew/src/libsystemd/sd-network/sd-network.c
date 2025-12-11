@@ -11,7 +11,7 @@
 #include "fd-util.h"
 #include "fs-util.h"
 #include "inotify-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "parse-util.h"
 #include "stdio-util.h"
 #include "string-util.h"

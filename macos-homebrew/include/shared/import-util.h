@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef enum ImportVerify {
         IMPORT_VERIFY_NO,

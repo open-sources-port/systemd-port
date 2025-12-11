@@ -3,7 +3,7 @@
 
 #include "extract-word.h"
 #include "hashmap.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 #define set_free_and_replace(a, b)              \
         free_and_replace_full(a, b, set_free)

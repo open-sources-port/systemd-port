@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "siphash24.h"
 #include "unaligned.h"
 

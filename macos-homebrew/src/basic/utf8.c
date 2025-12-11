@@ -30,7 +30,7 @@
 #include "alloc-util.h"
 #include "gunicode.h"
 #include "hexdecoct.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string-util.h"
 #include "utf8.h"
 

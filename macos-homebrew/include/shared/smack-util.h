@@ -11,7 +11,7 @@
 #include <sys/types.h>
 
 #include "label.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 #define SMACK_FLOOR_LABEL "_"
 #define SMACK_STAR_LABEL  "*"

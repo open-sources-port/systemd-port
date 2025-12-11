@@ -14,7 +14,7 @@
 #include "fileio.h"
 #include "fs-util.h"
 #include "hashmap.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "mkdir.h"
 #include "nulstr-util.h"
 #include "parse-util.h"

@@ -9,7 +9,7 @@
 #include "chattr-util.h"
 #include "errno-util.h"
 #include "fd-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string-util.h"
 
 int chattr_full(const char *path,

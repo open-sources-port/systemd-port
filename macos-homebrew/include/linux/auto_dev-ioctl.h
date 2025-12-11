@@ -8,7 +8,7 @@
  * option, any later version, incorporated herein by reference.
  */
 
-#include <compat/compat_types.h>
+#include <linux/types.h>
 #include <string.h>
 
 #ifndef _UAPI_LINUX_AUTO_DEV_IOCTL_H

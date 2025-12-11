@@ -7,7 +7,7 @@
 #include "capability-util.h"
 #include "cap-list.h"
 #include "extract-word.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "parse-util.h"
 #include "stdio-util.h"
 #include "util.h"

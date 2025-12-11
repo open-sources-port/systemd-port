@@ -29,7 +29,7 @@ struct udev_list_entry {
 
 struct udev_list {
         Hashmap *unique_entries;
-        LIST_HEAD(struct udev_list_entry, entries);
+        SD_LIST_HEAD(struct udev_list_entry, entries);
         bool unique:1;
         bool uptodate:1;
 };
@@ -43,7 +43,7 @@ static struct udev_list_entry *udev_list_entry_free(struct udev_list_entry *entr
                         hashmap_remove(entry->list->unique_entries, entry->name);
 
                 if (!entry->list->unique || entry->list->uptodate)
-                        LIST_REMOVE(entries, entry->list->entries, entry);
+                        SD_LIST_REMOVE(entries, entry->list->entries, entry);
         }
 
         free(entry->name);
@@ -117,7 +117,7 @@ void udev_list_cleanup(struct udev_list *list) {
                 list->uptodate = false;
                 hashmap_clear_with_destructor(list->unique_entries, udev_list_entry_free);
         } else
-                LIST_FOREACH(entries, i, list->entries)
+                SD_LIST_FOREACH(entries, i, list->entries)
                         udev_list_entry_free(i);
 }
 
@@ -142,7 +142,7 @@ struct udev_list_entry *udev_list_get_entry(struct udev_list *list) {
         if (list->unique && !list->uptodate) {
                 size_t n;
 
-                LIST_HEAD_INIT(list->entries);
+                SD_LIST_HEAD_INIT(list->entries);
 
                 n = hashmap_size(list->unique_entries);
                 if (n == 0)

@@ -5,7 +5,7 @@
 #include <locale.h>
 #include <stdbool.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef enum LocaleVariable {
         /* We don't list LC_ALL here on purpose. People should be

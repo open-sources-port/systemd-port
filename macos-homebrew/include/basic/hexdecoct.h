@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 char octchar(int x) _const_;
 int unoctchar(char c) _const_;

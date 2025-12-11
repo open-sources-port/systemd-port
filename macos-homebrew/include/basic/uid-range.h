@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef struct UidRangeEntry {
         uid_t start, nr;

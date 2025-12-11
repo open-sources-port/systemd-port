@@ -3,10 +3,10 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <sys/capability.h>
+#include <compat/sys/capability.h>
 #include <sys/types.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_capability.h"
 #include "util.h"
 
