@@ -185,7 +185,7 @@ struct inode_data {
         uint32_t combined_mask;
 
         /* All event sources subscribed to this inode */
-        LIST_HEAD(sd_event_source, event_sources);
+        SD_LIST_HEAD(sd_event_source, event_sources);
 
         /* The inotify object we watch this inode with */
         struct inotify_data *inotify_data;

@@ -9,7 +9,7 @@
 #if HAVE_GCRYPT
 #include <gcrypt.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 void initialize_libgcrypt(bool secmem);
 

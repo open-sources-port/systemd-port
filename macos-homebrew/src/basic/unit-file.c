@@ -6,7 +6,7 @@
 #include "dirent-util.h"
 #include "fd-util.h"
 #include "fs-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "path-lookup.h"
 #include "set.h"
 #include "special.h"

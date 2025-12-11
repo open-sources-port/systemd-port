@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <byteswap.h>
+#include "compat/byteswap.h"
 #include <stdbool.h>
 #include <sys/socket.h>
 
@@ -9,7 +9,7 @@
 
 #include "bus-creds.h"
 #include "bus-protocol.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "time-util.h"
 
 struct bus_container {

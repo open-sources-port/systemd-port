@@ -7,7 +7,7 @@
 
 #include "hash-funcs.h"
 #include "in-addr-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 
 /* This is MAX_ADDR_LEN as defined in linux/netdevice.h, but net/if_arp.h

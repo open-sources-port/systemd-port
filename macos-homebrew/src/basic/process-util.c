@@ -30,7 +30,7 @@
 #include "fs-util.h"
 #include "locale-util.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 #include "missing_sched.h"
 #include "missing_syscall.h"

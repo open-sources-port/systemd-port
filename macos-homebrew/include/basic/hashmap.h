@@ -6,7 +6,7 @@
 #include <stddef.h>
 
 #include "hash-funcs.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "util.h"
 
 /*

@@ -377,7 +377,7 @@ static int verify_esp(
         if (!relax_checks) {
                 struct statfs sfs;
 
-                if (statfs(p, &sfs) < 0)
+                if (linux_statfs(p, &sfs) < 0)
                         /* If we are searching for the mount point, don't generate a log message if we can't find the path */
                         return log_full_errno((searching && errno == ENOENT) ||
                                               (unprivileged_mode && errno == EACCES) ? LOG_DEBUG : LOG_ERR, errno,

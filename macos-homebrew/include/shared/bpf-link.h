@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "fdset.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 bool bpf_can_link_program(struct bpf_program *prog);
 

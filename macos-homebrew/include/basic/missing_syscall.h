@@ -20,7 +20,7 @@
 #include <asm/sgidefs.h>
 #endif
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_keyctl.h"
 #include "missing_sched.h"
 #include "missing_stat.h"

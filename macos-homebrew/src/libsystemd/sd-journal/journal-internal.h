@@ -37,7 +37,7 @@ struct Match {
         uint64_t hash; /* old-style jenkins hash. New-style siphash is different per file, hence won't be cached here */
 
         /* For terms */
-        LIST_HEAD(Match, matches);
+        SD_LIST_HEAD(Match, matches);
 };
 
 struct Location {

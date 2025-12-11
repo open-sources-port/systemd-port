@@ -13,8 +13,8 @@
 #include "alloc-util.h"
 #include <strings.h>
 
-// Replaced #include <compat/compat_macro.h>
-#include <compat/compat_macro.h>
+// Replaced #include <basic/macro.h>
+#include <basic/macro.h>
 
 size_t page_size(void) _pure_;
 #define PAGE_ALIGN(l) ALIGN_TO((l), page_size())

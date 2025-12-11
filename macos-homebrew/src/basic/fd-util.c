@@ -17,7 +17,7 @@
 #include "fileio.h"
 #include "fs-util.h"
 #include "io-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_fcntl.h"
 #include "missing_fs.h"
 #include "missing_syscall.h"

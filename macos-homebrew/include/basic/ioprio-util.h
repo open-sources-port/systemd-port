@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_ioprio.h"
 
 int ioprio_class_to_string_alloc(int i, char **s);

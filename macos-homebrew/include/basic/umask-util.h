@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 static inline void umaskp(mode_t *u) {
         umask(*u & 0777);

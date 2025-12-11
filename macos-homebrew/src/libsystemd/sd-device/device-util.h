@@ -8,7 +8,7 @@
 #include "sd-device.h"
 
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 #define device_unref_and_replace(a, b)                                  \
         unref_and_replace_full(a, b, sd_device_ref, sd_device_unref)

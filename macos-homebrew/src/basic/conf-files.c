@@ -12,7 +12,7 @@
 #include "fd-util.h"
 #include "hashmap.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "path-util.h"
 #include "set.h"
 #include "sort-util.h"

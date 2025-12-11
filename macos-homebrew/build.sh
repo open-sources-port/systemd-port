@@ -6,7 +6,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "Detected macOS"
   # brew install coreutils libgcrypt libxcrypt ccrypt
   # brew meson install python3
-  # python3 -m pip install jinja2
   # sudo ln -s /opt/homebrew/bin/grealpath /usr/local/bin/realpath
 
   if [[ ! -d .venv ]]; then
@@ -14,6 +13,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   fi
   source .venv/bin/activate
   # python3 -m pip install jinja2
+  # pip3 install 'jinja2-cli[env]'
 
   if [[ "$command" == "config"* ]]; then
       echo "Running set up command..."

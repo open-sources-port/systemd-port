@@ -12,7 +12,7 @@ int fd_acl_make_writable_fallback(int fd);
 #include <stdbool.h>
 #include <sys/acl.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 int acl_find_uid(acl_t acl, uid_t uid, acl_entry_t *entry);
 int calc_acl_mask_if_needed(acl_t *acl_p);

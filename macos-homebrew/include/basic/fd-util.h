@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <sys/socket.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "stdio-util.h"
 
 /* maximum length of fdname */

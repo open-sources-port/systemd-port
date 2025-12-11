@@ -9,7 +9,7 @@
 #include "alloc-util.h"
 #include "fileio.h"
 #include "hashmap.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 #include "mempool.h"
 #include "missing_syscall.h"
@@ -144,7 +144,7 @@ struct hashmap_debug_info {
 };
 
 /* Tracks all existing hashmaps. Get at it from gdb. See sd_dump_hashmaps.py */
-static LIST_HEAD(struct hashmap_debug_info, hashmap_debug_list);
+static SD_LIST_HEAD(struct hashmap_debug_info, hashmap_debug_list);
 static pthread_mutex_t hashmap_debug_list_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
@@ -871,7 +871,7 @@ static void hashmap_free_no_clear(HashmapBase *h) {
 
 #if ENABLE_DEBUG_HASHMAP
         assert_se(pthread_mutex_lock(&hashmap_debug_list_mutex) == 0);
-        LIST_REMOVE(debug_list, hashmap_debug_list, &h->debug);
+        SD_LIST_REMOVE(debug_list, hashmap_debug_list, &h->debug);
         assert_se(pthread_mutex_unlock(&hashmap_debug_list_mutex) == 0);
 #endif
 

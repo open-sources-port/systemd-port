@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated);
 static inline size_t strnpcpy(char **dest, size_t size, const char *src, size_t len) {

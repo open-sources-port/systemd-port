@@ -9,7 +9,7 @@
 #include "errno-util.h"
 #include "fd-util.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "process-util.h"
 #include "signal-util.h"
 #include "util.h"

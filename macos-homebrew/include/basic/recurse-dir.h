@@ -6,7 +6,7 @@
 
 #include "errno-list.h"
 #include "stat-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef enum RecurseDirEvent {
         RECURSE_DIR_ENTER,      /* only for dir inodes */

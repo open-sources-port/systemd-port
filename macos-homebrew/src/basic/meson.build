@@ -12,6 +12,8 @@ basic_includes = [
 ]
 
 basic_sources = files(
+        'bpf_socket.c',
+        join_paths(basic_inc_path, 'bpf_socket.h'),
         'MurmurHash2.c',
         join_paths(basic_inc_path, 'MurmurHash2.h'),
         'af-list.c',

@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <stdbool.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 bool network_is_online(void);
 

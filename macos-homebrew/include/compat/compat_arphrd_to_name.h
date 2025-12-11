@@ -11,19 +11,14 @@
 
 #include <net/if_arp.h>  /* for ARPHRD_* constants */
 
-static inline const char *arphrd_to_name(int type) {
-    switch (type) {
-        case ARPHRD_ETHER:    return "ether";
-#ifdef ARPHRD_LOOPBACK
-        case ARPHRD_LOOPBACK: return "loopback";
-#endif
-#ifdef ARPHRD_INFINIBAND
-        case ARPHRD_INFINIBAND: return "infiniband";
-#endif
-        default:              return "unknown";
+inline const char* arphrd_to_name(int arphrd) {
+    switch (arphrd) {
+        case 1:    return "ether";      // ARPHRD_ETHER
+        case 772:  return "loopback";   // ARPHRD_LOOPBACK
+        // add more mappings as needed
+        default:   return "unknown";
     }
 }
-
 #endif
 
 #endif /* COMPAT_ARPHRD_TO_NAME_H */

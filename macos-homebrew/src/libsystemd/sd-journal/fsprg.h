@@ -25,7 +25,7 @@
 #include <inttypes.h>
 #include <sys/types.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "util.h"
 
 #ifdef __cplusplus

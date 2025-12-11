@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 int parse_env_filev(FILE *f, const char *fname, va_list ap);
 int parse_env_file_sentinel(FILE *f, const char *fname, ...) _sentinel_;

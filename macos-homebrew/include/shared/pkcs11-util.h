@@ -9,7 +9,7 @@
 #endif
 
 #include "ask-password-api.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "openssl-util.h"
 #include "time-util.h"
 

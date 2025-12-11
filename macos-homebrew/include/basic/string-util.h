@@ -7,8 +7,8 @@
 
 #include "alloc-util.h"
 
-// Replaced #include <compat/compat_macro.h>
-#include <compat/compat_macro.h>
+// Replaced #include <basic/macro.h>
+#include <basic/macro.h>
 
 #include "string-util-fundamental.h"
 

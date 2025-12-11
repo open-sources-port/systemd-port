@@ -15,7 +15,7 @@
 #include "fd-util.h"
 #include "format-util.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string-util.h"
 #include "tests.h"
 #include "util.h"

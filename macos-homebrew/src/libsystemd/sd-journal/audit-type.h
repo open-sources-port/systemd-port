@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "alloc-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 const char *audit_type_to_string(int type);
 int audit_type_from_string(const char *s);

@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 /* The head of the linked list. Use this in the structure that shall
  * contain the head of the linked list */
-#define LIST_HEAD(t,name)                                               \
+#define SD_LIST_HEAD(t,name)                                               \
         t *name
 
 /* The pointers in the linked list's items. Use this in the item structure */
@@ -13,13 +13,13 @@
         t *name##_next, *name##_prev
 
 /* Initialize the list's head */
-#define LIST_HEAD_INIT(head)                                            \
+#define SD_LIST_HEAD_INIT(head)                                            \
         do {                                                            \
                 (head) = NULL;                                          \
         } while (false)
 
 /* Initialize a list item */
-#define LIST_INIT(name,item)                                            \
+#define SD_LIST_INIT(name,item)                                            \
         do {                                                            \
                 typeof(*(item)) *_item = (item);                        \
                 assert(_item);                                          \
@@ -42,11 +42,11 @@
         do {                                                            \
                 typeof(*(head)) **_hhead = &(head), *_tail;             \
                 LIST_FIND_TAIL(name, *_hhead, _tail);                   \
-                LIST_INSERT_AFTER(name, *_hhead, _tail, item);          \
+                SD_LIST_INSERT_AFTER(name, *_hhead, _tail, item);          \
         } while (false)
 
 /* Remove an item from the list */
-#define LIST_REMOVE(name,head,item)                                     \
+#define SD_LIST_REMOVE(name,head,item)                                     \
         do {                                                            \
                 typeof(*(head)) **_head = &(head), *_item = (item);     \
                 assert(_item);                                          \
@@ -88,7 +88,7 @@
         } while (false)
 
 /* Insert an item after another one (a = where, b = what) */
-#define LIST_INSERT_AFTER(name,head,a,b)                                \
+#define SD_LIST_INSERT_AFTER(name,head,a,b)                                \
         do {                                                            \
                 typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
                 assert(_b);                                             \
@@ -106,7 +106,7 @@
         } while (false)
 
 /* Insert an item before another one (a = where, b = what) */
-#define LIST_INSERT_BEFORE(name,head,a,b)                               \
+#define SD_LIST_INSERT_BEFORE(name,head,a,b)                               \
         do {                                                            \
                 typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
                 assert(_b);                                             \
@@ -142,20 +142,20 @@
 /* The type of the iterator 'i' is automatically determined by the type of 'head', and declared in the
  * loop. Hence, do not declare the same variable in the outer scope. Sometimes, we set 'head' through
  * hashmap_get(). In that case, you need to explicitly cast the result. */
-#define LIST_FOREACH_WITH_NEXT(name,i,n,head)                           \
+#define SD_LIST_FOREACH_WITH_NEXT(name,i,n,head)                           \
         for (typeof(*(head)) *n, *i = (head); i && (n = i->name##_next, true); i = n)
 
-#define LIST_FOREACH(name,i,head)                                       \
-        LIST_FOREACH_WITH_NEXT(name, i, UNIQ_T(n, UNIQ), head)
+#define SD_LIST_FOREACH(name,i,head)                                       \
+        SD_LIST_FOREACH_WITH_NEXT(name, i, UNIQ_T(n, UNIQ), head)
 
-#define _LIST_FOREACH_WITH_PREV(name,i,p,start)                         \
+#define _SD_LIST_FOREACH_WITH_PREV(name,i,p,start)                         \
         for (typeof(*(start)) *p, *i = (start); i && (p = i->name##_prev, true); i = p)
 
-#define LIST_FOREACH_BACKWARDS(name,i,start)                            \
-        _LIST_FOREACH_WITH_PREV(name, i, UNIQ_T(p, UNIQ), start)
+#define SD_LIST_FOREACH_BACKWARDS(name,i,start)                            \
+        _SD_LIST_FOREACH_WITH_PREV(name, i, UNIQ_T(p, UNIQ), start)
 
 /* Iterate through all the members of the list p is included in, but skip over p */
-#define LIST_FOREACH_OTHERS(name,i,p)                                   \
+#define SD_LIST_FOREACH_OTHERS(name,i,p)                                   \
         for (typeof(*(p)) *_p = (p), *i = ({                            \
                                 typeof(*_p) *_j = _p;                   \
                                 while (_j && _j->name##_prev)           \
@@ -193,6 +193,6 @@
                 typeof(a)* _a = &(a);                                   \
                 typeof(a) _p = *_a;                                     \
                 if (_p)                                                 \
-                        LIST_REMOVE(name, *_a, _p);                     \
+                        SD_LIST_REMOVE(name, *_a, _p);                     \
                 _p;                                                     \
         })

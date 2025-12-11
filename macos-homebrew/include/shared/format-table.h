@@ -6,7 +6,7 @@
 #include <sys/types.h>
 
 #include "json.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "pager.h"
 
 typedef enum TableDataType {

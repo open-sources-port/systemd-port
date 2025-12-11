@@ -59,7 +59,7 @@ void bus_slot_disconnect(sd_bus_slot *slot, bool unref) {
 
         case BUS_FILTER_CALLBACK:
                 slot->bus->filter_callbacks_modified = true;
-                LIST_REMOVE(callbacks, slot->bus->filter_callbacks, &slot->filter_callback);
+                SD_LIST_REMOVE(callbacks, slot->bus->filter_callbacks, &slot->filter_callback);
                 break;
 
         case BUS_MATCH_CALLBACK:
@@ -82,7 +82,7 @@ void bus_slot_disconnect(sd_bus_slot *slot, bool unref) {
         case BUS_NODE_CALLBACK:
 
                 if (slot->node_callback.node) {
-                        LIST_REMOVE(callbacks, slot->node_callback.node->callbacks, &slot->node_callback);
+                        SD_LIST_REMOVE(callbacks, slot->node_callback.node->callbacks, &slot->node_callback);
                         slot->bus->nodes_modified = true;
 
                         bus_node_gc(slot->bus, slot->node_callback.node);
@@ -93,7 +93,7 @@ void bus_slot_disconnect(sd_bus_slot *slot, bool unref) {
         case BUS_NODE_ENUMERATOR:
 
                 if (slot->node_enumerator.node) {
-                        LIST_REMOVE(enumerators, slot->node_enumerator.node->enumerators, &slot->node_enumerator);
+                        SD_LIST_REMOVE(enumerators, slot->node_enumerator.node->enumerators, &slot->node_enumerator);
                         slot->bus->nodes_modified = true;
 
                         bus_node_gc(slot->bus, slot->node_enumerator.node);
@@ -104,7 +104,7 @@ void bus_slot_disconnect(sd_bus_slot *slot, bool unref) {
         case BUS_NODE_OBJECT_MANAGER:
 
                 if (slot->node_object_manager.node) {
-                        LIST_REMOVE(object_managers, slot->node_object_manager.node->object_managers, &slot->node_object_manager);
+                        SD_LIST_REMOVE(object_managers, slot->node_object_manager.node->object_managers, &slot->node_object_manager);
                         slot->bus->nodes_modified = true;
 
                         bus_node_gc(slot->bus, slot->node_object_manager.node);
@@ -152,7 +152,7 @@ void bus_slot_disconnect(sd_bus_slot *slot, bool unref) {
                 slot->node_vtable.interface = mfree(slot->node_vtable.interface);
 
                 if (slot->node_vtable.node) {
-                        LIST_REMOVE(vtables, slot->node_vtable.node->vtables, &slot->node_vtable);
+                        SD_LIST_REMOVE(vtables, slot->node_vtable.node->vtables, &slot->node_vtable);
                         slot->bus->nodes_modified = true;
 
                         bus_node_gc(slot->bus, slot->node_vtable.node);
@@ -168,7 +168,7 @@ void bus_slot_disconnect(sd_bus_slot *slot, bool unref) {
 
         slot->type = _BUS_SLOT_INVALID;
         slot->bus = NULL;
-        LIST_REMOVE(slots, bus->slots, slot);
+        SD_LIST_REMOVE(slots, bus->slots, slot);
 
         if (!slot->floating)
                 sd_bus_unref(bus);

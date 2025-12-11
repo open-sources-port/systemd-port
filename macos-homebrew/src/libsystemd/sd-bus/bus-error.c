@@ -404,14 +404,26 @@ static void bus_error_strerror(sd_bus_error *e, int error) {
         assert(e);
 
         for (;;) {
-                char *x;
+                const char *x;
 
                 m = new(char, k);
                 if (!m)
                         return;
 
                 errno = 0;
-                x = strerror_r(error, m, k);
+
+                #if defined(__APPLE__) || defined(__FreeBSD__)
+                        int r = strerror_r(error, m, k);
+                        if (r == 0) {
+                                x = m;
+                        } else {
+                                x = "Unknown error";
+                        }
+                #else
+                        // GNU version returns char*
+                        x = strerror_r(error, m, k);
+                #endif
+
                 if (errno == ERANGE || strlen(x) >= k - 1) {
                         free(m);
                         k *= 2;
@@ -427,7 +439,7 @@ static void bus_error_strerror(sd_bus_error *e, int error) {
                         if (e->_need_free > 0) {
                                 /* Error is already dynamic, let's just update the message */
                                 free((char*) e->message);
-                                e->message = x;
+                                e->message = (char*) x;
 
                         } else {
                                 char *t;
@@ -441,7 +453,7 @@ static void bus_error_strerror(sd_bus_error *e, int error) {
 
                                 e->_need_free = 1;
                                 e->name = t;
-                                e->message = x;
+                                e->message = (char*) x;
                         }
                 } else {
                         free(m);
@@ -458,7 +470,7 @@ static void bus_error_strerror(sd_bus_error *e, int error) {
                                 e->message = t;
                         } else {
                                 /* Error is const, hence we can just override */
-                                e->message = x;
+                                e->message = (char*) x;
                         }
                 }
 
@@ -597,7 +609,16 @@ const char* _bus_error_message(const sd_bus_error *e, int error, char buf[static
         if (e && e->message)
                 return e->message;
 
-        return strerror_r(abs(error), buf, ERRNO_BUF_LEN);
+        #if defined(__APPLE__) || defined(__FreeBSD__)
+                // POSIX/macOS version
+                int r = strerror_r(abs(error), buf, ERRNO_BUF_LEN);
+                if (r != 0)
+                        snprintf(buf, ERRNO_BUF_LEN, "Unknown error %d", error);
+                return buf;
+        #else
+                // GNU/Linux version
+                return strerror_r(abs(error), buf, ERRNO_BUF_LEN);
+        #endif
 }
 
 static bool map_ok(const sd_bus_error_map *map) {

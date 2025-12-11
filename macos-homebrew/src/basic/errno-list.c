@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "errno-list.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 static const struct errno_name* lookup_errno(register const char *str,
                                              register GPERF_LEN_TYPE len);

@@ -19,7 +19,7 @@
 #include "fs-util.h"
 #include "hexdecoct.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "mkdir.h"
 #include "parse-util.h"
 #include "path-util.h"

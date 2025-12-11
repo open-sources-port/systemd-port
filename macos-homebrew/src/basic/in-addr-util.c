@@ -11,7 +11,7 @@
 #include "alloc-util.h"
 #include "errno-util.h"
 #include "in-addr-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "parse-util.h"
 #include "random-util.h"
 #include "stdio-util.h"

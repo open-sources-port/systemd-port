@@ -21,7 +21,7 @@
 #include "fs-util.h"
 #include "log.h"
 #include "login-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_magic.h"
 #include "missing_threads.h"
 #include "mkdir.h"
@@ -2112,26 +2112,26 @@ int cg_unified_cached(bool flush) {
         else if (unified_cache >= CGROUP_UNIFIED_NONE)
                 return unified_cache;
 
-        if (statfs("/sys/fs/cgroup/", &fs) < 0)
-                return log_debug_errno(errno, "statfs(\"/sys/fs/cgroup/\") failed: %m");
+        if (linux_statfs("/sys/fs/cgroup/", &fs) < 0)
+                return log_debug_errno(errno, "linux_statfs(\"/sys/fs/cgroup/\") failed: %m");
 
         if (F_TYPE_EQUAL(fs.f_type, CGROUP2_SUPER_MAGIC)) {
                 log_debug("Found cgroup2 on /sys/fs/cgroup/, full unified hierarchy");
                 unified_cache = CGROUP_UNIFIED_ALL;
         } else if (F_TYPE_EQUAL(fs.f_type, TMPFS_MAGIC)) {
-                if (statfs("/sys/fs/cgroup/unified/", &fs) == 0 &&
+                if (linux_statfs("/sys/fs/cgroup/unified/", &fs) == 0 &&
                     F_TYPE_EQUAL(fs.f_type, CGROUP2_SUPER_MAGIC)) {
                         log_debug("Found cgroup2 on /sys/fs/cgroup/unified, unified hierarchy for systemd controller");
                         unified_cache = CGROUP_UNIFIED_SYSTEMD;
                         unified_systemd_v232 = false;
                 } else {
-                        if (statfs("/sys/fs/cgroup/systemd/", &fs) < 0) {
+                        if (linux_statfs("/sys/fs/cgroup/systemd/", &fs) < 0) {
                                 if (errno == ENOENT) {
                                         /* Some other software may have set up /sys/fs/cgroup in a configuration we do not recognize. */
                                         log_debug_errno(errno, "Unsupported cgroupsv1 setup detected: name=systemd hierarchy not found.");
                                         return -ENOMEDIUM;
                                 }
-                                return log_debug_errno(errno, "statfs(\"/sys/fs/cgroup/systemd\" failed: %m");
+                                return log_debug_errno(errno, "linux_statfs(\"/sys/fs/cgroup/systemd\" failed: %m");
                         }
 
                         if (F_TYPE_EQUAL(fs.f_type, CGROUP2_SUPER_MAGIC)) {
@@ -2218,7 +2218,7 @@ bool is_cgroup_fs(const struct statfs *s) {
 bool fd_is_cgroup_fs(int fd) {
         struct statfs s;
 
-        if (fstatfs(fd, &s) < 0)
+        if (flinux_statfs(fd, &s) < 0)
                 return -errno;
 
         return is_cgroup_fs(&s);

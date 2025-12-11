@@ -8,7 +8,7 @@
 
 #include "fileio.h"
 #include "journal-send.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 #include "tests.h"
 

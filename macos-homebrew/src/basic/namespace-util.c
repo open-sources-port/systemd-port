@@ -154,7 +154,7 @@ int fd_is_ns(int fd, unsigned long nsflag) {
          * This function returns > 0 if the fd definitely refers to a network namespace, 0 if it definitely does not
          * refer to a network namespace, -EUCLEAN if we can't determine, and other negative error codes on error. */
 
-        if (fstatfs(fd, &s) < 0)
+        if (flinux_statfs(fd, &s) < 0)
                 return -errno;
 
         if (!is_fs_type(&s, NSFS_MAGIC)) {
@@ -168,7 +168,7 @@ int fd_is_ns(int fd, unsigned long nsflag) {
                          * passed fd might refer to a network namespace, but we can't know for sure. In that case,
                          * return a recognizable error. */
 
-                        if (statfs("/proc/self/ns/net", &t) < 0)
+                        if (linux_statfs("/proc/self/ns/net", &t) < 0)
                                 return -errno;
 
                         if (s.f_type == t.f_type)

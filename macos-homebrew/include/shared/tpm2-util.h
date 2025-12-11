@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "json.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef enum TPM2Flags {
         TPM2_FLAGS_USE_PIN = 1 << 0,

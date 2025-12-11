@@ -7,7 +7,7 @@
 #include "alloc-util.h"
 #include "escape.h"
 #include "hexdecoct.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "strv.h"
 #include "utf8.h"
 

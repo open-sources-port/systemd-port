@@ -3,7 +3,7 @@
 
 #include "sd-bus.h"
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 int bus_property_get_bool(sd_bus *bus, const char *path, const char *interface, const char *property, sd_bus_message *reply, void *userdata, sd_bus_error *error);
 int bus_property_set_bool(sd_bus *bus, const char *path, const char *interface, const char *property, sd_bus_message *value, void *userdata, sd_bus_error *error);

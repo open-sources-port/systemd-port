@@ -10,7 +10,7 @@
 #include "audit-util.h"
 #include "fd-util.h"
 #include "fileio.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "parse-util.h"
 #include "process-util.h"
 #include "socket-util.h"

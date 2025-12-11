@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "time-util.h"
 
 int flush_fd(int fd);

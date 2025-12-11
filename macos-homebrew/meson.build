@@ -516,7 +516,7 @@ decl_headers = '''
 #include <sched.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
-#include <uchar.h>
+#include <shared/uchar.h>
 '''
 
 foreach decl : ['char16_t',

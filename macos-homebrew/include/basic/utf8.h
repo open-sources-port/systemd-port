@@ -4,10 +4,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-// #include <uchar.h>
+// #include <shared/uchar.h>
 #include <stdint.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_type.h"
 
 #define UTF8_REPLACEMENT_CHARACTER "\xef\xbf\xbd"

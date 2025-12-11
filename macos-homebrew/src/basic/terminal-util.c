@@ -30,7 +30,7 @@
 #include "inotify-util.h"
 #include "io-util.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "namespace-util.h"
 #include "parse-util.h"
 #include "path-util.h"

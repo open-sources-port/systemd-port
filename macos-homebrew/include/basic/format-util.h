@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 #include "cgroup-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 assert_cc(sizeof(pid_t) == sizeof(int32_t));
 #define PID_PRI PRIi32

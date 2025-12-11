@@ -5,7 +5,7 @@
 
 #include <libfdisk.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(struct fdisk_context*, fdisk_unref_context, NULL);
 DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(struct fdisk_partition*, fdisk_unref_partition, NULL);

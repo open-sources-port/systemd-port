@@ -87,9 +87,9 @@ struct sd_netlink {
         struct Prioq *reply_callbacks_prioq;
         Hashmap *reply_callbacks;
 
-        LIST_HEAD(struct match_callback, match_callbacks);
+        SD_LIST_HEAD(struct match_callback, match_callbacks);
 
-        LIST_HEAD(sd_netlink_slot, slots);
+        SD_LIST_HEAD(sd_netlink_slot, slots);
 
         pid_t original_pid;
 

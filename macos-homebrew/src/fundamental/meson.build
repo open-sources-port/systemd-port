@@ -27,7 +27,15 @@ fundamental_sources = fundamental_source_paths + fundamental_headers
 libfundamental = static_library(
         'fundamental',
         fundamental_sources,
-        include_directories : [include_directories(fundamental_inc_path)],
+        # include_directories : [include_directories(fundamental_inc_path)],
+        include_directories: [
+                incdir,
+                systemd_inc,
+                shared_inc,
+                basic_inc,
+                fundamental_inc,
+                udev_inc,
+        ],
         # dependencies : [versiondep,
         #                 threads,
         #                 libcap,

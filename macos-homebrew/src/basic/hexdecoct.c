@@ -7,7 +7,7 @@
 
 #include "alloc-util.h"
 #include "hexdecoct.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 #include "string-util.h"
 

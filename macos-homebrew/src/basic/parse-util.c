@@ -11,7 +11,7 @@
 #include "errno-list.h"
 #include "extract-word.h"
 #include "locale-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_network.h"
 #include "parse-util.h"
 #include "process-util.h"

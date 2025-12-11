@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "sha256.h"
 
 #define X509_FINGERPRINT_SIZE SHA256_DIGEST_SIZE

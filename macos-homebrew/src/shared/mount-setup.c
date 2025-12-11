@@ -413,7 +413,7 @@ static int relabel_cgroup_filesystems(void) {
                    only when the filesystem has been already populated by a previous instance of systemd
                    running from initrd. Otherwise don't remount anything and leave the filesystem read-write
                    for the cgroup filesystems to be mounted inside. */
-                if (statfs("/sys/fs/cgroup", &st) < 0)
+                if (linux_statfs("/sys/fs/cgroup", &st) < 0)
                         return log_error_errno(errno, "Failed to determine mount flags for /sys/fs/cgroup: %m");
 
                 if (st.f_flags & ST_RDONLY)

@@ -2,7 +2,7 @@
 #pragma once
 
 #include "alloc-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "siphash24.h"
 
 typedef void (*hash_func_t)(const void *p, struct siphash *state);

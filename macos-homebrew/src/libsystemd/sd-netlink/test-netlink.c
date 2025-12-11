@@ -14,7 +14,7 @@
 
 #include "alloc-util.h"
 #include "ether-addr-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "netlink-genl.h"
 #include "netlink-internal.h"
 #include "netlink-util.h"

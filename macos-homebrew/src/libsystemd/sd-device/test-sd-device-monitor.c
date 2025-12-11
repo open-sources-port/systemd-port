@@ -9,7 +9,7 @@
 #include "device-monitor-private.h"
 #include "device-private.h"
 #include "device-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "path-util.h"
 #include "stat-util.h"
 #include "string-util.h"

@@ -7,7 +7,7 @@
 #include <syslog.h>
 #include <sys/types.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "time-util.h"
 
 /* Regular colors */

@@ -7,8 +7,9 @@
 #include <string.h>
 #include <syslog.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "ratelimit.h"
+#include <fundamental/macro-fundamental.h>
 
 /* Some structures we reference but don't want to pull in headers for */
 struct iovec;

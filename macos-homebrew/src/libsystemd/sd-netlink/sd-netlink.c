@@ -8,7 +8,7 @@
 #include "fd-util.h"
 #include "hashmap.h"
 #include "io-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "netlink-genl.h"
 #include "netlink-internal.h"
 #include "netlink-slot.h"
@@ -333,7 +333,7 @@ static int process_match(sd_netlink *nl, sd_netlink_message *m) {
         } else
                 cmd = 0;
 
-        LIST_FOREACH(match_callbacks, c, nl->match_callbacks) {
+        SD_LIST_FOREACH(match_callbacks, c, nl->match_callbacks) {
                 sd_netlink_slot *slot;
                 bool found = false;
 

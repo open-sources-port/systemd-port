@@ -3,7 +3,7 @@
 
 #include "alloc-util.h"
 #include "json.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 #if HAVE_LIBCRYPTSETUP
 #include <libcryptsetup.h>

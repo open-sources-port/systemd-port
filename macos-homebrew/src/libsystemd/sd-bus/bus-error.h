@@ -6,7 +6,8 @@
 #include "sd-bus.h"
 
 #include "errno-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
+#include <fundamental/macro-fundamental.h>
 
 bool bus_error_is_dirty(sd_bus_error *e);
 
@@ -39,7 +40,7 @@ const char* _bus_error_message(const sd_bus_error *e, int error, char buf[static
 
 #define BUS_ERROR_MAP_ELF_REGISTER                                      \
         _Pragma("GCC diagnostic ignored \"-Wattributes\"")              \
-        _section_("SYSTEMD_BUS_ERROR_MAP")                              \
+        _section_("bus_err_map")                              \
         _used_                                                          \
         _retain_                                                        \
         _alignptr_                                                      \

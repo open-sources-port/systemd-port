@@ -15,7 +15,7 @@
 #include "fileio.h"
 #include "filesystems.h"
 #include "fs-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "missing_fs.h"
 #include "missing_magic.h"
 #include "missing_syscall.h"
@@ -207,7 +207,7 @@ bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) {
 int fd_is_fs_type(int fd, statfs_f_type_t magic_value) {
         struct statfs s;
 
-        if (fstatfs(fd, &s) < 0)
+        if (flinux_statfs(fd, &s) < 0)
                 return -errno;
 
         return is_fs_type(&s, magic_value);
@@ -216,7 +216,7 @@ int fd_is_fs_type(int fd, statfs_f_type_t magic_value) {
 int path_is_fs_type(const char *path, statfs_f_type_t magic_value) {
         struct statfs s;
 
-        if (statfs(path, &s) < 0)
+        if (linux_statfs(path, &s) < 0)
                 return -errno;
 
         return is_fs_type(&s, magic_value);
@@ -233,7 +233,7 @@ bool is_network_fs(const struct statfs *s) {
 int fd_is_temporary_fs(int fd) {
         struct statfs s;
 
-        if (fstatfs(fd, &s) < 0)
+        if (flinux_statfs(fd, &s) < 0)
                 return -errno;
 
         return is_temporary_fs(&s);
@@ -242,7 +242,7 @@ int fd_is_temporary_fs(int fd) {
 int fd_is_network_fs(int fd) {
         struct statfs s;
 
-        if (fstatfs(fd, &s) < 0)
+        if (flinux_statfs(fd, &s) < 0)
                 return -errno;
 
         return is_network_fs(&s);
@@ -251,7 +251,7 @@ int fd_is_network_fs(int fd) {
 int path_is_temporary_fs(const char *path) {
         struct statfs s;
 
-        if (statfs(path, &s) < 0)
+        if (linux_statfs(path, &s) < 0)
                 return -errno;
 
         return is_temporary_fs(&s);
@@ -260,7 +260,7 @@ int path_is_temporary_fs(const char *path) {
 int path_is_network_fs(const char *path) {
         struct statfs s;
 
-        if (statfs(path, &s) < 0)
+        if (linux_statfs(path, &s) < 0)
                 return -errno;
 
         return is_network_fs(&s);

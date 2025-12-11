@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "hashmap.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "set.h"
 
 typedef struct FDSet FDSet;

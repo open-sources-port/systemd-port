@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "alloc-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 
 void* memdup(const void *p, size_t l) {

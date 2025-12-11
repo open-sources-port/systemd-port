@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 
 #define snprintf_ok(buf, len, fmt, ...)                                 \

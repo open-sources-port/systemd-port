@@ -4,7 +4,7 @@
 #include "bus-message.h"
 #include "bus-slot.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 #include "tests.h"
 

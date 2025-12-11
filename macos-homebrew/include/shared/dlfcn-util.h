@@ -3,7 +3,7 @@
 
 #include <dlfcn.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(void*, dlclose, NULL);
 

@@ -5,7 +5,7 @@
 
 #include "bitmap.h"
 #include "hashmap.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 /* This defines pretty names for the LSB 'start' verb exit codes. Note that they shouldn't be confused with
  * the LSB 'status' verb exit codes which are defined very differently. For details see:

@@ -23,7 +23,7 @@ int resize_fs(int fd, uint64_t sz, uint64_t *ret_size) {
         if (sz <= 0 || sz == UINT64_MAX)
                 return -ERANGE;
 
-        if (fstatfs(fd, &sfs) < 0)
+        if (flinux_statfs(fd, &sfs) < 0)
                 return -errno;
 
         if (is_fs_type(&sfs, EXT4_SUPER_MAGIC)) {

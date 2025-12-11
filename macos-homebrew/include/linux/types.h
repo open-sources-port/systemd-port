@@ -4,6 +4,7 @@
 
 #include <linux/config.h>
 #include <stdint.h>
+#include <time.h>
 
 /* File descriptor set constants */
 #undef __NFDBITS
@@ -29,7 +30,7 @@ typedef struct {
 /* Manipulation macros/functions for __kernel_fd_set */
 
 static inline void __kernel_FD_ZERO(__kernel_fd_set *set) {
-    for (int i = 0; i < __FDSET_LONGS; i++) {
+    for (unsigned long i = 0; i < __FDSET_LONGS; i++) {
         set->fds_bits[i] = 0UL;
     }
 }

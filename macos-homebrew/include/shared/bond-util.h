@@ -5,7 +5,7 @@
 #include <linux/if_bonding.h>
 
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 /*
  * Maximum number of targets supported by the kernel for a single

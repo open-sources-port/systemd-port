@@ -12,7 +12,7 @@
 #include "escape.h"
 #include "extract-word.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string-util.h"
 #include "strv.h"
 #include "utf8.h"

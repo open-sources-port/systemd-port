@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 bool http_url_is_valid(const char *url) _pure_;
 bool file_url_is_valid(const char *url) _pure_;

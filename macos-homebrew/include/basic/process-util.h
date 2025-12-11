@@ -13,8 +13,16 @@
 
 #include "alloc-util.h"
 #include "format-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "time-util.h"
+
+#ifndef SCHED_BATCH
+#define SCHED_BATCH  3 
+#endif
+
+#ifndef SCHED_IDLE
+#define SCHED_IDLE   5 
+#endif
 
 #define procfs_file_alloca(pid, field)                                  \
         ({                                                              \

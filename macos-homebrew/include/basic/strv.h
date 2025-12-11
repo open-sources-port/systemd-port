@@ -10,7 +10,7 @@
 #include "alloc-util.h"
 #include "extract-word.h"
 #include "hashmap.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string-util.h"
 
 char* strv_find(char * const *l, const char *name) _pure_;

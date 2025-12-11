@@ -17,7 +17,7 @@ typedef uint64_t nsec_t;
 #define NSEC_FMT "%" PRI_NSEC
 #define USEC_FMT "%" PRI_USEC
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 typedef struct dual_timestamp {
         usec_t realtime;
@@ -44,11 +44,23 @@ typedef enum TimestampStyle {
 #define NSEC_INFINITY ((nsec_t) UINT64_MAX)
 
 #define MSEC_PER_SEC  1000ULL
+
+#ifndef USEC_PER_SEC
 #define USEC_PER_SEC  ((usec_t) 1000000ULL)
+#endif
 #define USEC_PER_MSEC ((usec_t) 1000ULL)
+
+#ifndef NSEC_PER_SEC
 #define NSEC_PER_SEC  ((nsec_t) 1000000000ULL)
+#endif
+
+#ifndef NSEC_PER_SEC
 #define NSEC_PER_MSEC ((nsec_t) 1000000ULL)
+#endif
+
+#ifndef NSEC_PER_USEC
 #define NSEC_PER_USEC ((nsec_t) 1000ULL)
+#endif
 
 #define USEC_PER_MINUTE ((usec_t) (60ULL*USEC_PER_SEC))
 #define NSEC_PER_MINUTE ((nsec_t) (60ULL*NSEC_PER_SEC))

@@ -10,7 +10,7 @@
 #include "bus-internal.h"
 #include "bus-message.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "strv.h"
 #include "util.h"
 

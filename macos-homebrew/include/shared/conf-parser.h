@@ -11,7 +11,7 @@
 #include "alloc-util.h"
 #include "hashmap.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "time-util.h"
 
 /* An abstract parser for simple, line based, shallow configuration files consisting of variable assignments only. */

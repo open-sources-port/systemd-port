@@ -34,7 +34,7 @@
 #include "hexdecoct.h"
 #include "hostname-util.h"
 #include "io-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 #include "missing_syscall.h"
 #include "missing_threads.h"
@@ -2794,7 +2794,7 @@ static int process_filter(sd_bus *bus, sd_bus_message *m) {
         do {
                 bus->filter_callbacks_modified = false;
 
-                LIST_FOREACH(callbacks, l, bus->filter_callbacks) {
+                SD_LIST_FOREACH(callbacks, l, bus->filter_callbacks) {
                         sd_bus_slot *slot;
 
                         if (bus->filter_callbacks_modified)

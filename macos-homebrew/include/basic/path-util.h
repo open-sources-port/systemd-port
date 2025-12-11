@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "string-util.h"
 #include "strv.h"
 #include "time-util.h"

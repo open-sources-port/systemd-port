@@ -16,7 +16,7 @@
 #include "fd-util.h"
 #include "fileio.h"
 #include "io-util.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "memory-util.h"
 #include "stdio-util.h"
 #include "strv.h"

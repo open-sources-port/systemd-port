@@ -9,12 +9,17 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "basic/macro.h"
 
 #define _align_(x) __attribute__((__aligned__(x)))
 #define _alignas_(x) __attribute__((__aligned__(__alignof__(x))))
 #define _alignptr_ __attribute__((__aligned__(sizeof(void *))))
 #define _cleanup_(x) __attribute__((__cleanup__(x)))
-#define _const_ __attribute__((__const__))
+
+#ifndef _const_
+#define _const_ __attribute__((const))
+#endif
+
 #define _deprecated_ __attribute__((__deprecated__))
 #define _destructor_ __attribute__((__destructor__))
 #define _hidden_ __attribute__((__visibility__("hidden")))
@@ -23,17 +28,25 @@
 #define _noinline_ __attribute__((noinline))
 #define _noreturn_ _Noreturn
 #define _packed_ __attribute__((__packed__))
-#define _printf_(a, b) __attribute__((__format__(printf, a, b)))
+// #define _printf_(a, b) __attribute__((__format__(printf, a, b)))
 #define _public_ __attribute__((__visibility__("default")))
-#define _pure_ __attribute__((__pure__))
+// #define _pure_ __attribute__((__pure__))
 #define _retain_ __attribute__((__retain__))
 #define _returns_nonnull_ __attribute__((__returns_nonnull__))
-#define _section_(x) __attribute__((__section__(x)))
+
+#if defined(__APPLE__)
+    /* Mach-O: must specify segment,section */
+    #define _section_(x) __attribute__((section("__DATA," x)))
+#else
+    /* ELF */
+    #define _section_(x) __attribute__((section(x)))
+#endif
+
 #define _sentinel_ __attribute__((__sentinel__))
 #define _unlikely_(x) (__builtin_expect(!!(x), 0))
 #define _unused_ __attribute__((__unused__))
 #define _used_ __attribute__((__used__))
-#define _warn_unused_result_ __attribute__((__warn_unused_result__))
+// #define _warn_unused_result_ __attribute__((__warn_unused_result__))
 #define _weak_ __attribute__((__weak__))
 #define _weakref_(x) __attribute__((__weakref__(#x)))
 
@@ -105,7 +118,7 @@
                 _expr_;                                  \
         })
 
-#define assert_cc(expr) static_assert(expr, #expr)
+// #define assert_cc(expr) static_assert(expr, #expr)
 
 
 #define UNIQ_T(x, uniq) CONCATENATE(__unique_prefix_, CONCATENATE(x, uniq))
@@ -279,22 +292,19 @@
                                CASE_F_10,CASE_F_9,CASE_F_8,CASE_F_7,CASE_F_6,CASE_F_5,CASE_F_4,CASE_F_3,CASE_F_2,CASE_F_1) \
                    (__VA_ARGS__)
 
-#define IN_SET(x, ...)                                                  \
-        ({                                                              \
-                bool _found = false;                                    \
-                /* If the build breaks in the line below, you need to extend the case macros. We use typeof(+x) \
-                 * here to widen the type of x if it is a bit-field as this would otherwise be illegal. */      \
-                static const typeof(+x) __assert_in_set[] _unused_ = { __VA_ARGS__ }; \
-                assert_cc(ELEMENTSOF(__assert_in_set) <= 20);           \
-                switch (x) {                                            \
-                FOR_EACH_MAKE_CASE(__VA_ARGS__)                         \
-                        _found = true;                                  \
-                        break;                                          \
-                default:                                                \
-                        break;                                          \
-                }                                                       \
-                _found;                                                 \
-        })
+#define IN_SET(x, ...)                                                    \
+    ({                                                                    \
+        bool _found = false;                                              \
+        static const typeof(+x) __assert_in_set[] _unused_ = { __VA_ARGS__ }; \
+        assert_cc(sizeof(__assert_in_set)/sizeof(__assert_in_set[0]) <= 20); \
+        for (size_t _i = 0; _i < sizeof(__assert_in_set)/sizeof(__assert_in_set[0]); _i++) { \
+            if ((x) == __assert_in_set[_i]) {                             \
+                _found = true;                                            \
+                break;                                                    \
+            }                                                              \
+        }                                                                  \
+        _found;                                                            \
+    })
 
 /* Takes inspiration from Rust's Option::take() method: reads and returns a pointer, but at the same time
  * resets it to NULL. See: https://doc.rust-lang.org/std/option/enum.Option.html#method.take */
@@ -332,8 +342,14 @@ static inline size_t ALIGN_TO(size_t l, size_t ali) {
 #define ALIGN8(l) ALIGN_TO(l, 8)
 #ifndef SD_BOOT
 /* libefi also provides ALIGN, and we do not use them in sd-boot explicitly. */
-#define ALIGN(l)  ALIGN_TO(l, sizeof(void*))
+#ifndef ALIGN
+#define ALIGN(l) ALIGN_TO((l), sizeof(void*))
+#endif
+
+#ifndef ALIGN_PTR
 #define ALIGN_PTR(p) ((void*) ALIGN((uintptr_t) (p)))
+#endif
+
 #endif
 
 /* Same as ALIGN_TO but callable in constant contexts. */

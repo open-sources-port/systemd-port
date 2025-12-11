@@ -14,6 +14,14 @@
 #include "prioq.h"
 #include "socket-util.h"
 #include "time-util.h"
+#include <linux/types.h>
+#include "compat/errno.h"
+
+struct ucred {
+    pid_t pid;
+    uid_t uid;
+    gid_t gid;
+};
 
 /* Note that we use the new /run prefix here (instead of /var/run) since we require them to be aliases and
  * that way we become independent of /var being mounted */
@@ -56,13 +64,13 @@ struct match_callback {
 struct node {
         char *path;
         struct node *parent;
-        LIST_HEAD(struct node, child);
+        SD_LIST_HEAD(struct node, child);
         LIST_FIELDS(struct node, siblings);
 
-        LIST_HEAD(struct node_callback, callbacks);
-        LIST_HEAD(struct node_vtable, vtables);
-        LIST_HEAD(struct node_enumerator, enumerators);
-        LIST_HEAD(struct node_object_manager, object_managers);
+        SD_LIST_HEAD(struct node_callback, callbacks);
+        SD_LIST_HEAD(struct node_vtable, vtables);
+        SD_LIST_HEAD(struct node_enumerator, enumerators);
+        SD_LIST_HEAD(struct node_object_manager, object_managers);
 };
 
 struct node_callback {
@@ -236,7 +244,7 @@ struct sd_bus {
         struct bus_match_node match_callbacks;
         Prioq *reply_callbacks_prioq;
         OrderedHashmap *reply_callbacks;
-        LIST_HEAD(struct filter_callback, filter_callbacks);
+        SD_LIST_HEAD(struct filter_callback, filter_callbacks);
 
         Hashmap *nodes;
         Hashmap *vtable_methods;
@@ -312,8 +320,8 @@ struct sd_bus {
 
         sd_bus_track *track_queue;
 
-        LIST_HEAD(sd_bus_slot, slots);
-        LIST_HEAD(sd_bus_track, tracks);
+        SD_LIST_HEAD(sd_bus_slot, slots);
+        SD_LIST_HEAD(sd_bus_track, tracks);
 
         int *inotify_watches;
         size_t n_inotify_watches;

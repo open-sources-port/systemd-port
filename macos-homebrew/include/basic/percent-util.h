@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <inttypes.h>
 
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 
 int parse_percent_unbounded(const char *p);
 int parse_percent(const char *p);

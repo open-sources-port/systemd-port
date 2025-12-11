@@ -9,7 +9,7 @@
 #include "fd-util.h"
 #include "fileio.h"
 #include "log.h"
-#include <compat/compat_macro.h>
+#include <basic/macro.h>
 #include "path-util.h"
 #include "socket-util.h"
 #include "string-util.h"
