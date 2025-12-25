@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
+#include <compat/compat-glibc.h>
+
 #include <errno.h>
 #include <unistd.h>
 
@@ -22,6 +24,13 @@
 #include "time-util.h"
 #include "unit-name.h"
 #include "util.h"
+
+#include <libgen.h>
+
+static const char* safe_basename(const char *path) {
+    const char *slash = strrchr(path, '/');
+    return slash ? slash + 1 : path;
+}
 
 int generator_open_unit_file(
                 const char *dir,
@@ -66,7 +75,7 @@ int generator_add_symlink(const char *dir, const char *dst, const char *dep_type
         const char *from, *to;
 
         from = path_is_absolute(src) ? src : strjoina("../", src);
-        to = strjoina(dir, "/", dst, ".", dep_type, "/", basename(src));
+        to = strjoina(dir, "/", dst, ".", dep_type, "/", safe_basename(src));
 
         (void) mkdir_parents_label(to, 0755);
         if (symlink(from, to) < 0)

@@ -9,7 +9,7 @@
 #include "fd-util.h"
 #include "fileio.h"
 #include "macro.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "numa-util.h"
 #include "stdio-util.h"
 #include "string-table.h"

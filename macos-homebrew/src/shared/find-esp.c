@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <linux/magic.h>
-#include <sys/vfs.h>
+#include <sys_compat/vfs.h>
 
 #include "sd-device.h"
 #include "sd-id128.h"
@@ -375,7 +375,7 @@ static int verify_esp(
          * issues. Let's also, silence the error messages. */
 
         if (!relax_checks) {
-                struct statfs sfs;
+                struct linux_statfs sfs;
 
                 if (linux_statfs(p, &sfs) < 0)
                         /* If we are searching for the mount point, don't generate a log message if we can't find the path */

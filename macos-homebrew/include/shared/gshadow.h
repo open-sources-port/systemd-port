@@ -23,7 +23,7 @@ static inline struct spwd *getspnam(const char *name) {
     return NULL;
 }
 
-static inline int setspent(void) { return 0; }
+static inline void setspent_r(void) {}
 static inline void endspent(void) {}
-static inline void setspent_r() {}
+
 #endif

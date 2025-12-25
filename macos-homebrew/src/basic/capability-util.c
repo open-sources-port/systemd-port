@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/prctl.h>
+#include <sys_compat/prctl.h>
 #include <unistd.h>
 
 #include "alloc-util.h"
@@ -12,7 +12,7 @@
 #include "fileio.h"
 #include "log.h"
 #include <basic/macro.h>
-#include "missing_prctl.h"
+#include "basic/missing_prctl.h"
 #include "missing_threads.h"
 #include "parse-util.h"
 #include "user-util.h"
@@ -64,18 +64,18 @@ unsigned cap_last_cap(void) {
         /* fall back to syscall-probing for pre linux-3.2 */
         p = MIN((unsigned long) CAP_LAST_CAP, 63U);
 
-        if (prctl(PR_CAPBSET_READ, p) < 0) {
+        if (prctl(PR_CAPBSET_READ, p, 0, 0, 0) < 0) {
 
                 /* Hmm, look downwards, until we find one that works */
                 for (p--; p > 0; p--)
-                        if (prctl(PR_CAPBSET_READ, p) >= 0)
+                        if (prctl(PR_CAPBSET_READ, p, 0, 0, 0) >= 0)
                                 break;
 
         } else {
 
                 /* Hmm, look upwards, until we find one that doesn't work */
                 for (; p < 63; p++)
-                        if (prctl(PR_CAPBSET_READ, p+1) < 0)
+                        if (prctl(PR_CAPBSET_READ, p+1, 0, 0, 0) < 0)
                                 break;
         }
 
@@ -111,7 +111,7 @@ int capability_ambient_set_apply(uint64_t set, bool also_inherit) {
                 if (set == 0)
                         break;
 
-                if (FLAGS_SET(set, (UINT64_C(1) << i)) && prctl(PR_CAPBSET_READ, i) != 1) {
+                if (FLAGS_SET(set, (UINT64_C(1) << i)) && prctl(PR_CAPBSET_READ, i, 0, 0, 0) != 1) {
                         log_debug("Ambient capability %s requested but missing from bounding set,"
                                         " suppressing automatically.", capability_to_name(i));
                         set &= ~(UINT64_C(1) << i);
@@ -221,13 +221,13 @@ int capability_bounding_set_drop(uint64_t keep, bool right_now) {
                         continue;
 
                 /* Drop it from the bounding set */
-                if (prctl(PR_CAPBSET_DROP, i) < 0) {
+                if (prctl(PR_CAPBSET_DROP, i, 0, 0, 0) < 0) {
                         r = -errno;
 
                         /* If dropping the capability failed, let's see if we didn't have it in the first place. If so,
                          * continue anyway, as dropping a capability we didn't have in the first place doesn't really
                          * matter anyway. */
-                        if (prctl(PR_CAPBSET_READ, i) != 0)
+                        if (prctl(PR_CAPBSET_READ, i, 0, 0, 0) != 0)
                                 goto finish;
                 }
                 v = (cap_value_t) i;
@@ -321,13 +321,13 @@ int drop_privileges(uid_t uid, gid_t gid, uint64_t keep_capabilities) {
         /* Ensure we keep the permitted caps across the setresuid(). Note that we do this even if we actually
          * don't want to keep any capabilities, since we want to be able to drop them from the bounding set
          * too, and we can only do that if we have capabilities. */
-        if (prctl(PR_SET_KEEPCAPS, 1) < 0)
+        if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) < 0)
                 return log_error_errno(errno, "Failed to enable keep capabilities flag: %m");
 
         if (setresuid(uid, uid, uid) < 0)
                 return log_error_errno(errno, "Failed to change user ID: %m");
 
-        if (prctl(PR_SET_KEEPCAPS, 0) < 0)
+        if (prctl(PR_SET_KEEPCAPS, 0, 0, 0, 0) < 0)
                 return log_error_errno(errno, "Failed to disable keep capabilities flag: %m");
 
         /* Drop all caps from the bounding set (as well as the inheritable/permitted/effective sets), except
@@ -416,7 +416,7 @@ bool capability_quintet_mangle(CapabilityQuintet *q) {
                 if (!FLAGS_SET(combined, bit))
                         continue;
 
-                if (prctl(PR_CAPBSET_READ, i) > 0)
+                if (prctl(PR_CAPBSET_READ, i, 0, 0, 0) > 0)
                         continue;
 
                 drop |= bit;

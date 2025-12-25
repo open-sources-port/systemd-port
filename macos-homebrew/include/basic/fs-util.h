@@ -3,7 +3,7 @@
 
 #include <dirent.h>
 #include <fcntl.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/stat.h>

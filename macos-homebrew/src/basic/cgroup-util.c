@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <errno.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <signal.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -22,7 +22,7 @@
 #include "log.h"
 #include "login-util.h"
 #include <basic/macro.h>
-#include "missing_magic.h"
+#include <linux/magic.h>
 #include "missing_threads.h"
 #include "mkdir.h"
 #include "parse-util.h"
@@ -38,6 +38,29 @@
 #include "unit-name.h"
 #include "user-util.h"
 #include "xattr-util.h"
+
+#include <sys/xattr.h>
+#include <errno.h>
+
+/* Map Linux-style flags to macOS options */
+static inline int setxattr_portable(const char *path, const char *name,
+                                    const void *value, size_t size, int flags) {
+    int options = 0;
+    if (flags & XATTR_CREATE)    options |= XATTR_CREATE;
+    if (flags & XATTR_REPLACE)   options |= XATTR_REPLACE;
+
+    /* position is always 0 on regular files */
+    return setxattr(path, name, value, size, 0, options);
+}
+
+static inline ssize_t getxattr_portable(const char *path, const char *name,
+                                        void *value, size_t size) {
+    return getxattr(path, name, value, size, 0, 0);
+}
+
+static inline int removexattr_portable(const char *path, const char *name) {
+    return removexattr(path, name, 0);  /* options = 0 for regular files */
+}
 
 static int cg_enumerate_items(const char *controller, const char *path, FILE **_f, const char *item) {
         _cleanup_free_ char *fs = NULL;
@@ -630,7 +653,7 @@ int cg_set_xattr(const char *controller, const char *path, const char *name, con
         if (r < 0)
                 return r;
 
-        return RET_NERRNO(setxattr(fs, name, value, size, flags));
+        return RET_NERRNO(setxattr_portable(fs, name, value, size, flags));
 }
 
 int cg_get_xattr(const char *controller, const char *path, const char *name, void *value, size_t size) {
@@ -645,7 +668,7 @@ int cg_get_xattr(const char *controller, const char *path, const char *name, voi
         if (r < 0)
                 return r;
 
-        n = getxattr(fs, name, value, size);
+        n = getxattr_portable(fs, name, value, size);
         if (n < 0)
                 return -errno;
 
@@ -695,7 +718,7 @@ int cg_remove_xattr(const char *controller, const char *path, const char *name) 
         if (r < 0)
                 return r;
 
-        return RET_NERRNO(removexattr(fs, name));
+        return RET_NERRNO(removexattr_portable(fs, name));
 }
 
 int cg_pid_get_path(const char *controller, pid_t pid, char **ret_path) {
@@ -2100,7 +2123,7 @@ static thread_local bool unified_systemd_v232;
 int cg_unified_cached(bool flush) {
         static thread_local CGroupUnified unified_cache = CGROUP_UNIFIED_UNKNOWN;
 
-        struct statfs fs;
+        struct linux_statfs fs;
 
         /* Checks if we support the unified hierarchy. Returns an
          * error when the cgroup hierarchies aren't mounted yet or we
@@ -2211,14 +2234,16 @@ static const char* const cgroup_io_limit_type_table[_CGROUP_IO_LIMIT_TYPE_MAX] =
 DEFINE_STRING_TABLE_LOOKUP(cgroup_io_limit_type, CGroupIOLimitType);
 
 bool is_cgroup_fs(const struct statfs *s) {
+        // struct statfs ls;
+        // statfs_to_linux(s, &ls);  // convert macOS statfs → linux_statfs
         return is_fs_type(s, CGROUP_SUPER_MAGIC) ||
-               is_fs_type(s, CGROUP2_SUPER_MAGIC);
+                is_fs_type(s, CGROUP2_SUPER_MAGIC);
 }
 
 bool fd_is_cgroup_fs(int fd) {
         struct statfs s;
 
-        if (flinux_statfs(fd, &s) < 0)
+        if (fstatfs(fd, &s) < 0)
                 return -errno;
 
         return is_cgroup_fs(&s);

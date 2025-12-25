@@ -7,6 +7,7 @@
 #include "log.h"
 #include "sd-bus.h"
 #include "syslog-util.h"
+#include <compat/compat-glibc.h>
 
 int bus_property_get_log_level(
                 sd_bus *bus,

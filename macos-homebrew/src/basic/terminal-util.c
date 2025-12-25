@@ -2,7 +2,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <linux/kd.h>
 #include <linux/tiocl.h>
 #include <linux/vt.h>
@@ -11,7 +11,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <sys/inotify.h>
+#include <sys_compat/inotify.h>
 #include <sys/ioctl.h>
 #include <sys/sysmacros.h>
 #include <sys/time.h>

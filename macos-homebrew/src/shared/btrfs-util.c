@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <sys/file.h>
 #include <sys/ioctl.h>
-#include <sys/sysmacros.h>
+#include <sys_compat/sysmacros.h>
 #include <unistd.h>
 
 #include "alloc-util.h"
@@ -33,6 +33,8 @@
 #include "string-util.h"
 #include "time-util.h"
 #include "util.h"
+
+#include <libgen.h>
 
 /* WARNING: Be careful with file system ioctls! When we get an fd, we
  * need to make sure it either refers to only a regular file or
@@ -60,7 +62,7 @@ static int extract_subvolume_name(const char *path, const char **subvolume) {
         assert(path);
         assert(subvolume);
 
-        fn = basename(path);
+        fn = basename((char *) path);
 
         r = validate_subvolume_name(fn);
         if (r < 0)
@@ -125,7 +127,7 @@ int btrfs_subvol_make_fd(int fd, const char *subvolume) {
 
         strncpy(args.name, subvolume, sizeof(args.name)-1);
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
+        return RET_NERRNO(blkpg_ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
 }
 
 int btrfs_subvol_make(const char *path) {
@@ -172,7 +174,7 @@ int btrfs_subvol_make_fallback(const char *path, mode_t mode) {
 }
 
 int btrfs_subvol_set_read_only_fd(int fd, bool b) {
-        uint64_t flags, nflags;
+        uint64_t flags = 0, nflags = 0;
         struct stat st;
 
         assert(fd >= 0);
@@ -183,14 +185,14 @@ int btrfs_subvol_set_read_only_fd(int fd, bool b) {
         if (!btrfs_might_be_subvol(&st))
                 return -EINVAL;
 
-        if (ioctl(fd, BTRFS_IOC_SUBVOL_GETFLAGS, &flags) < 0)
+        if (blkpg_ioctl(fd, BTRFS_IOC_SUBVOL_GETFLAGS, &flags) < 0)
                 return -errno;
 
         nflags = UPDATE_FLAG(flags, BTRFS_SUBVOL_RDONLY, b);
         if (flags == nflags)
                 return 0;
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_SETFLAGS, &nflags));
+        return RET_NERRNO(blkpg_ioctl(fd, BTRFS_IOC_SUBVOL_SETFLAGS, &nflags));
 }
 
 int btrfs_subvol_set_read_only(const char *path, bool b) {
@@ -204,7 +206,7 @@ int btrfs_subvol_set_read_only(const char *path, bool b) {
 }
 
 int btrfs_subvol_get_read_only_fd(int fd) {
-        uint64_t flags;
+        uint64_t flags = 0;
         struct stat st;
 
         assert(fd >= 0);
@@ -215,7 +217,7 @@ int btrfs_subvol_get_read_only_fd(int fd) {
         if (!btrfs_might_be_subvol(&st))
                 return -EINVAL;
 
-        if (ioctl(fd, BTRFS_IOC_SUBVOL_GETFLAGS, &flags) < 0)
+        if (blkpg_ioctl(fd, BTRFS_IOC_SUBVOL_GETFLAGS, &flags) < 0)
                 return -errno;
 
         return !!(flags & BTRFS_SUBVOL_RDONLY);
@@ -233,16 +235,16 @@ int btrfs_reflink(int infd, int outfd) {
         if (r < 0)
                 return r;
 
-        return RET_NERRNO(ioctl(outfd, BTRFS_IOC_CLONE, infd));
+        return RET_NERRNO(blkpg_ioctl(outfd, BTRFS_IOC_CLONE, infd));
 }
 
 int btrfs_clone_range(int infd, uint64_t in_offset, int outfd, uint64_t out_offset, uint64_t sz) {
-        struct btrfs_ioctl_clone_range_args args = {
-                .src_fd = infd,
-                .src_offset = in_offset,
-                .src_length = sz,
-                .dest_offset = out_offset,
-        };
+        // struct btrfs_ioctl_clone_range_args args = {
+        //         .src_fd = infd,
+        //         .src_offset = in_offset,
+        //         .src_length = sz,
+        //         .dest_offset = out_offset,
+        // };
         int r;
 
         assert(infd >= 0);
@@ -253,7 +255,7 @@ int btrfs_clone_range(int infd, uint64_t in_offset, int outfd, uint64_t out_offs
         if (r < 0)
                 return r;
 
-        return RET_NERRNO(ioctl(outfd, BTRFS_IOC_CLONE_RANGE, &args));
+        return RET_NERRNO(blkpg_ioctl(outfd, BTRFS_IOC_CLONE_RANGE, &args));
 }
 
 int btrfs_get_block_device_fd(int fd, dev_t *dev) {
@@ -270,7 +272,7 @@ int btrfs_get_block_device_fd(int fd, dev_t *dev) {
         if (!r)
                 return -ENOTTY;
 
-        if (ioctl(fd, BTRFS_IOC_FS_INFO, &fsi) < 0)
+        if (blkpg_ioctl(fd, BTRFS_IOC_FS_INFO, &fsi) < 0)
                 return -errno;
 
         /* We won't do this for btrfs RAID */
@@ -285,7 +287,7 @@ int btrfs_get_block_device_fd(int fd, dev_t *dev) {
                 };
                 struct stat st;
 
-                if (ioctl(fd, BTRFS_IOC_DEV_INFO, &di) < 0) {
+                if (blkpg_ioctl(fd, BTRFS_IOC_DEV_INFO, &di) < 0) {
                         if (errno == ENODEV)
                                 continue;
 
@@ -345,7 +347,7 @@ int btrfs_subvol_get_id_fd(int fd, uint64_t *ret) {
         if (!r)
                 return -ENOTTY;
 
-        if (ioctl(fd, BTRFS_IOC_INO_LOOKUP, &args) < 0)
+        if (blkpg_ioctl(fd, BTRFS_IOC_INO_LOOKUP, &args) < 0)
                 return -errno;
 
         *ret = args.treeid;
@@ -473,7 +475,7 @@ int btrfs_subvol_get_info_fd(int fd, uint64_t subvol_id, BtrfsSubvolInfo *ret) {
                 unsigned i;
 
                 args.key.nr_items = 256;
-                if (ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0)
+                if (blkpg_ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0)
                         return -errno;
 
                 if (args.key.nr_items <= 0)
@@ -567,7 +569,7 @@ int btrfs_qgroup_get_quota_fd(int fd, uint64_t qgroupid, BtrfsQuotaInfo *ret) {
                 unsigned i;
 
                 args.key.nr_items = 256;
-                if (ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0) {
+                if (blkpg_ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0) {
                         if (errno == ENOENT) /* quota tree is missing: quota disabled */
                                 break;
 
@@ -749,7 +751,7 @@ int btrfs_defrag_fd(int fd) {
         if (r < 0)
                 return r;
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_DEFRAG, NULL));
+        return RET_NERRNO(blkpg_ioctl(fd, BTRFS_IOC_DEFRAG, NULL));
 }
 
 int btrfs_defrag(const char *p) {
@@ -763,9 +765,9 @@ int btrfs_defrag(const char *p) {
 }
 
 int btrfs_quota_enable_fd(int fd, bool b) {
-        struct btrfs_ioctl_quota_ctl_args args = {
-                .cmd = b ? BTRFS_QUOTA_CTL_ENABLE : BTRFS_QUOTA_CTL_DISABLE,
-        };
+        // struct btrfs_ioctl_quota_ctl_args args = {
+        //         .cmd = b ? BTRFS_QUOTA_CTL_ENABLE : BTRFS_QUOTA_CTL_DISABLE,
+        // };
         int r;
 
         assert(fd >= 0);
@@ -776,7 +778,7 @@ int btrfs_quota_enable_fd(int fd, bool b) {
         if (!r)
                 return -ENOTTY;
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_QUOTA_CTL, &args));
+        return RET_NERRNO(blkpg_ioctl(fd, BTRFS_IOC_QUOTA_CTL, &args));
 }
 
 int btrfs_quota_enable(const char *path, bool b) {
@@ -814,7 +816,7 @@ int btrfs_qgroup_set_limit_fd(int fd, uint64_t qgroupid, uint64_t referenced_max
         args.qgroupid = qgroupid;
 
         for (unsigned c = 0;; c++) {
-                if (ioctl(fd, BTRFS_IOC_QGROUP_LIMIT, &args) < 0) {
+                if (blkpg_ioctl(fd, BTRFS_IOC_QGROUP_LIMIT, &args) < 0) {
 
                         if (errno == EBUSY && c < 10) {
                                 (void) btrfs_quota_scan_wait(fd);
@@ -890,10 +892,10 @@ int btrfs_qgroupid_split(uint64_t qgroupid, uint64_t *level, uint64_t *id) {
 
 static int qgroup_create_or_destroy(int fd, bool b, uint64_t qgroupid) {
 
-        struct btrfs_ioctl_qgroup_create_args args = {
-                .create = b,
-                .qgroupid = qgroupid,
-        };
+        // struct btrfs_ioctl_qgroup_create_args args = {
+        //         .create = b,
+        //         .qgroupid = qgroupid,
+        // };
         int r;
 
         r = fd_is_fs_type(fd, BTRFS_SUPER_MAGIC);
@@ -903,7 +905,7 @@ static int qgroup_create_or_destroy(int fd, bool b, uint64_t qgroupid) {
                 return -ENOTTY;
 
         for (unsigned c = 0;; c++) {
-                if (ioctl(fd, BTRFS_IOC_QGROUP_CREATE, &args) < 0) {
+                if (blkpg_ioctl(fd, BTRFS_IOC_QGROUP_CREATE, &args) < 0) {
 
                         /* On old kernels if quota is not enabled, we get EINVAL. On newer kernels we get
                          * ENOTCONN. Let's always convert this to ENOTCONN to make this recognizable
@@ -976,17 +978,17 @@ int btrfs_qgroup_destroy_recursive(int fd, uint64_t qgroupid) {
 }
 
 int btrfs_quota_scan_start(int fd) {
-        struct btrfs_ioctl_quota_rescan_args args = {};
+        // struct btrfs_ioctl_quota_rescan_args args = {};
 
         assert(fd >= 0);
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_QUOTA_RESCAN, &args));
+        return RET_NERRNO(blkpg_ioctl(fd, BTRFS_IOC_QUOTA_RESCAN, &args));
 }
 
 int btrfs_quota_scan_wait(int fd) {
         assert(fd >= 0);
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_QUOTA_RESCAN_WAIT));
+        return RET_NERRNO(blkpg_ioctl(fd, BTRFS_IOC_QUOTA_RESCAN_WAIT));
 }
 
 int btrfs_quota_scan_ongoing(int fd) {
@@ -994,18 +996,18 @@ int btrfs_quota_scan_ongoing(int fd) {
 
         assert(fd >= 0);
 
-        if (ioctl(fd, BTRFS_IOC_QUOTA_RESCAN_STATUS, &args) < 0)
+        if (blkpg_ioctl(fd, BTRFS_IOC_QUOTA_RESCAN_STATUS, &args) < 0)
                 return -errno;
 
         return !!args.flags;
 }
 
 static int qgroup_assign_or_unassign(int fd, bool b, uint64_t child, uint64_t parent) {
-        struct btrfs_ioctl_qgroup_assign_args args = {
-                .assign = b,
-                .src = child,
-                .dst = parent,
-        };
+        // struct btrfs_ioctl_qgroup_assign_args args = {
+        //         .assign = b,
+        //         .src = child,
+        //         .dst = parent,
+        // };
         int r;
 
         r = fd_is_fs_type(fd, BTRFS_SUPER_MAGIC);
@@ -1015,7 +1017,7 @@ static int qgroup_assign_or_unassign(int fd, bool b, uint64_t child, uint64_t pa
                 return -ENOTTY;
 
         for (unsigned c = 0;; c++) {
-                r = ioctl(fd, BTRFS_IOC_QGROUP_ASSIGN, &args);
+                r = blkpg_ioctl(fd, BTRFS_IOC_QGROUP_ASSIGN, &args);
                 if (r < 0) {
                         if (errno == EBUSY && c < 10) {
                                 (void) btrfs_quota_scan_wait(fd);
@@ -1097,7 +1099,7 @@ static int subvol_remove_children(int fd, const char *subvolume, uint64_t subvol
         /* First, try to remove the subvolume. If it happens to be
          * already empty, this will just work. */
         strncpy(vol_args.name, subvolume, sizeof(vol_args.name)-1);
-        if (ioctl(fd, BTRFS_IOC_SNAP_DESTROY, &vol_args) >= 0) {
+        if (blkpg_ioctl(fd, BTRFS_IOC_SNAP_DESTROY, &vol_args) >= 0) {
                 (void) btrfs_qgroup_destroy_recursive(fd, subvol_id); /* for the leaf subvolumes, the qgroup id is identical to the subvol id */
                 return 0;
         }
@@ -1114,7 +1116,7 @@ static int subvol_remove_children(int fd, const char *subvolume, uint64_t subvol
                 unsigned i;
 
                 args.key.nr_items = 256;
-                if (ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0)
+                if (blkpg_ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0)
                         return -errno;
 
                 if (args.key.nr_items <= 0)
@@ -1142,7 +1144,7 @@ static int subvol_remove_children(int fd, const char *subvolume, uint64_t subvol
                                 .objectid = htole64(ref->dirid),
                         };
 
-                        if (ioctl(fd, BTRFS_IOC_INO_LOOKUP, &ino_args) < 0)
+                        if (blkpg_ioctl(fd, BTRFS_IOC_INO_LOOKUP, &ino_args) < 0)
                                 return -errno;
 
                         if (!made_writable) {
@@ -1181,7 +1183,7 @@ static int subvol_remove_children(int fd, const char *subvolume, uint64_t subvol
 
         /* OK, the child subvolumes should all be gone now, let's try
          * again to remove the subvolume */
-        if (ioctl(fd, BTRFS_IOC_SNAP_DESTROY, &vol_args) < 0)
+        if (blkpg_ioctl(fd, BTRFS_IOC_SNAP_DESTROY, &vol_args) < 0)
                 return -errno;
 
         (void) btrfs_qgroup_destroy_recursive(fd, subvol_id);
@@ -1246,7 +1248,7 @@ int btrfs_qgroup_copy_limits(int fd, uint64_t old_qgroupid, uint64_t new_qgroupi
                 unsigned i;
 
                 args.key.nr_items = 256;
-                if (ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0) {
+                if (blkpg_ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0) {
                         if (errno == ENOENT) /* quota tree missing: quota is not enabled, hence nothing to copy */
                                 break;
 
@@ -1259,6 +1261,7 @@ int btrfs_qgroup_copy_limits(int fd, uint64_t old_qgroupid, uint64_t new_qgroupi
                 FOREACH_BTRFS_IOCTL_SEARCH_HEADER(i, sh, args) {
                         const struct btrfs_qgroup_limit_item *qli = BTRFS_IOCTL_SEARCH_HEADER_BODY(sh);
                         struct btrfs_ioctl_qgroup_limit_args qargs;
+                        assert_se(qargs.qgroupid || true);
                         unsigned c;
 
                         /* Make sure we start the next search at least from this entry */
@@ -1288,7 +1291,7 @@ int btrfs_qgroup_copy_limits(int fd, uint64_t old_qgroupid, uint64_t new_qgroupi
                         };
 
                         for (c = 0;; c++) {
-                                if (ioctl(fd, BTRFS_IOC_QGROUP_LIMIT, &qargs) < 0) {
+                                if (blkpg_ioctl(fd, BTRFS_IOC_QGROUP_LIMIT, &qargs) < 0) {
                                         if (errno == EBUSY && c < 10) {
                                                 (void) btrfs_quota_scan_wait(fd);
                                                 continue;
@@ -1433,7 +1436,7 @@ static int subvol_snapshot_children(
 
         strncpy(vol_args.name, subvolume, sizeof(vol_args.name)-1);
 
-        if (ioctl(new_fd, BTRFS_IOC_SNAP_CREATE_V2, &vol_args) < 0)
+        if (blkpg_ioctl(new_fd, BTRFS_IOC_SNAP_CREATE_V2, &vol_args) < 0)
                 return -errno;
 
         if (!(flags & BTRFS_SNAPSHOT_RECURSIVE) &&
@@ -1468,7 +1471,7 @@ static int subvol_snapshot_children(
                 unsigned i;
 
                 args.key.nr_items = 256;
-                if (ioctl(old_fd, BTRFS_IOC_TREE_SEARCH, &args) < 0)
+                if (blkpg_ioctl(old_fd, BTRFS_IOC_TREE_SEARCH, &args) < 0)
                         return -errno;
 
                 if (args.key.nr_items <= 0)
@@ -1504,7 +1507,7 @@ static int subvol_snapshot_children(
                                 .objectid = htole64(ref->dirid),
                         };
 
-                        if (ioctl(old_fd, BTRFS_IOC_INO_LOOKUP, &ino_args) < 0)
+                        if (blkpg_ioctl(old_fd, BTRFS_IOC_INO_LOOKUP, &ino_args) < 0)
                                 return -errno;
 
                         c = path_join(ino_args.name, p);
@@ -1726,7 +1729,7 @@ int btrfs_qgroup_find_parents(int fd, uint64_t qgroupid, uint64_t **ret) {
                 unsigned i;
 
                 args.key.nr_items = 256;
-                if (ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0) {
+                if (blkpg_ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0) {
                         if (errno == ENOENT) /* quota tree missing: quota is disabled */
                                 break;
 
@@ -1967,7 +1970,7 @@ int btrfs_subvol_get_parent(int fd, uint64_t subvol_id, uint64_t *ret) {
                 unsigned i;
 
                 args.key.nr_items = 256;
-                if (ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0)
+                if (blkpg_ioctl(fd, BTRFS_IOC_TREE_SEARCH, &args) < 0)
                         return negative_errno();
 
                 if (args.key.nr_items <= 0)

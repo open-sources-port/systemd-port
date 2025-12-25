@@ -12,6 +12,7 @@
 #include "string-util.h"
 #include "sync-util.h"
 #include "virt.h"
+#include <compat/errno.h>
 
 bool id128_is_valid(const char *s) {
         size_t l;

@@ -5,12 +5,13 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <sys/stat.h>
-// #include <sys/statfs.h>
+#include <sys_compat/statfs.h>
 #include <sys/types.h>
-#include <compat/sys/vfs.h>
+#include <sys_compat/vfs.h>
 
 #include <basic/macro.h>
 #include "missing_stat.h"
+#include <sys_compat/missing_syscall.h>
 
 int is_symlink(const char *path);
 int is_dir_full(int atfd, const char *fname, bool follow);
@@ -41,7 +42,7 @@ int files_same(const char *filea, const char *fileb, int flags);
 
 /* The .f_type field of struct statfs is really weird defined on
  * different archs. Let's give its type a name. */
-typedef typeof(((struct statfs*)NULL)->f_type) statfs_f_type_t;
+typedef typeof((( struct linux_statfs*)NULL)->f_type) statfs_f_type_t;
 
 bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) _pure_;
 int fd_is_fs_type(int fd, statfs_f_type_t magic_value);
@@ -77,6 +78,10 @@ bool statx_inode_same(const struct statx *a, const struct statx *b);
 bool statx_mount_same(const struct new_statx *a, const struct new_statx *b);
 
 int statx_fallback(int dfd, const char *path, int flags, unsigned mask, struct statx *sx);
+
+#ifndef AT_NO_AUTOMOUNT
+#define AT_NO_AUTOMOUNT 0
+#endif
 
 #if HAS_FEATURE_MEMORY_SANITIZER
 #  warning "Explicitly initializing struct statx, to work around msan limitation. Please remove as soon as msan has been updated to not require this."

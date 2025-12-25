@@ -17,8 +17,8 @@
 #include "fs-util.h"
 #include <basic/macro.h>
 #include "missing_fs.h"
-#include "missing_magic.h"
-#include "missing_syscall.h"
+#include <linux/magic.h>
+#include <sys_compat/missing_syscall.h>
 #include "nulstr-util.h"
 #include "parse-util.h"
 #include "stat-util.h"

@@ -6,6 +6,7 @@
 #include <net/if.h>
 #include <net/if_dl.h>
 #include <net/if_types.h>
+#include <linux/if_ether.h>
 
 const char *arphrd_to_name(int id);
 int arphrd_from_name(const char *name);
@@ -14,11 +15,6 @@ size_t arphrd_to_hw_addr_len(uint16_t arphrd);
 
 #ifndef GPERF_LEN_TYPE
 #define GPERF_LEN_TYPE size_t
-#endif
-
-// MAC address length
-#ifndef ETH_ALEN
-#define ETH_ALEN 6
 #endif
 
 // Fallback ARPHRD values for macOS

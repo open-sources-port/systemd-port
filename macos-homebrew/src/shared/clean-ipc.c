@@ -2,8 +2,9 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
-#include <mqueue.h>
+#include <sys_compat/limits.h>
+#include <sys_compat/missing_syscall.h>
+#include <linux/mqueue.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <sys/ipc.h>

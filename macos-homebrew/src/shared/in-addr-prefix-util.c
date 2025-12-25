@@ -5,6 +5,7 @@
 #include "hostname-util.h"
 #include "in-addr-prefix-util.h"
 #include "string-util.h"
+#include <sys_compat/endian.h>
 
 /* 0.0.0.0/0 */
 #define IN_ADDR_PREFIX_IPV4_ANY ((struct in_addr_prefix) { .family = AF_INET })

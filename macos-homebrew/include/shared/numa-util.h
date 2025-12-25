@@ -2,7 +2,7 @@
 #pragma once
 
 #include "cpu-set-util.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 
 static inline bool mpol_is_valid(int t) {
         return t >= MPOL_DEFAULT && t <= MPOL_LOCAL;

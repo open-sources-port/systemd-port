@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <fnmatch.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>

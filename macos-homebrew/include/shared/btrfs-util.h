@@ -9,6 +9,7 @@
 
 #include "copy.h"
 #include "time-util.h"
+#include <linux/blkpg.h>
 
 typedef struct BtrfsSubvolInfo {
         uint64_t subvol_id;

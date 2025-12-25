@@ -46,3 +46,19 @@
 #ifndef EKEYREVOKED
 #define EKEYREVOKED 128
 #endif
+
+#ifndef ENOMEDIUM
+#define ENOMEDIUM ENODEV
+#endif
+
+#ifndef EBADFD
+#define EBADFD EBADF
+#endif
+
+#ifndef ELIBBAD
+#define ELIBBAD EBADF
+#endif
+
+#ifndef EXFULL
+#define EXFULL ENOSPC
+#endif

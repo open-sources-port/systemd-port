@@ -1,13 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <arpa/inet.h>
-#include <endian.h>
+#include <sys_compat/endian.h>
 #include <errno.h>
 #include <stddef.h>
 #include <string.h>
 #include <linux/netfilter/nf_tables.h>
 #include <linux/netfilter/nf_nat.h>
 #include <linux/netfilter_ipv4.h>
+#include <linux/ip.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
 

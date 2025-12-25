@@ -20,7 +20,7 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <sys/stat.h>
-// #include <sys/sysmacros.h>
+#include <sys_compat/inotify.h>
 
 #include <sys/types.h>
 

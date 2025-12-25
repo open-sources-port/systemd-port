@@ -5,7 +5,7 @@
 #include <linux/seccomp.h>
 #include <stddef.h>
 #include <sys/mman.h>
-#include <sys/prctl.h>
+#include <sys_compat/prctl.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
 

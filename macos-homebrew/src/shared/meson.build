@@ -9,6 +9,7 @@ shared_includes = [
   basic_inc,
   fundamental_inc,
   udev_inc,
+  libsystemd_includes
 ]
 
 shared_sources = files(
@@ -129,8 +130,8 @@ shared_sources = files(
         'enable-mempool.c',
         'env-file-label.c',
         join_paths(shared_inc_path, 'env-file-label.h'),
-        'ethtool-util.c',
-        join_paths(shared_inc_path, 'ethtool-util.h'),
+        # 'ethtool-util.c',
+        # join_paths(shared_inc_path, 'ethtool-util.h'),
         'exec-util.c',
         join_paths(shared_inc_path, 'exec-util.h'),
         'exit-status.c',
@@ -292,10 +293,11 @@ shared_sources = files(
         'rm-rf.c',
         join_paths(shared_inc_path, 'rm-rf.h'),
         join_paths(shared_inc_path, 'seccomp-util.h'),
-        'securebits-util.c',
-        join_paths(shared_inc_path, 'securebits-util.h'),
-        'selinux-util.c',
-        join_paths(shared_inc_path, 'selinux-util.h'),
+        # Mac does not support securebits
+        # 'securebits-util.c',
+        # join_paths(shared_inc_path, 'securebits-util.h'),
+        # 'selinux-util.c',
+        # join_paths(shared_inc_path, 'selinux-util.h'),
         'serialize.c',
         join_paths(shared_inc_path, 'serialize.h'),
         'service-util.c',

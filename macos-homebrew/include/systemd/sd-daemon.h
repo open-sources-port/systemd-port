@@ -20,8 +20,11 @@
 #include <inttypes.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <linux/socket.h>
 
 #include "_sd-common.h"
+
+int get_peer_credentials(int fd, pid_t *pid, uid_t *uid, gid_t *gid);
 
 _SD_BEGIN_DECLARATIONS;
 

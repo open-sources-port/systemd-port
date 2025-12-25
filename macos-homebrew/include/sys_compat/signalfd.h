@@ -72,4 +72,15 @@ static inline void signalfd_register_handler(
     }
 }
 
+#define SFD_NONBLOCK 0
+#define SFD_CLOEXEC  0
+
+static inline int signalfd(int fd, const sigset_t *mask, int flags) {
+    (void)fd;
+    (void)flags;
+    signalfd_register_handler(NULL, NULL, mask); // or pass a proper callback if needed
+    return -ENOSYS; // or return a fake FD if your code expects a positive value
+}
+
+
 #endif // __APPLE__

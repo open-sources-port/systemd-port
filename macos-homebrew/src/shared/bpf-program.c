@@ -11,7 +11,7 @@
 #include "escape.h"
 #include "fd-util.h"
 #include "memory-util.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "path-util.h"
 #include "serialize.h"
 #include "string-table.h"

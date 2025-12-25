@@ -21,7 +21,7 @@
 #include "format-util.h"
 #include "hashmap.h"
 #include "io-util.h"
-#include "missing_socket.h"
+#include <linux/socket.h>
 #include "mountpoint-util.h"
 #include "set.h"
 #include "socket-util.h"
@@ -360,10 +360,12 @@ int device_monitor_enable_receiving(sd_device_monitor *m) {
                 return log_monitor_errno(m, r, "Failed to update filter: %m");
 
         if (!m->bound) {
+                #ifdef SO_PASSCRED
                 /* enable receiving of sender credentials */
                 r = setsockopt_int(m->sock, SOL_SOCKET, SO_PASSCRED, true);
                 if (r < 0)
                         return log_monitor_errno(m, r, "Failed to set socket option SO_PASSCRED: %m");
+                #endif
 
                 if (bind(m->sock, &m->snl.sa, sizeof(struct sockaddr_nl)) < 0)
                         return log_monitor_errno(m, errno, "Failed to bind monitoring socket: %m");

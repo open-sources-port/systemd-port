@@ -11,6 +11,7 @@
 #include "strv.h"
 #include "tmpfile-util.h"
 #include "utf8.h"
+#include <basic/macro.h>
 
 static int parse_env_file_internal(
                 FILE *f,

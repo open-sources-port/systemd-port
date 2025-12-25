@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/xattr.h>
+#include <sys_compat/missing_syscall.h>
 
 #include "chown-recursive.h"
 #include "dirent-util.h"
@@ -31,7 +32,7 @@ static int chown_one(
 
         /* Drop any ACL if there is one */
         FOREACH_STRING(n, "system.posix_acl_access", "system.posix_acl_default")
-                if (removexattr(FORMAT_PROC_FD_PATH(fd), n) < 0)
+                if (removexattr(FORMAT_PROC_FD_PATH(fd), n, 0) < 0)
                         if (!ERRNO_IS_XATTR_ABSENT(errno))
                                 return -errno;
 

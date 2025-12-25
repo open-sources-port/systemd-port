@@ -24,7 +24,7 @@
 
 // #include <byteswap.h>
 #include "compat/byteswap.h"
-#include <compat/compat_endian.h>
+#include <sys_compat/endian.h>
 #include <stdint.h>
 
 #ifdef __CHECKER__

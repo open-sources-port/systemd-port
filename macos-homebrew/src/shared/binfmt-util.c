@@ -2,11 +2,11 @@
 
 #include <sys/stat.h>
 #include <sys/statvfs.h>
-#include <compat/sys/vfs.h>
+#include <sys_compat/vfs.h>
 
 #include "binfmt-util.h"
 #include "fileio.h"
-#include "missing_magic.h"
+#include <linux/magic.h>
 #include "stat-util.h"
 
 int disable_binfmt(void) {

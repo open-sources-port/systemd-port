@@ -8,6 +8,27 @@
 #ifdef __APPLE__
 
 #include <stddef.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <errno.h>
+
+#define PR_SET_KEEPCAPS 0
+typedef void* cap_t;
+
+/* Linux's setresuid(uid, euid, suid) -> macOS only supports setuid(uid) */
+static inline int setresuid(uid_t ruid, uid_t euid, uid_t suid) {
+    (void)ruid;
+    (void)suid;
+
+    // macOS cannot change real or saved UID separately
+    // just change effective UID (or real UID, depending on your use case)
+    if (setuid(euid) < 0)
+        return -1;
+
+    return 0;
+}
+
+static inline cap_t cap_init(void) { return NULL; }
 
 /* ------------------------------------------------------------------------- */
 /* Types */

@@ -6,7 +6,7 @@
 #include <elfutils/libdwelf.h>
 #include <elfutils/libdwfl.h>
 #include <libelf.h>
-#include <sys/prctl.h>
+#include <sys_compat/prctl.h>
 #include <sys/resource.h>
 #include <sys/types.h>
 #include <unistd.h>

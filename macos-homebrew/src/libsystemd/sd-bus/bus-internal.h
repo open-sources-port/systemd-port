@@ -17,12 +17,6 @@
 #include <linux/types.h>
 #include "compat/errno.h"
 
-struct ucred {
-    pid_t pid;
-    uid_t uid;
-    gid_t gid;
-};
-
 /* Note that we use the new /run prefix here (instead of /var/run) since we require them to be aliases and
  * that way we become independent of /var being mounted */
 #define DEFAULT_SYSTEM_BUS_ADDRESS "unix:path=/run/dbus/system_bus_socket"

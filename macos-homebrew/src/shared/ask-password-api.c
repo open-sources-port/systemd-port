@@ -3,20 +3,22 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
+#include <sys_compat/ucred.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/inotify.h>
-#include <sys/signalfd.h>
+#include <sys_compat/inotify.h>
+#include <sys_compat/signalfd.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/uio.h>
 #include <sys/un.h>
 #include <termios.h>
 #include <unistd.h>
+#include <compat/errno.h>
 
 #include "alloc-util.h"
 #include "ask-password-api.h"
@@ -32,7 +34,7 @@
 #include "log.h"
 #include "macro.h"
 #include "memory-util.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "mkdir-label.h"
 #include "process-util.h"
 #include "random-util.h"

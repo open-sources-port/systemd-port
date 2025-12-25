@@ -1,8 +1,8 @@
 #pragma once
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/epoll.h>
-#include <sys/timerfd.h>
+#include <sys_compat/epoll.h>
+#include <sys_compat/timerfd.h>
 #include <sys/wait.h>
 
 #include "sd-event.h"

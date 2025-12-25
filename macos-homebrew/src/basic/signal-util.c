@@ -11,6 +11,7 @@
 #include "stdio-util.h"
 #include "string-table.h"
 #include "string-util.h"
+#include <sys_compat/signal.h>
 
 int reset_all_signal_handlers(void) {
         static const struct sigaction sa = {

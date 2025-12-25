@@ -15,6 +15,7 @@
 #include "format-util.h"
 #include <basic/macro.h>
 #include "time-util.h"
+#include <compat/compat-glibc.h>
 
 #ifndef SCHED_BATCH
 #define SCHED_BATCH  3 
@@ -204,3 +205,5 @@ bool invoked_by_systemd(void);
 _noreturn_ void freeze(void);
 
 bool argv_looks_like_help(int argc, char **argv);
+
+pid_t raw_clone(unsigned long flags);

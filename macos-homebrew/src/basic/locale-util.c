@@ -17,7 +17,7 @@
 #include "fileio.h"
 #include "hashmap.h"
 #include "locale-util.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "path-util.h"
 #include "set.h"
 #include "string-table.h"

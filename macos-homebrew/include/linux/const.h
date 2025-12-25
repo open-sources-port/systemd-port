@@ -22,6 +22,10 @@
 #define _UL(x)		(_AC(x, UL))
 #define _ULL(x)		(_AC(x, ULL))
 
+#ifndef BIT
+# define BIT(nr)          (1UL << (nr))
+#endif
+
 #define _BITUL(x)	(_UL(1) << (x))
 #define _BITULL(x)	(_ULL(1) << (x))
 
@@ -49,5 +53,10 @@
 
 #define UL(x)		(_UL(x))
 #define ULL(x)		(_ULL(x))
+
+#ifndef GENMASK
+# define GENMASK(h, l) \
+    (((~0UL) - (1UL << (l)) + 1) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
+#endif
 
 #endif /* _LINUX_CONST_H */

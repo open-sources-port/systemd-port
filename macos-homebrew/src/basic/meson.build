@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 basic_inc_path = '../../include/basic'
+sys_compat_inc_path = '../../include/sys_compat'
 # basic_includes = include_directories(basic_inc_path)
 basic_includes = [
   incdir,
@@ -157,7 +158,7 @@ basic_sources = files(
         join_paths(basic_inc_path, 'missing_input.h'),
         join_paths(basic_inc_path, 'missing_ioprio.h'),
         join_paths(basic_inc_path, 'missing_keyctl.h'),
-        join_paths(basic_inc_path, 'missing_magic.h'),
+        join_paths('../../include/linux', 'missing_magic.h'),
         join_paths(basic_inc_path, 'missing_mman.h'),
         join_paths(basic_inc_path, 'missing_mount.h'),
         join_paths(basic_inc_path, 'missing_network.h'),
@@ -166,10 +167,10 @@ basic_sources = files(
         join_paths(basic_inc_path, 'missing_resource.h'),
         join_paths(basic_inc_path, 'missing_sched.h'),
         join_paths(basic_inc_path, 'missing_securebits.h'),
-        join_paths(basic_inc_path, 'missing_socket.h'),
+        join_paths('../../include/linux', 'socket.h'),
         join_paths(basic_inc_path, 'missing_stat.h'),
         join_paths(basic_inc_path, 'missing_stdlib.h'),
-        join_paths(basic_inc_path, 'missing_syscall.h'),
+        join_paths(sys_compat_inc_path, 'missing_syscall.h'),
         join_paths(basic_inc_path, 'missing_timerfd.h'),
         join_paths(basic_inc_path, 'missing_type.h'),
         'mkdir.c',
@@ -277,9 +278,9 @@ basic_sources = files(
 
 missing_audit_h = files(join_paths(basic_inc_path, 'missing_audit.h'))
 missing_capability_h = files(join_paths(basic_inc_path, 'missing_capability.h'))
-missing_socket_h = files(join_paths(basic_inc_path, 'missing_socket.h'))
+missing_socket_h = files(join_paths('../../include/linux', 'socket.h'))
 
-missing_syscall_def_h = files(join_paths(basic_inc_path, 'missing_syscall_def.h'))
+missing_syscall_def_h = files(join_paths(sys_compat_inc_path, 'missing_syscall_def.h'))
 basic_sources += missing_syscall_def_h
 
 generate_af_list = find_program('generate-af-list.sh')

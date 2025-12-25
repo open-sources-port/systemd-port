@@ -9,7 +9,10 @@
 
 #include <basic/macro.h>
 #include "ratelimit.h"
-#include <fundamental/macro-fundamental.h>
+
+#ifndef RELATIVE_SOURCE_PATH
+#define RELATIVE_SOURCE_PATH ""
+#endif
 
 /* Some structures we reference but don't want to pull in headers for */
 struct iovec;
@@ -78,7 +81,6 @@ int log_show_tid_from_string(const char *e);
  * for the application itself. */
 
 assert_cc(STRLEN(__FILE__) > STRLEN(RELATIVE_SOURCE_PATH) + 1);
-#define PROJECT_FILE (&__FILE__[STRLEN(RELATIVE_SOURCE_PATH) + 1])
 
 int log_open(void);
 void log_close(void);

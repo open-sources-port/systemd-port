@@ -1,12 +1,13 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <arpa/inet.h>
-#include <compat/compat_endian.h>
+#include <sys_compat/endian.h>
 #include <errno.h>
 #include <net/if.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <linux/in6.h>
 
 #include "alloc-util.h"
 #include "errno-util.h"

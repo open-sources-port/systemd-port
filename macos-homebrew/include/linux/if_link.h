@@ -5,6 +5,12 @@
 #include <linux/types.h>
 #include <linux/netlink.h>
 
+enum {
+    VETH_INFO_UNSPEC,
+    VETH_INFO_PEER,
+    __VETH_INFO_MAX
+};
+
 /* This struct should be in sync with struct rtnl_link_stats64 */
 struct rtnl_link_stats {
 	__u32	rx_packets;

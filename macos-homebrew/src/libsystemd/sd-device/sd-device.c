@@ -4,6 +4,7 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <linux/types.h>
 
 #include "sd-device.h"
 
@@ -22,7 +23,7 @@
 #include "hashmap.h"
 #include "id128-util.h"
 #include <basic/macro.h>
-#include "missing_magic.h"
+#include <linux/magic.h>
 #include "netlink-util.h"
 #include "parse-util.h"
 #include "path-util.h"
@@ -218,13 +219,17 @@ int device_set_syspath(sd_device *device, const char *_syspath, bool verify) {
                 r = getenv_bool_secure("SYSTEMD_DEVICE_VERIFY_SYSFS");
                 if (r < 0 && r != -ENXIO)
                         log_debug_errno(r, "Failed to parse $SYSTEMD_DEVICE_VERIFY_SYSFS value: %m");
+
                 if (r != 0) {
-                        r = fd_is_fs_type(fd, SYSFS_MAGIC);
-                        if (r < 0)
-                                return log_debug_errno(r, "sd-device: failed to check if syspath \"%s\" is backed by sysfs.", syspath);
-                        if (r == 0)
-                                return log_debug_errno(SYNTHETIC_ERRNO(ENODEV),
-                                                       "sd-device: the syspath \"%s\" is outside of sysfs, refusing.", syspath);
+                // macOS: verify the path is a character or block device
+                struct stat st;
+                if (stat(syspath, &st) < 0)
+                        return log_debug_errno(errno,
+                        "sd-device: syspath \"%s\" does not exist.", syspath);
+
+                if (!S_ISCHR(st.st_mode) && !S_ISBLK(st.st_mode))
+                        return log_debug_errno(ENODEV,
+                        "sd-device: syspath \"%s\" is not a device node, refusing.", syspath);
                 }
         } else {
                 /* must be a subdirectory of /sys */
@@ -298,7 +303,7 @@ int device_new_from_mode_and_devnum(sd_device **ret, mode_t mode, dev_t devnum) 
         if (major(devnum) == 0)
                 return -ENODEV;
 
-        if (asprintf(&syspath, "/sys/dev/%s/%u:%u", t, major(devnum), minor(devnum)) < 0)
+        if (asprintf(&syspath, "/sys/dev/%s/%d:%d", t, major(devnum), minor(devnum)) < 0)
                 return -ENOMEM;
 
         r = sd_device_new_from_syspath(&dev, syspath);
@@ -1608,7 +1613,7 @@ int device_get_device_id(sd_device *device, const char **ret) {
 
                 if (sd_device_get_devnum(device, &devnum) >= 0) {
                         /* use dev_t — b259:131072, c254:0 */
-                        if (asprintf(&id, "%c%u:%u",
+                        if (asprintf(&id, "%c%d:%d",
                                      streq(subsystem, "block") ? 'b' : 'c',
                                      major(devnum), minor(devnum)) < 0)
                                 return -ENOMEM;

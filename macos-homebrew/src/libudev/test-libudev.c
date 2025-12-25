@@ -2,7 +2,7 @@
 
 #include <errno.h>
 #include <getopt.h>
-#include <sys/epoll.h>
+#include <sys_compat/epoll.h>
 #include <unistd.h>
 
 #include "alloc-util.h"

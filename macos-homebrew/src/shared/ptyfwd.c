@@ -2,13 +2,13 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <signal.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/epoll.h>
+#include <sys_compat/epoll.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <termios.h>

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <errno.h>
+#include <sys_compat/limits.h>
 
 #include "alloc-util.h"
 #include "errno-util.h"
@@ -175,73 +176,125 @@ static int rlimit_parse_usec(const char *val, rlim_t *ret) {
         return 0;
 }
 
-static int rlimit_parse_nice(const char *val, rlim_t *ret) {
-        uint64_t rl;
-        int r;
+// static int rlimit_parse_nice(const char *val, rlim_t *ret) {
+//         uint64_t rl;
+//         int r;
 
-        /* So, Linux is weird. The range for RLIMIT_NICE is 40..1, mapping to the nice levels -20..19. However, the
-         * RLIMIT_NICE limit defaults to 0 by the kernel, i.e. a value that maps to nice level 20, which of course is
-         * bogus and does not exist. In order to permit parsing the RLIMIT_NICE of 0 here we hence implement a slight
-         * asymmetry: when parsing as positive nice level we permit 0..19. When parsing as negative nice level, we
-         * permit -20..0. But when parsing as raw resource limit value then we also allow the special value 0.
-         *
-         * Yeah, Linux is quality engineering sometimes... */
+//         /* So, Linux is weird. The range for RLIMIT_NICE is 40..1, mapping to the nice levels -20..19. However, the
+//          * RLIMIT_NICE limit defaults to 0 by the kernel, i.e. a value that maps to nice level 20, which of course is
+//          * bogus and does not exist. In order to permit parsing the RLIMIT_NICE of 0 here we hence implement a slight
+//          * asymmetry: when parsing as positive nice level we permit 0..19. When parsing as negative nice level, we
+//          * permit -20..0. But when parsing as raw resource limit value then we also allow the special value 0.
+//          *
+//          * Yeah, Linux is quality engineering sometimes... */
 
-        if (val[0] == '+') {
+//         if (val[0] == '+') {
 
-                /* Prefixed with "+": Parse as positive user-friendly nice value */
-                r = safe_atou64(val + 1, &rl);
-                if (r < 0)
-                        return r;
+//                 /* Prefixed with "+": Parse as positive user-friendly nice value */
+//                 r = safe_atou64(val + 1, &rl);
+//                 if (r < 0)
+//                         return r;
 
-                if (rl >= PRIO_MAX)
-                        return -ERANGE;
+//                 if (rl >= PRIO_MAX)
+//                         return -ERANGE;
 
-                rl = 20 - rl;
+//                 rl = 20 - rl;
 
-        } else if (val[0] == '-') {
+//         } else if (val[0] == '-') {
 
-                /* Prefixed with "-": Parse as negative user-friendly nice value */
-                r = safe_atou64(val + 1, &rl);
-                if (r < 0)
-                        return r;
+//                 /* Prefixed with "-": Parse as negative user-friendly nice value */
+//                 r = safe_atou64(val + 1, &rl);
+//                 if (r < 0)
+//                         return r;
 
-                if (rl > (uint64_t) (-PRIO_MIN))
-                        return -ERANGE;
+//                 if (rl > (uint64_t) (-PRIO_MIN))
+//                         return -ERANGE;
 
-                rl = 20 + rl;
-        } else {
+//                 rl = 20 + rl;
+//         } else {
 
-                /* Not prefixed: parse as raw resource limit value */
-                r = safe_atou64(val, &rl);
-                if (r < 0)
-                        return r;
+//                 /* Not prefixed: parse as raw resource limit value */
+//                 r = safe_atou64(val, &rl);
+//                 if (r < 0)
+//                         return r;
 
-                if (rl > (uint64_t) (20 - PRIO_MIN))
-                        return -ERANGE;
-        }
+//                 if (rl > (uint64_t) (20 - PRIO_MIN))
+//                         return -ERANGE;
+//         }
 
-        *ret = (rlim_t) rl;
-        return 0;
-}
+//         *ret = (rlim_t) rl;
+//         return 0;
+// }
 
+// static int (*const rlimit_parse_table[_RLIMIT_MAX])(const char *val, rlim_t *ret) = {
+//         [RLIMIT_CPU] = rlimit_parse_sec,
+//         [RLIMIT_FSIZE] = rlimit_parse_size,
+//         [RLIMIT_DATA] = rlimit_parse_size,
+//         [RLIMIT_STACK] = rlimit_parse_size,
+//         [RLIMIT_CORE] = rlimit_parse_size,
+//         [RLIMIT_RSS] = rlimit_parse_size,
+//         [RLIMIT_NOFILE] = rlimit_parse_u64,
+//         [RLIMIT_AS] = rlimit_parse_size,
+//         [RLIMIT_NPROC] = rlimit_parse_u64,
+//         [RLIMIT_MEMLOCK] = rlimit_parse_size,
+//         [RLIMIT_LOCKS] = rlimit_parse_u64,
+//         [RLIMIT_SIGPENDING] = rlimit_parse_u64,
+//         [RLIMIT_MSGQUEUE] = rlimit_parse_size,
+//         [RLIMIT_NICE] = rlimit_parse_nice,
+//         [RLIMIT_RTPRIO] = rlimit_parse_u64,
+//         [RLIMIT_RTTIME] = rlimit_parse_usec,
+// };
 static int (*const rlimit_parse_table[_RLIMIT_MAX])(const char *val, rlim_t *ret) = {
-        [RLIMIT_CPU] = rlimit_parse_sec,
-        [RLIMIT_FSIZE] = rlimit_parse_size,
-        [RLIMIT_DATA] = rlimit_parse_size,
-        [RLIMIT_STACK] = rlimit_parse_size,
-        [RLIMIT_CORE] = rlimit_parse_size,
-        [RLIMIT_RSS] = rlimit_parse_size,
-        [RLIMIT_NOFILE] = rlimit_parse_u64,
-        [RLIMIT_AS] = rlimit_parse_size,
-        [RLIMIT_NPROC] = rlimit_parse_u64,
-        [RLIMIT_MEMLOCK] = rlimit_parse_size,
-        [RLIMIT_LOCKS] = rlimit_parse_u64,
-        [RLIMIT_SIGPENDING] = rlimit_parse_u64,
-        [RLIMIT_MSGQUEUE] = rlimit_parse_size,
-        [RLIMIT_NICE] = rlimit_parse_nice,
-        [RLIMIT_RTPRIO] = rlimit_parse_u64,
-        [RLIMIT_RTTIME] = rlimit_parse_usec,
+        #if defined(RLIMIT_CPU)
+                [RLIMIT_CPU] = rlimit_parse_sec,
+        #endif
+        #if defined(RLIMIT_FSIZE)
+                [RLIMIT_FSIZE] = rlimit_parse_size,
+        #endif
+        #if defined(RLIMIT_DATA)
+                [RLIMIT_DATA] = rlimit_parse_size,
+        #endif
+        #if defined(RLIMIT_STACK)
+                [RLIMIT_STACK] = rlimit_parse_size,
+        #endif
+        #if defined(RLIMIT_CORE)
+                [RLIMIT_CORE] = rlimit_parse_size,
+        #endif
+        #if defined(RLIMIT_RSS)
+                [RLIMIT_RSS] = rlimit_parse_size,
+        #endif
+        #if defined(RLIMIT_NOFILE)
+                [RLIMIT_NOFILE] = rlimit_parse_u64,
+        #endif
+        #if defined(RLIMIT_AS) && (!defined(RLIMIT_RSS) || RLIMIT_AS != RLIMIT_RSS)
+                [RLIMIT_AS] = rlimit_parse_size,
+        #endif
+        #if defined(RLIMIT_NPROC)
+                [RLIMIT_NPROC] = rlimit_parse_u64,
+        #endif
+        #if defined(RLIMIT_MEMLOCK)
+                [RLIMIT_MEMLOCK] = rlimit_parse_size,
+        #endif
+
+        /* Linux-only — excluded on macOS */
+        #if defined(RLIMIT_LOCKS)
+                [RLIMIT_LOCKS] = rlimit_parse_u64,
+        #endif
+        #if defined(RLIMIT_SIGPENDING)
+                [RLIMIT_SIGPENDING] = rlimit_parse_u64,
+        #endif
+        #if defined(RLIMIT_MSGQUEUE)
+                [RLIMIT_MSGQUEUE] = rlimit_parse_size,
+        #endif
+        #if defined(RLIMIT_NICE)
+                [RLIMIT_NICE] = rlimit_parse_nice,
+        #endif
+        #if defined(RLIMIT_RTPRIO)
+                [RLIMIT_RTPRIO] = rlimit_parse_u64,
+        #endif
+        #if defined(RLIMIT_RTTIME)
+                [RLIMIT_RTTIME] = rlimit_parse_usec,
+        #endif
 };
 
 int rlimit_parse_one(int resource, const char *val, rlim_t *ret) {
@@ -321,23 +374,76 @@ int rlimit_format(const struct rlimit *rl, char **ret) {
         return 0;
 }
 
+// static const char* const rlimit_table[_RLIMIT_MAX] = {
+//         [RLIMIT_AS]         = "AS",
+//         [RLIMIT_CORE]       = "CORE",
+//         [RLIMIT_CPU]        = "CPU",
+//         [RLIMIT_DATA]       = "DATA",
+//         [RLIMIT_FSIZE]      = "FSIZE",
+//         [RLIMIT_LOCKS]      = "LOCKS",
+//         [RLIMIT_MEMLOCK]    = "MEMLOCK",
+//         [RLIMIT_MSGQUEUE]   = "MSGQUEUE",
+//         [RLIMIT_NICE]       = "NICE",
+//         [RLIMIT_NOFILE]     = "NOFILE",
+//         [RLIMIT_NPROC]      = "NPROC",
+//         [RLIMIT_RSS]        = "RSS",
+//         [RLIMIT_RTPRIO]     = "RTPRIO",
+//         [RLIMIT_RTTIME]     = "RTTIME",
+//         [RLIMIT_SIGPENDING] = "SIGPENDING",
+//         [RLIMIT_STACK]      = "STACK",
+// };
 static const char* const rlimit_table[_RLIMIT_MAX] = {
-        [RLIMIT_AS]         = "AS",
-        [RLIMIT_CORE]       = "CORE",
-        [RLIMIT_CPU]        = "CPU",
-        [RLIMIT_DATA]       = "DATA",
-        [RLIMIT_FSIZE]      = "FSIZE",
-        [RLIMIT_LOCKS]      = "LOCKS",
-        [RLIMIT_MEMLOCK]    = "MEMLOCK",
-        [RLIMIT_MSGQUEUE]   = "MSGQUEUE",
-        [RLIMIT_NICE]       = "NICE",
-        [RLIMIT_NOFILE]     = "NOFILE",
-        [RLIMIT_NPROC]      = "NPROC",
-        [RLIMIT_RSS]        = "RSS",
-        [RLIMIT_RTPRIO]     = "RTPRIO",
-        [RLIMIT_RTTIME]     = "RTTIME",
-        [RLIMIT_SIGPENDING] = "SIGPENDING",
-        [RLIMIT_STACK]      = "STACK",
+        #if defined(RLIMIT_AS)
+                [RLIMIT_AS]      = "AS",
+        #endif
+        #if defined(RLIMIT_CORE)
+                [RLIMIT_CORE]    = "CORE",
+        #endif
+        #if defined(RLIMIT_CPU)
+                [RLIMIT_CPU]     = "CPU",
+        #endif
+        #if defined(RLIMIT_DATA)
+                [RLIMIT_DATA]    = "DATA",
+        #endif
+        #if defined(RLIMIT_FSIZE)
+                [RLIMIT_FSIZE]   = "FSIZE",
+        #endif
+
+        /* Linux-only */
+        #if defined(RLIMIT_LOCKS)
+                [RLIMIT_LOCKS]   = "LOCKS",
+        #endif
+        #if defined(RLIMIT_MEMLOCK)
+                [RLIMIT_MEMLOCK] = "MEMLOCK",
+        #endif
+        #if defined(RLIMIT_MSGQUEUE)
+                [RLIMIT_MSGQUEUE]= "MSGQUEUE",
+        #endif
+        #if defined(RLIMIT_NICE)
+                [RLIMIT_NICE]    = "NICE",
+        #endif
+
+        #if defined(RLIMIT_NOFILE)
+                [RLIMIT_NOFILE]  = "NOFILE",
+        #endif
+        #if defined(RLIMIT_NPROC)
+                [RLIMIT_NPROC]   = "NPROC",
+        #endif
+        #if defined(RLIMIT_AS) && (!defined(RLIMIT_RSS) || RLIMIT_AS != RLIMIT_RSS)
+                [RLIMIT_AS] = "AS",
+        #endif
+        #if defined(RLIMIT_RTPRIO)
+                [RLIMIT_RTPRIO]  = "RTPRIO",
+        #endif
+        #if defined(RLIMIT_RTTIME)
+                [RLIMIT_RTTIME]  = "RTTIME",
+        #endif
+        #if defined(RLIMIT_SIGPENDING)
+                [RLIMIT_SIGPENDING] = "SIGPENDING",
+        #endif
+        #if defined(RLIMIT_STACK)
+                [RLIMIT_STACK]   = "STACK",
+        #endif
 };
 
 DEFINE_STRING_TABLE_LOOKUP(rlimit, int);

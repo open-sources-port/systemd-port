@@ -1,14 +1,18 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <errno.h>
+#include <compat/errno.h>
 #include <fcntl.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/file.h>
-#include <sys/sendfile.h>
+#include <sys/types.h>
+// #include <sys/sendfile.h>
 #include <sys/xattr.h>
 #include <unistd.h>
+
+#include <linux/falloc.h>
 
 #include "alloc-util.h"
 #include "btrfs-util.h"
@@ -20,7 +24,7 @@
 #include "fs-util.h"
 #include "io-util.h"
 #include "macro.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "mkdir-label.h"
 #include "mountpoint-util.h"
 #include "nulstr-util.h"
@@ -44,6 +48,40 @@
  * deepest valid path one can build is around 2048, which we hence use as a safety net here, to not spin endlessly in
  * case of bind mount cycles and suchlike. */
 #define COPY_DEPTH_MAX 2048U
+
+static ssize_t macos_splice(int fd_in, int fd_out, size_t len) {
+    char buf[65536]; // 64 KB buffer
+    ssize_t total = 0;
+
+    while (len > 0) {
+        ssize_t to_read = len < sizeof(buf) ? len : sizeof(buf);
+        ssize_t n = read(fd_in, buf, to_read);
+
+        if (n < 0) {
+            if (errno == EINTR)
+                continue; // retry on interrupt
+            return -errno;
+        }
+        if (n == 0)
+            break; // EOF
+
+        ssize_t written = 0;
+        while (written < n) {
+            ssize_t w = write(fd_out, buf + written, n - written);
+            if (w < 0) {
+                if (errno == EINTR)
+                    continue; // retry
+                return -errno;
+            }
+            written += w;
+        }
+
+        total += n;
+        len -= n;
+    }
+
+    return total;
+}
 
 static ssize_t try_copy_file_range(
                 int fd_in, loff_t *off_in,
@@ -329,22 +367,38 @@ int copy_bytes_full(
 
                 /* First try sendfile(), unless we already tried */
                 if (try_sendfile) {
-                        n = sendfile(fdt, fdf, NULL, m);
-                        if (n < 0) {
-                                if (!IN_SET(errno, EINVAL, ENOSYS))
-                                        return -errno;
+                        // n = sendfile(fdt, fdf, NULL, m);
+                        // if (n < 0) {
+                        //         if (!IN_SET(errno, EINVAL, ENOSYS))
+                        //                 return -errno;
 
-                                try_sendfile = false;
-                                /* use fallback below */
-                        } else if (n == 0) { /* likely EOF */
+                        //         try_sendfile = false;
+                        //         /* use fallback below */
+                        // } else if (n == 0) { /* likely EOF */
 
+                        //         if (copied_something)
+                        //                 break;
+
+                        //         try_sendfile = try_splice = false; /* same logic as above for copy_file_range() */
+                        // } else
+                        //         /* Success! */
+                        //         goto next;
+                        // macOS: sendfile only works for file -> socket. Use read/write fallback instead.
+                        char buf[8192];
+                        ssize_t nread = read(fdf, buf, m < sizeof(buf) ? m : sizeof(buf));
+                        if (nread < 0)
+                                return -errno;
+                        else if (nread == 0) { // EOF
                                 if (copied_something)
-                                        break;
-
-                                try_sendfile = try_splice = false; /* same logic as above for copy_file_range() */
-                        } else
-                                /* Success! */
-                                goto next;
+                                break;
+                                try_sendfile = try_splice = false;
+                        } else {
+                                ssize_t nwritten = write(fdt, buf, nread);
+                                if (nwritten < 0)
+                                return -errno;
+                                n = nwritten;  // mimic sendfile return value
+                                goto next;     // success
+                        }
                 }
 
                 /* Then try splice, unless we already tried. */
@@ -392,7 +446,8 @@ int copy_bytes_full(
                 }
 
                 if (try_splice) {
-                        n = splice(fdf, NULL, fdt, NULL, m, nonblock_pipe ? SPLICE_F_NONBLOCK : 0);
+                        // n = splice(fdf, NULL, fdt, NULL, m, nonblock_pipe ? SPLICE_F_NONBLOCK : 0);
+                        n = macos_splice(fdf, fdt, m);
                         if (n < 0) {
                                 if (!IN_SET(errno, EINVAL, ENOSYS))
                                         return -errno;
@@ -512,7 +567,7 @@ static int fd_copy_symlink(
                      AT_SYMLINK_NOFOLLOW) < 0)
                 r = -errno;
 
-        (void) utimensat(dt, to, (struct timespec[]) { st->st_atim, st->st_mtim }, AT_SYMLINK_NOFOLLOW);
+        (void) utimensat(dt, to, (struct timespec[]) { st->st_atimespec, st->st_mtimespec }, AT_SYMLINK_NOFOLLOW);
         return r;
 }
 
@@ -652,7 +707,7 @@ static int try_hardlink(
         if (c->dir_fd < 0) /* not yet realized, hence empty */
                 return 0;
 
-        xsprintf(dev_ino, "%u:%u:%" PRIu64, major(st->st_dev), minor(st->st_dev), (uint64_t) st->st_ino);
+        xsprintf(dev_ino, "%d:%d:%" PRIu64, major(st->st_dev), minor(st->st_dev), (uint64_t) st->st_ino);
         if (linkat(c->dir_fd, dev_ino, dt, to, 0) < 0)  {
                 if (errno != ENOENT) /* doesn't exist in store yet */
                         log_debug_errno(errno, "Failed to hardlink %s to %s, ignoring: %m", dev_ino, to);
@@ -685,7 +740,7 @@ static int memorize_hardlink(
         if (r < 0)
                 return r;
 
-        xsprintf(dev_ino, "%u:%u:%" PRIu64, major(st->st_dev), minor(st->st_dev), (uint64_t) st->st_ino);
+        xsprintf(dev_ino, "%d:%d:%" PRIu64, major(st->st_dev), minor(st->st_dev), (uint64_t) st->st_ino);
         if (linkat(dt, to, c->dir_fd, dev_ino, 0) < 0) {
                 log_debug_errno(errno, "Failed to hardlink %s to %s, ignoring: %m", to, dev_ino);
                 return 0;
@@ -764,7 +819,7 @@ static int fd_copy_regular(
         if (fchmod(fdt, st->st_mode & 07777) < 0)
                 r = -errno;
 
-        (void) futimens(fdt, (struct timespec[]) { st->st_atim, st->st_mtim });
+        (void) futimens(fdt, (struct timespec[]) { st->st_atimespec, st->st_mtimespec });
         (void) copy_xattr(fdf, fdt, copy_flags);
 
         if (copy_flags & COPY_FSYNC) {
@@ -830,7 +885,7 @@ static int fd_copy_fifo(
         if (fchmodat(dt, to, st->st_mode & 07777, 0) < 0)
                 r = -errno;
 
-        (void) utimensat(dt, to, (struct timespec[]) { st->st_atim, st->st_mtim }, AT_SYMLINK_NOFOLLOW);
+        (void) utimensat(dt, to, (struct timespec[]) { st->st_atimespec, st->st_mtimespec }, AT_SYMLINK_NOFOLLOW);
 
         (void) memorize_hardlink(hardlink_context, st, dt, to);
         return r;
@@ -878,7 +933,7 @@ static int fd_copy_node(
         if (fchmodat(dt, to, st->st_mode & 07777, 0) < 0)
                 r = -errno;
 
-        (void) utimensat(dt, to, (struct timespec[]) { st->st_atim, st->st_mtim }, AT_SYMLINK_NOFOLLOW);
+        (void) utimensat(dt, to, (struct timespec[]) { st->st_atimespec, st->st_mtimespec }, AT_SYMLINK_NOFOLLOW);
 
         (void) memorize_hardlink(hardlink_context, st, dt, to);
         return r;
@@ -1055,12 +1110,12 @@ static int fd_copy_directory(
                 /* Run hardlink context cleanup now because it potentially changes timestamps */
                 hardlink_context_destroy(&our_hardlink_context);
                 (void) copy_xattr(dirfd(d), fdt, copy_flags);
-                (void) futimens(fdt, (struct timespec[]) { st->st_atim, st->st_mtim });
+                (void) futimens(fdt, (struct timespec[]) { st->st_atimespec, st->st_mtimespec });
         } else if (FLAGS_SET(copy_flags, COPY_RESTORE_DIRECTORY_TIMESTAMPS)) {
                 /* Run hardlink context cleanup now because it potentially changes timestamps */
                 hardlink_context_destroy(&our_hardlink_context);
                 /* If the directory already exists, make sure the timestamps stay the same as before. */
-                (void) futimens(fdt, (struct timespec[]) { dt_st.st_atim, dt_st.st_mtim });
+                (void) futimens(fdt, (struct timespec[]) { dt_st.st_atimespec, dt_st.st_mtimespec });
         }
 
         if (copy_flags & COPY_FSYNC_FULL) {
@@ -1586,7 +1641,7 @@ int copy_xattr(int fdf, int fdt, CopyFlags copy_flags) {
                 if (r < 0)
                         return r;
 
-                if (fsetxattr(fdt, p, value, r, 0) < 0)
+                if (fsetxattr(fdt, p, value, r, 0, 0) < 0)
                         ret = -errno;
         }
 

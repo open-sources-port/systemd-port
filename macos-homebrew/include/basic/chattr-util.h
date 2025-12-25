@@ -6,6 +6,7 @@
 #include <stddef.h>
 
 #include "missing_fs.h"
+#include <basic/macro.h>
 
 /* The chattr() flags to apply when creating a new file *before* writing to it. In particular, flags such as
  * FS_NOCOW_FL don't work if applied a-posteriori. All other flags are fine (or even necessary, think

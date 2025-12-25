@@ -6,9 +6,8 @@
 #include <stddef.h>
 #include <sys/un.h>
 #include <unistd.h>
-#if HAVE_VALGRIND_VALGRIND_H
+
 #include <valgrind/valgrind.h>
-#endif
 
 #define SD_JOURNAL_SUPPRESS_LOCATION
 
@@ -25,6 +24,7 @@
 #include "stdio-util.h"
 #include "string-util.h"
 #include "tmpfile-util.h"
+#include <compat/compat-glibc.h>
 
 #define SNDBUF_SIZE (8*1024*1024)
 
@@ -381,7 +381,7 @@ static int fill_iovec_perror_and_send(const char *message, int skip, struct iove
                 char* j;
 
                 errno = 0;
-                j = strerror_r(_saved_errno_, buffer + 8 + k, n - 8 - k);
+                j = strerror_r_wrap(_saved_errno_, buffer + 8 + k, n - 8 - k);
                 if (errno == 0) {
                         char error[STRLEN("ERRNO=") + DECIMAL_STR_MAX(int) + 1];
 

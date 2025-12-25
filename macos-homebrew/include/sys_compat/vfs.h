@@ -36,37 +36,4 @@ typedef long __fsword_t;
 #define FS_MAGIC_FALLBACK 0
 #endif
 
-/* Provide Linux-like struct with f_type */
-struct linux_statfs {
-    __fsword_t f_type;      /* filesystem type (magic) */
-    __fsword_t f_bsize;
-    fsblkcnt_t f_blocks;
-    fsblkcnt_t f_bfree;
-    fsblkcnt_t f_bavail;
-    fsfilcnt_t f_files;
-    fsfilcnt_t f_ffree;
-    struct { int __val[2]; } f_fsid;
-    __fsword_t f_namelen;
-    __fsword_t f_frsize;
-    __fsword_t f_flags;
-    __fsword_t f_spare[4];
-};
-
-/* Magic numbers commonly used in Linux/systemd */
-#ifndef TMPFS_MAGIC
-#define TMPFS_MAGIC 0x01021994
-#endif
-#ifndef EXT4_SUPER_MAGIC
-#define EXT4_SUPER_MAGIC 0xEF53
-#endif
-#ifndef BTRFS_SUPER_MAGIC
-#define BTRFS_SUPER_MAGIC 0x9123683E
-#endif
-#ifndef XFS_SUPER_MAGIC
-#define XFS_SUPER_MAGIC 0x58465342
-#endif
-#ifndef NFS_SUPER_MAGIC
-#define NFS_SUPER_MAGIC 0x6969
-#endif
-
 #endif /* COMPAT_SYS_VFS_H */

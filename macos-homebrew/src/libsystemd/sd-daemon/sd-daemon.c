@@ -1,8 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <errno.h>
-#include <limits.h>
-#include <mqueue.h>
+#include <sys_compat/limits.h>
+#include <linux/types.h>
+#include <linux/mqueue.h>
+#include <linux/socket.h>
 #include <netinet/in.h>
 #include <poll.h>
 #include <stdarg.h>
@@ -29,6 +31,31 @@
 #include "util.h"
 
 #define SNDBUF_SIZE (8*1024*1024)
+
+int get_peer_credentials(int fd, pid_t *pid, uid_t *uid, gid_t *gid) {
+    uid_t u;
+    gid_t g;
+
+    if (getpeereid(fd, &u, &g) != 0)
+        return -errno;
+
+    if (uid)
+        *uid = u;
+    if (gid)
+        *gid = g;
+
+    if (pid) {
+        pid_t p = 0;
+        socklen_t len = sizeof(p);
+
+        if (getsockopt(fd, SOL_LOCAL, LOCAL_PEERPID, &p, &len) == 0)
+            *pid = p;
+        else
+            *pid = 0; /* PID is optional on macOS */
+    }
+
+    return 0;
+}
 
 static void unsetenv_all(bool unset_environment) {
         if (!unset_environment)
@@ -509,16 +536,19 @@ _public_ int sd_pid_notify_with_fds(
                 }
 
                 if (send_ucred) {
-                        struct ucred *ucred;
+                        // struct ucred *ucred;
 
+                        // cmsg->cmsg_level = SOL_SOCKET;
+                        // cmsg->cmsg_type = SCM_CREDENTIALS;
+                        // cmsg->cmsg_len = CMSG_LEN(sizeof(struct ucred));
                         cmsg->cmsg_level = SOL_SOCKET;
-                        cmsg->cmsg_type = SCM_CREDENTIALS;
-                        cmsg->cmsg_len = CMSG_LEN(sizeof(struct ucred));
+                        // cmsg->cmsg_type = NULL;
+                        cmsg->cmsg_len = 0;
 
-                        ucred = (struct ucred*) CMSG_DATA(cmsg);
-                        ucred->pid = pid != 0 ? pid : getpid_cached();
-                        ucred->uid = getuid();
-                        ucred->gid = getgid();
+                        // ucred = (struct ucred*) CMSG_DATA(cmsg);
+                        // ucred->pid = pid != 0 ? pid : getpid_cached();
+                        // ucred->uid = getuid();
+                        // ucred->gid = getgid();
                 }
         }
 

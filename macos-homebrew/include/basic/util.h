@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 
-#include <basic/macro.h>
+#include <basic/log.h>
 #include <basic/macro.h>
 
 extern int saved_argc;

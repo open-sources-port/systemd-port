@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys_compat/missing_syscall.h>
 
 #include "alloc-util.h"
 #include "copy.h"
@@ -13,6 +14,14 @@
 #include "io-util.h"
 #include "memfd-util.h"
 #include "tmpfile-util.h"
+
+#ifndef F_GETPIPE_SZ
+#define F_GETPIPE_SZ 0
+#endif
+
+#ifndef F_SETPIPE_SZ
+#define F_SETPIPE_SZ 0
+#endif
 
 /* When the data is smaller or equal to 64K, try to place the copy in a memfd/pipe */
 #define DATA_FD_MEMORY_LIMIT (64U*1024U)
@@ -114,7 +123,13 @@ try_pipe:
 
 try_dev_shm:
         if ((flags & ACQUIRE_NO_TMPFILE) == 0) {
-                fd = open("/dev/shm", O_RDWR|O_TMPFILE|O_CLOEXEC, 0500);
+                // fd = open("/dev/shm", O_RDWR|O_TMPFILE|O_CLOEXEC, 0500);
+                char tmpfile[] = "/tmp/data-fd-XXXXXX";
+                fd = mkstemp(tmpfile);
+                if (fd >= 0) {
+                        unlink(tmpfile); // remove the filename, keep the file open
+                }
+
                 if (fd < 0)
                         goto try_dev_shm_without_o_tmpfile;
 

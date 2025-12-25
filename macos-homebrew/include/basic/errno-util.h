@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <basic/macro.h>
+#include <basic/log.h>
 #include <basic/macro.h>
 #include <compat/errno.h>
 #include "fundamental/macro-fundamental.h"

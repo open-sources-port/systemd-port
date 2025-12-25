@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/prctl.h>
+#include <sys_compat/prctl.h>
 #include <unistd.h>
 
 #include "sd-login.h"

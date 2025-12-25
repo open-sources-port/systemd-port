@@ -6,6 +6,13 @@
 #include <stdint.h>
 #include <time.h>
 
+// typedef struct {
+//     int fd[2];        // pipe file descriptors: fd[0] read, fd[1] write
+//     char name[64];    // queue name
+//     size_t msgsize;   // max message size
+// } mqd_t;
+typedef int mqd_t;
+
 /* File descriptor set constants */
 #undef __NFDBITS
 #define __NFDBITS  (8 * sizeof(unsigned long))
@@ -236,7 +243,7 @@ typedef __kernel_key_t   key_t;
 typedef __kernel_suseconds_t suseconds_t;
 typedef __kernel_timer_t     timer_t;
 typedef __kernel_clockid_t   clockid_t;
-typedef __kernel_mqd_t       mqd_t;
+// typedef __kernel_mqd_t       mqd_t;
 
 // typedef _Bool bool;
 
@@ -257,7 +264,9 @@ typedef __kernel_old_uid_t old_uid_t;
 typedef __kernel_old_gid_t old_gid_t;
 #endif
 
-#if defined(__GNUC__)
+#if defined(__APPLE__)
+typedef off_t loff_t;
+#elif defined(__GNUC__)
 typedef __kernel_loff_t loff_t;
 #endif
 

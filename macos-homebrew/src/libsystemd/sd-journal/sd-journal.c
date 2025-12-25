@@ -6,8 +6,8 @@
 #include <linux/magic.h>
 #include <poll.h>
 #include <stddef.h>
-#include <sys/inotify.h>
-#include <sys/vfs.h>
+#include <sys_compat/inotify.h>
+#include <sys_compat/vfs.h>
 #include <unistd.h>
 
 #include "sd-journal.h"

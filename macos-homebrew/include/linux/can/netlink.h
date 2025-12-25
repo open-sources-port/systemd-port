@@ -21,6 +21,18 @@
 
 #include <linux/types.h>
 
+#ifndef NDA_DST
+#define NDA_UNSPEC      0
+#define NDA_DST         1
+#define NDA_LLADDR      2
+#define NDA_CACHEINFO   3
+#define NDA_PROBES      4
+#define NDA_VLAN        5
+#define NDA_PORT        6
+#define NDA_VLAN_PACKET 7
+#define NDA_MAX         NDA_VLAN_PACKET
+#endif
+
 /*
  * CAN bit-timing parameters
  *

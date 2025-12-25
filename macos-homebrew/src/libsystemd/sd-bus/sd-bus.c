@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <compat/compat_endian.h>
+#include <sys_compat/endian.h>
 #include <netdb.h>
 #include <pthread.h>
 #include <signal.h>
@@ -36,7 +36,7 @@
 #include "io-util.h"
 #include <basic/macro.h>
 #include "memory-util.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "missing_threads.h"
 #include "parse-util.h"
 #include "path-util.h"

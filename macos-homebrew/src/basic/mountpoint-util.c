@@ -11,7 +11,7 @@
 #include "filesystems.h"
 #include "fs-util.h"
 #include "missing_stat.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "mkdir.h"
 #include "mountpoint-util.h"
 #include "nulstr-util.h"
@@ -524,17 +524,19 @@ int dev_is_devtmpfs(void) {
 
 const char *mount_propagation_flags_to_string(unsigned long flags) {
 
-        switch (flags & (MS_SHARED|MS_SLAVE|MS_PRIVATE)) {
-        case 0:
-                return "";
-        case MS_SHARED:
-                return "shared";
-        case MS_SLAVE:
-                return "slave";
-        case MS_PRIVATE:
-                return "private";
-        }
-
+        #ifndef __APPLE__
+                switch (flags & (MS_SHARED|MS_SLAVE|MS_PRIVATE)) {
+                case 0:
+                        return "";
+                case MS_SHARED:
+                        return "shared";
+                case MS_SLAVE:
+                        return "slave";
+                case MS_PRIVATE:
+                        return "private";
+                }
+        #endif
+        // macOS: mount propagation not supported
         return NULL;
 }
 

@@ -10,7 +10,7 @@
 #include "fs-util.h"
 #include "log.h"
 #include <basic/macro.h>
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "parse-util.h"
 #include "path-util.h"
 #include "process-util.h"

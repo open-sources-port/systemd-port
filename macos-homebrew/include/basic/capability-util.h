@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <compat/sys/capability.h>
+#include <sys_compat/capability.h>
 #include <sys/types.h>
 
 #include <basic/macro.h>
@@ -11,6 +11,10 @@
 #include "util.h"
 
 #define CAP_ALL UINT64_MAX
+
+typedef int cap_flag_value_t;
+#define CAP_CLEAR 0
+#define CAP_SET   1
 
 unsigned cap_last_cap(void);
 int have_effective_cap(int value);

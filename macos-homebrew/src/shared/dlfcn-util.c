@@ -9,11 +9,13 @@ static int dlsym_many_or_warnv(void *dl, int log_level, va_list ap) {
          * them. Note that this function possibly modifies the supplied function pointers if the whole
          * operation fails. */
 
-        while ((fn = va_arg(ap, typeof(fn)))) {
+        // while ((fn = va_arg(ap, typeof(fn)))) {
+        while ((fn = va_arg(ap, void (**)(void)))) {
                 void (*tfn)(void);
                 const char *symbol;
 
-                symbol = va_arg(ap, typeof(symbol));
+                // symbol = va_arg(ap, typeof(symbol));
+                symbol = va_arg(ap, const char *);
 
                 tfn = (typeof(tfn)) dlsym(dl, symbol);
                 if (!tfn)
