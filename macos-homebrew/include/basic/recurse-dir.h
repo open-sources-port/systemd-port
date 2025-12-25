@@ -2,7 +2,7 @@
 #pragma once
 
 #include <dirent.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 
 #include "errno-list.h"
 #include "stat-util.h"

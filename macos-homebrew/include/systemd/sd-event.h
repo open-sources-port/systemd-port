@@ -20,10 +20,11 @@
 #include <inttypes.h>
 #include <signal.h>
 #include <compat/errno.h>
-// #include <sys/epoll.h>
-#include "compat/sys/epoll.h"
-#include <compat/sys/inotify.h>
-#include <compat/sys/signalfd.h>
+// #include <sys_compat/epoll.h>
+#include "sys_compat/epoll.h"
+#include <sys_compat/inotify.h>
+#include <sys_compat/signalfd.h>
+#include <sys_compat/signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>

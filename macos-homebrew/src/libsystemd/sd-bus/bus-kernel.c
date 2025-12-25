@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
+#include <valgrind/valgrind.h>
 #if HAVE_VALGRIND_MEMCHECK_H
 #include <valgrind/memcheck.h>
 #endif
@@ -7,7 +8,7 @@
 #include <fcntl.h>
 #include <compat/compat_malloc.h>
 #include <sys/mman.h>
-#include <sys/prctl.h>
+#include <sys_compat/prctl.h>
 
 #include "alloc-util.h"
 #include "bus-internal.h"

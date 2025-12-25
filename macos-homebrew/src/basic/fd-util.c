@@ -20,7 +20,7 @@
 #include <basic/macro.h>
 #include "missing_fcntl.h"
 #include "missing_fs.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "parse-util.h"
 #include "path-util.h"
 #include "process-util.h"

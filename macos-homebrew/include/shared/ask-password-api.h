@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "time-util.h"
+#include <sys_compat/ucred.h>
 
 typedef enum AskPasswordFlags {
         ASK_PASSWORD_ACCEPT_CACHED = 1 << 0, /* read from kernel keyring */

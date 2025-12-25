@@ -118,6 +118,12 @@ int maybe_setgroups(size_t size, const gid_t *list);
 
 bool synthesize_nobody(void);
 
+/* Forward declaration of struct sgrp */
+struct sgrp;
+
+int fgetsgent_sane(FILE *stream, struct sgrp **sg);
+int putsgent_sane(const struct sgrp *sg, FILE *stream);
+
 int fgetpwent_sane(FILE *stream, struct passwd **pw);
 int fgetspent_sane(FILE *stream, struct spwd **sp);
 int fgetgrent_sane(FILE *stream, struct group **gr);

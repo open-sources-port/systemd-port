@@ -2,7 +2,7 @@
 
 #include "keyring-util.h"
 #include "memory-util.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 
 int keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
         size_t bufsize = 100;

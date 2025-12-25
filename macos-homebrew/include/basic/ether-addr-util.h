@@ -9,6 +9,7 @@
 #include "in-addr-util.h"
 #include <basic/macro.h>
 #include "memory-util.h"
+#include "basic/arphrd-util.h"
 
 /* This is MAX_ADDR_LEN as defined in linux/netdevice.h, but net/if_arp.h
  * defines a macro of the same name with a much lower size. */

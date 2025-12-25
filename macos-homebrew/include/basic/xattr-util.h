@@ -6,6 +6,7 @@
 #include <sys/types.h>
 
 #include "time-util.h"
+#include <sys_compat/missing_syscall.h>
 
 int getxattr_at_malloc(int fd, const char *path, const char *name, int flags, char **ret);
 static inline int getxattr_malloc(const char *path, const char *name, char **ret) {

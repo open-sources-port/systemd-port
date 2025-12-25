@@ -18,6 +18,8 @@
 #include "string-util.h"
 #include "time-util.h"
 #include "xattr-util.h"
+#include <sys_compat/missing_syscall.h>
+#include <basic/log.h>
 
 struct vacuum_info {
         uint64_t usage;
@@ -63,15 +65,18 @@ static void patch_realtime(
         assert(st);
         assert(realtime);
 
-        x = timespec_load(&st->st_ctim);
+        // x = timespec_load(&st->st_ctim);
+        x = timespec_load(&st->st_ctimespec);
         if (timestamp_is_set(x) && x < *realtime)
                 *realtime = x;
 
-        x = timespec_load(&st->st_atim);
+        // x = timespec_load(&st->st_atim);
+        x = timespec_load(&st->st_atimespec);
         if (timestamp_is_set(x) && x < *realtime)
                 *realtime = x;
 
-        x = timespec_load(&st->st_mtim);
+        // x = timespec_load(&st->st_mtim);
+        x = timespec_load(&st->st_mtimespec);
         if (timestamp_is_set(x) && x < *realtime)
                 *realtime = x;
 

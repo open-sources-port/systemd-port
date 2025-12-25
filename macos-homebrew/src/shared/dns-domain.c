@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <endian.h>
+#include <sys_compat/endian.h>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <sys/socket.h>

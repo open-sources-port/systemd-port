@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <unistd.h>
+#include <sys_compat/memrchr.h>
 
 #include "bootspec-fundamental.h"
 #include "bootspec.h"

@@ -6,11 +6,50 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include <sys/param.h>
-#include <compat/sys/sysmacros.h>
+#include <sys_compat/sysmacros.h>
 #include <sys/types.h>
 #include <stddef.h> // for offsetof
 #include <assert.h> // for static_assert if needed
 #include <compat/errno.h>
+#include <unistd.h>  // getuid, geteuid, getgid, getegid
+#include <stdlib.h>  // for getenv
+#include <fundamental/macro-fundamental.h>
+
+
+/* stub chattr functions and FS_IMMUTABLE_FL */
+#ifndef FS_IMMUTABLE_FL
+#define FS_IMMUTABLE_FL 0
+#endif
+
+// static inline int chattr_path(const char *path, unsigned long set, unsigned long clear, unsigned long *old_flags) {
+//     (void)path; (void)set; (void)clear; if (old_flags) *old_flags=0; return 0;
+// }
+
+// static inline int chattr_fd(int fd, unsigned long set, unsigned long clear, unsigned long *old_flags) {
+//     (void)fd; (void)set; (void)clear; if (old_flags) *old_flags=0; return 0;
+// }
+
+/* map st_mtim to macOS equivalent */
+#define st_atim st_atimespec
+#define st_mtim st_mtimespec
+
+#ifndef PROJECT_FILE
+#define PROJECT_FILE (&__FILE__[STRLEN(RELATIVE_SOURCE_PATH) + 1])
+#endif
+
+#define fputs_unlocked(s, f) fputs((s), (f))
+
+/* Map Linux/GLIBC unlocked functions to standard C functions on macOS */
+#define fread_unlocked(ptr, size, n, stream)  fread(ptr, size, n, stream)
+#define fwrite_unlocked(ptr, size, n, stream) fwrite(ptr, size, n, stream)
+#define fputc_unlocked(c, stream)             fputc(c, stream)
+#define fgetc_unlocked(stream)                 fgetc(stream)
+
+static inline char* secure_getenv(const char *name) {
+    if (geteuid() != getuid() || getegid() != getgid())
+        return NULL;  // mimic Linux secure_getenv
+    return getenv(name);
+}
 
 #ifndef HAVE_LINUX_VM_SOCKETS_H
 #define HAVE_LINUX_VM_SOCKETS_H 0
@@ -538,5 +577,3 @@ assert_cc(sizeof(dummy_t) == 0);
         for (typeof(entry) _va_sentinel_[1] = {}, _entries_[] = { __VA_ARGS__ __VA_OPT__(,) _va_sentinel_[0] }, *_current_ = _entries_; \
              ((long)(_current_ - _entries_) < (long)(ELEMENTSOF(_entries_) - 1)) && ({ entry = *_current_; true; }); \
              _current_++)
-
-#include "log.h"

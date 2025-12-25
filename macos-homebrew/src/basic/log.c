@@ -1,12 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
+#include <compat/compat-glibc.h>
+
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stdarg.h>
 #include <stddef.h>
-#include <sys/signalfd.h>
+#include <sys_compat/signalfd.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/uio.h>
@@ -22,7 +24,7 @@
 #include "io-util.h"
 #include "log.h"
 #include <basic/macro.h>
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "missing_threads.h"
 #include "parse-util.h"
 #include "proc-cmdline.h"
@@ -249,7 +251,7 @@ static bool stderr_is_journal(void) {
         if (fstat(STDERR_FILENO, &st) < 0)
                 return false;
 
-        return st.st_dev == dev && st.st_ino == ino;
+        return (uint64_t) st.st_dev == dev && st.st_ino == ino;
 }
 
 int log_open(void) {

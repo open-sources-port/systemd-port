@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <compat/sys/statfs.h>
+#include <sys_compat/statfs.h>
 #include <sys/types.h>
 #include <basic/macos_file_handle.h>
 

@@ -2,6 +2,7 @@
 
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys_compat/missing_syscall.h>
 
 #include "fd-util.h"
 #include "fs-util.h"

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stdbool.h>
 #include <stddef.h>
 

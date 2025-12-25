@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <sys/eventfd.h>
+#include <sys_compat/eventfd.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -104,9 +104,18 @@ int barrier_create(Barrier *b) {
         if (b->them < 0)
                 return -errno;
 
-        r = pipe2(b->pipe, O_CLOEXEC | O_NONBLOCK);
-        if (r < 0)
-                return -errno;
+        // r = pipe2(b->pipe, O_CLOEXEC | O_NONBLOCK);
+        // Replace pipe2 with pipe + fcntl
+        r = pipe(b->pipe);
+        if (r < 0) return -errno;
+
+        // Set non-blocking
+        fcntl(b->pipe[0], F_SETFL, O_NONBLOCK);
+        fcntl(b->pipe[1], F_SETFL, O_NONBLOCK);
+
+        // Set close-on-exec
+        fcntl(b->pipe[0], F_SETFD, FD_CLOEXEC);
+        fcntl(b->pipe[1], F_SETFD, FD_CLOEXEC);
 
         staging = NULL;
         return 0;

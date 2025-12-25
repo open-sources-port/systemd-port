@@ -2,7 +2,7 @@
 #pragma once
 
 #include <inttypes.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <sys/types.h>

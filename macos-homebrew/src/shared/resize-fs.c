@@ -3,12 +3,12 @@
 #include <linux/btrfs.h>
 #include <linux/magic.h>
 #include <sys/ioctl.h>
-#include <sys/vfs.h>
+#include <sys_compat/vfs.h>
 
 #include "blockdev-util.h"
 #include "fs-util.h"
 #include "missing_fs.h"
-#include "missing_magic.h"
+#include <linux/magic.h>
 #include "missing_xfs.h"
 #include "resize-fs.h"
 #include "stat-util.h"

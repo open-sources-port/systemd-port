@@ -27,6 +27,7 @@
 
 #include "missing_network.h"
 #include "netlink-types-internal.h"
+#include "linux/neighbour.h"
 
 enum {
         BOND_ARP_TARGETS_0,

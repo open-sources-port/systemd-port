@@ -15,6 +15,7 @@
 #define _LINUX_CAPABILITY_H
 
 #include <linux/types.h>
+#include <sys_compat/capability.h>
 
 /* User-level do most of the mapping between kernel and user
    capabilities based on the version tag given by the kernel. The

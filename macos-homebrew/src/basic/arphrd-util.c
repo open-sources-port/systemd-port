@@ -9,7 +9,7 @@
 #include "arphrd-util.h"
 #include <basic/macro.h>
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+// static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
 
 #include <compat/compat_arphrd_from_name.h>
 #include <compat/compat_arphrd_to_name.h>

@@ -2,7 +2,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stdbool.h>
 #include <time.h>
 #include <linux/rtc.h>

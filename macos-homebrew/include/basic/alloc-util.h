@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-
+#include <log.h>
 #include <macro.h>
 
 #if HAS_FEATURE_MEMORY_SANITIZER

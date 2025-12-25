@@ -2,8 +2,11 @@
 #pragma once
 
 #include <signal.h>
-
 #include <basic/macro.h>
+
+#ifndef _NSIG
+#define _NSIG NSIG
+#endif
 
 int reset_all_signal_handlers(void);
 int reset_signal_mask(void);

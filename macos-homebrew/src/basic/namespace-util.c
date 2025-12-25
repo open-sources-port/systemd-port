@@ -3,12 +3,13 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/mount.h>
+#include <sys_compat/statfs.h>
 
 #include "errno-util.h"
 #include "fd-util.h"
 #include "fileio.h"
 #include "missing_fs.h"
-#include "missing_magic.h"
+#include <linux/magic.h>
 #include "missing_sched.h"
 #include "namespace-util.h"
 #include "process-util.h"
@@ -144,7 +145,8 @@ int namespace_enter(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int
 }
 
 int fd_is_ns(int fd, unsigned long nsflag) {
-        struct statfs s;
+        struct linux_statfs s;
+        struct statfs ns;
         int r;
 
         /* Checks whether the specified file descriptor refers to a namespace created by specifying nsflag in clone().
@@ -154,20 +156,21 @@ int fd_is_ns(int fd, unsigned long nsflag) {
          * This function returns > 0 if the fd definitely refers to a network namespace, 0 if it definitely does not
          * refer to a network namespace, -EUCLEAN if we can't determine, and other negative error codes on error. */
 
-        if (flinux_statfs(fd, &s) < 0)
+        if (linux_statfs_fd(fd, &s) < 0)
                 return -errno;
 
-        if (!is_fs_type(&s, NSFS_MAGIC)) {
+        linux_to_statfs(&s, &ns);
+
+        if (!is_fs_type(&ns, NSFS_MAGIC)) {
                 /* On really old kernels, there was no "nsfs", and network namespace sockets belonged to procfs
                  * instead. Handle that in a somewhat smart way. */
 
-                if (is_fs_type(&s, PROC_SUPER_MAGIC)) {
-                        struct statfs t;
+                if (is_fs_type(&ns, PROC_SUPER_MAGIC)) {
+                        struct linux_statfs t;
 
                         /* OK, so it is procfs. Let's see if our own network namespace is procfs, too. If so, then the
                          * passed fd might refer to a network namespace, but we can't know for sure. In that case,
                          * return a recognizable error. */
-
                         if (linux_statfs("/proc/self/ns/net", &t) < 0)
                                 return -errno;
 
@@ -190,13 +193,16 @@ int fd_is_ns(int fd, unsigned long nsflag) {
 }
 
 int detach_mount_namespace(void) {
-
         /* Detaches the mount namespace, disabling propagation from our namespace to the host */
+        struct { char *from; } data = { (char*) "/tmp/source" };
+        const char *target = "/tmp/mnt";
 
-        if (unshare(CLONE_NEWNS) < 0)
+        int ret = mount("unionfs", target, 0, &data);
+        if (ret < 0) {
+                perror("mount failed");
                 return -errno;
-
-        return RET_NERRNO(mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL));
+        }
+        return 0;
 }
 
 int userns_acquire(const char *uid_map, const char *gid_map) {

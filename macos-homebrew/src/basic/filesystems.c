@@ -30,6 +30,10 @@ int fs_type_from_string(const char *name, const statfs_f_type_t **ret) {
 int fs_in_group(const struct statfs *s, FilesystemGroups fs_group) {
         const char *fs;
         int r;
+        // struct statfs ls;
+        // Convert macOS statfs -> Linux statfs
+        // statfs_to_linux(s, ls);
+
 
         NULSTR_FOREACH(fs, filesystem_sets[fs_group].value) {
                 const statfs_f_type_t *magic;

@@ -13,7 +13,7 @@
 #include "fs-util.h"
 #include "log.h"
 #include "macro.h"
-#include "missing_socket.h"
+#include <linux/socket.h>
 #include "mkdir-label.h"
 #include "selinux-util.h"
 #include "socket-util.h"

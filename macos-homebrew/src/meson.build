@@ -1,3 +1,4 @@
+subdir('linux')
 subdir('fundamental')
 subdir('basic')
 subdir('libsystemd')

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "missing_sched.h"
+#include <sys_compat/missing_syscall.h>
 
 /* The combination of all namespace flags defined by the kernel. The right type for this isn't clear. setns() and
  * unshare() expect these flags to be passed as (signed) "int", while clone() wants them as "unsigned long". The latter

@@ -2,7 +2,7 @@
 
 #include <errno.h>
 #include <fnmatch.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -57,7 +57,8 @@ char* path_make_absolute(const char *p, const char *prefix) {
 int safe_getcwd(char **ret) {
         _cleanup_free_ char *cwd = NULL;
 
-        cwd = get_current_dir_name();
+        // cwd = get_current_dir_name();
+        cwd = getcwd(NULL, 0);
         if (!cwd)
                 return negative_errno();
 

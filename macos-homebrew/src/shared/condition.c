@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <fnmatch.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/auxv.h>
+#include <sys_compat/auxv.h>
 
 #include "conf-files.h"
 #include "dirent-util.h"
@@ -8,7 +8,7 @@
 #include "errno-util.h"
 #include "fd-util.h"
 #include "format-util.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "parse-util.h"
 #include "set.h"
 #include "socket-util.h"

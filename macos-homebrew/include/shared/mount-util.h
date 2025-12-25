@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <mntent.h>
+// #include <mntent.h>
+#include <sys/mount.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -56,8 +57,12 @@ int bind_remount_one_with_mountinfo(const char *path, unsigned long new_flags, u
 
 int mount_move_root(const char *path);
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, endmntent, NULL);
-#define _cleanup_endmntent_ _cleanup_(endmntentp)
+// DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, endmntent, NULL);
+// #define _cleanup_endmntent_ _cleanup_(endmntentp)
+// static inline void endmntent_mac(FILE **f) {
+//     (void)f;  // nothing to do
+// }
+#define _cleanup_endmntent_(x) (x)  /* no-op */
 
 int mount_verbose_full(
                 int error_log_level,

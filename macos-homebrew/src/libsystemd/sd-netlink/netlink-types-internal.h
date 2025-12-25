@@ -3,6 +3,7 @@
 
 #include <basic/macro.h>
 #include "netlink-types.h"
+#include <linux/if_addrlabel.h>
 
 /* C.f. see 'struct nla_policy' at include/net/netlink.h. */
 struct NLAPolicy {

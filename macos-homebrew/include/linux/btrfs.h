@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 #include <linux/types.h>
-#include <linux/ioctl.h>
+#include <linux/hdlc/ioctl.h>
 #if WANT_LINUX_FS_H
 #include <linux/fs.h>
 #endif

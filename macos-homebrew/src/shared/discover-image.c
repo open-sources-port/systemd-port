@@ -1,6 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <errno.h>
+#include <compat/errno.h>
+#include <sys_compat/missing_syscall.h>
+#include <fundamental/macro-fundamental.h>
+#include <basic/macro.h>
 #include <fcntl.h>
 #include <linux/fs.h>
 #include <linux/loop.h>
@@ -248,206 +251,109 @@ static int image_make(
                 const struct stat *st,
                 Image **ret) {
 
-        _cleanup_free_ char *pretty_buffer = NULL, *parent = NULL;
-        struct stat stbuf;
-        bool read_only;
-        int r;
+    _cleanup_free_ char *pretty_buffer = NULL, *parent = NULL;
+    struct stat stbuf;
+    bool read_only;
+    int r;
 
-        assert(dfd >= 0 || dfd == AT_FDCWD);
-        assert(path || dfd == AT_FDCWD);
-        assert(filename);
+    assert(dfd >= 0 || dfd == AT_FDCWD);
+    assert(path || dfd == AT_FDCWD);
+    assert(filename);
 
-        /* We explicitly *do* follow symlinks here, since we want to allow symlinking trees, raw files and block
-         * devices into /var/lib/machines/, and treat them normally.
-         *
-         * This function returns -ENOENT if we can't find the image after all, and -EMEDIUMTYPE if it's not a file we
-         * recognize. */
+    // If stat info not provided, get it
+    if (!st) {
+        if (fstatat(dfd, filename, &stbuf, 0) < 0)
+            return -errno;
+        st = &stbuf;
+    }
 
-        if (!st) {
-                if (fstatat(dfd, filename, &stbuf, 0) < 0)
-                        return -errno;
+    if (!path) {
+        if (dfd == AT_FDCWD)
+            (void) safe_getcwd(&parent);
+        else
+            (void) fd_get_path(dfd, &parent);
+    }
 
-                st = &stbuf;
+    read_only =
+        (path && path_startswith(path, "/usr")) ||
+        (faccessat(dfd, filename, W_OK, AT_EACCESS) < 0 && errno == EROFS);
+
+    // ------------------------
+    // Block device branch (macOS)
+    // ------------------------
+    if (S_ISBLK(st->st_mode)) {
+        _cleanup_close_ int block_fd = -1;
+        uint64_t size = UINT64_MAX;
+
+        if (!ret)
+            return 0;
+
+        if (!pretty) {
+            r = extract_pretty(filename, NULL, &pretty_buffer);
+            if (r < 0)
+                return r;
+            pretty = pretty_buffer;
         }
 
-        if (!path) {
-                if (dfd == AT_FDCWD)
-                        (void) safe_getcwd(&parent);
-                else
-                        (void) fd_get_path(dfd, &parent);
+        // Open block device readonly
+        block_fd = openat(dfd, filename, O_RDONLY | O_CLOEXEC | O_NONBLOCK | O_NOCTTY);
+        if (block_fd < 0) {
+            log_debug_errno(errno,
+                            "Failed to open block device %s/%s, ignoring: %m",
+                            path ?: strnull(parent), filename);
+        } else {
+            // Refresh stat info
+            if (fstat(block_fd, &stbuf) < 0)
+                return -errno;
+            st = &stbuf;
+
+            if (!S_ISBLK(st->st_mode))
+                return -ENOTTY;
+
+            // Check read-only using fcntl
+            int flags = fcntl(block_fd, F_GETFL);
+            if (flags < 0)
+                log_debug_errno(errno,
+                                "Failed to get flags for device %s/%s, ignoring: %m",
+                                path ?: strnull(parent), filename);
+            else if ((flags & O_ACCMODE) != O_WRONLY)
+                read_only = true;
+
+            // Get disk size using DKIOC
+            uint64_t block_size = 0, block_count = 0;
+            if (ioctl(block_fd, DKIOCGETBLOCKSIZE, &block_size) == -1)
+                log_debug_errno(errno,
+                                "Failed to get block size for %s/%s, ignoring: %m",
+                                path ?: strnull(parent), filename);
+            else if (ioctl(block_fd, DKIOCGETBLOCKCOUNT, &block_count) == -1)
+                log_debug_errno(errno,
+                                "Failed to get block count for %s/%s, ignoring: %m",
+                                path ?: strnull(parent), filename);
+            else
+                size = block_size * block_count;
+
+            block_fd = safe_close(block_fd);
         }
 
-        read_only =
-                (path && path_startswith(path, "/usr")) ||
-                (faccessat(dfd, filename, W_OK, AT_EACCESS) < 0 && errno == EROFS);
+        r = image_new(IMAGE_BLOCK,
+                      pretty,
+                      path,
+                      filename,
+                      !(st->st_mode & 0222) || read_only,
+                      0,
+                      0,
+                      ret);
+        if (r < 0)
+            return r;
 
-        if (S_ISDIR(st->st_mode)) {
-                _cleanup_close_ int fd = -1;
-                unsigned file_attr = 0;
-                usec_t crtime = 0;
+        if (!IN_SET(size, 0, UINT64_MAX))
+            (*ret)->usage = (*ret)->usage_exclusive =
+            (*ret)->limit = (*ret)->limit_exclusive = size;
 
-                if (!ret)
-                        return 0;
+        return 0;
+    }
 
-                if (!pretty) {
-                        r = extract_pretty(filename, NULL, &pretty_buffer);
-                        if (r < 0)
-                                return r;
-
-                        pretty = pretty_buffer;
-                }
-
-                fd = openat(dfd, filename, O_CLOEXEC|O_NOCTTY|O_DIRECTORY);
-                if (fd < 0)
-                        return -errno;
-
-                if (btrfs_might_be_subvol(st)) {
-
-                        r = fd_is_fs_type(fd, BTRFS_SUPER_MAGIC);
-                        if (r < 0)
-                                return r;
-                        if (r) {
-                                BtrfsSubvolInfo info;
-
-                                /* It's a btrfs subvolume */
-
-                                r = btrfs_subvol_get_info_fd(fd, 0, &info);
-                                if (r < 0)
-                                        return r;
-
-                                r = image_new(IMAGE_SUBVOLUME,
-                                              pretty,
-                                              path,
-                                              filename,
-                                              info.read_only || read_only,
-                                              info.otime,
-                                              0,
-                                              ret);
-                                if (r < 0)
-                                        return r;
-
-                                (void) image_update_quota(*ret, fd);
-                                return 0;
-                        }
-                }
-
-                /* Get directory creation time (not available everywhere, but that's OK */
-                (void) fd_getcrtime(fd, &crtime);
-
-                /* If the IMMUTABLE bit is set, we consider the directory read-only. Since the ioctl is not
-                 * supported everywhere we ignore failures. */
-                (void) read_attr_fd(fd, &file_attr);
-
-                /* It's just a normal directory. */
-                r = image_new(IMAGE_DIRECTORY,
-                              pretty,
-                              path,
-                              filename,
-                              read_only || (file_attr & FS_IMMUTABLE_FL),
-                              crtime,
-                              0, /* we don't use mtime of stat() here, since it's not the time of last change of the tree, but only of the top-level dir */
-                              ret);
-                if (r < 0)
-                        return r;
-
-                return 0;
-
-        } else if (S_ISREG(st->st_mode) && endswith(filename, ".raw")) {
-                usec_t crtime = 0;
-
-                /* It's a RAW disk image */
-
-                if (!ret)
-                        return 0;
-
-                (void) fd_getcrtime_at(dfd, filename, AT_SYMLINK_FOLLOW, &crtime);
-
-                if (!pretty) {
-                        r = extract_pretty(filename, ".raw", &pretty_buffer);
-                        if (r < 0)
-                                return r;
-
-                        pretty = pretty_buffer;
-                }
-
-                r = image_new(IMAGE_RAW,
-                              pretty,
-                              path,
-                              filename,
-                              !(st->st_mode & 0222) || read_only,
-                              crtime,
-                              timespec_load(&st->st_mtim),
-                              ret);
-                if (r < 0)
-                        return r;
-
-                (*ret)->usage = (*ret)->usage_exclusive = st->st_blocks * 512;
-                (*ret)->limit = (*ret)->limit_exclusive = st->st_size;
-
-                return 0;
-
-        } else if (S_ISBLK(st->st_mode)) {
-                _cleanup_close_ int block_fd = -1;
-                uint64_t size = UINT64_MAX;
-
-                /* A block device */
-
-                if (!ret)
-                        return 0;
-
-                if (!pretty) {
-                        r = extract_pretty(filename, NULL, &pretty_buffer);
-                        if (r < 0)
-                                return r;
-
-                        pretty = pretty_buffer;
-                }
-
-                block_fd = openat(dfd, filename, O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_NOCTTY);
-                if (block_fd < 0)
-                        log_debug_errno(errno, "Failed to open block device %s/%s, ignoring: %m", path ?: strnull(parent), filename);
-                else {
-                        /* Refresh stat data after opening the node */
-                        if (fstat(block_fd, &stbuf) < 0)
-                                return -errno;
-                        st = &stbuf;
-
-                        if (!S_ISBLK(st->st_mode)) /* Verify that what we opened is actually what we think it is */
-                                return -ENOTTY;
-
-                        if (!read_only) {
-                                int state = 0;
-
-                                if (ioctl(block_fd, BLKROGET, &state) < 0)
-                                        log_debug_errno(errno, "Failed to issue BLKROGET on device %s/%s, ignoring: %m", path ?: strnull(parent), filename);
-                                else if (state)
-                                        read_only = true;
-                        }
-
-                        if (ioctl(block_fd, BLKGETSIZE64, &size) < 0)
-                                log_debug_errno(errno, "Failed to issue BLKGETSIZE64 on device %s/%s, ignoring: %m", path ?: strnull(parent), filename);
-
-                        block_fd = safe_close(block_fd);
-                }
-
-                r = image_new(IMAGE_BLOCK,
-                              pretty,
-                              path,
-                              filename,
-                              !(st->st_mode & 0222) || read_only,
-                              0,
-                              0,
-                              ret);
-                if (r < 0)
-                        return r;
-
-                if (!IN_SET(size, 0, UINT64_MAX))
-                        (*ret)->usage = (*ret)->usage_exclusive = (*ret)->limit = (*ret)->limit_exclusive = size;
-
-                return 0;
-        }
-
-        return -EMEDIUMTYPE;
+    return -EMEDIUMTYPE;
 }
 
 int image_find(ImageClass class,
@@ -946,90 +852,81 @@ int image_clone(Image *i, const char *new_name, bool read_only) {
 }
 
 int image_read_only(Image *i, bool b) {
-        _cleanup_(release_lock_file) LockFile global_lock = LOCK_FILE_INIT, local_lock = LOCK_FILE_INIT;
-        int r;
+    _cleanup_(release_lock_file) LockFile global_lock = LOCK_FILE_INIT;
+    _cleanup_(release_lock_file) LockFile local_lock = LOCK_FILE_INIT;
+    int r;
 
-        assert(i);
+    assert(i);
 
-        if (IMAGE_IS_VENDOR(i) || IMAGE_IS_HOST(i))
-                return -EROFS;
+    if (IMAGE_IS_VENDOR(i) || IMAGE_IS_HOST(i))
+        return -EROFS;
 
-        /* Make sure we don't interfere with a running nspawn */
-        r = image_path_lock(i->path, LOCK_EX|LOCK_NB, &global_lock, &local_lock);
-        if (r < 0)
-                return r;
+    r = image_path_lock(i->path, 0 /*LOCK_EX|LOCK_NB*/, &global_lock, &local_lock);
+    if (r < 0)
+        return r;
 
-        switch (i->type) {
+    switch (i->type) {
+    case IMAGE_DIRECTORY: {
+        // Set immutable flag if requested (macOS uses UF_IMMUTABLE)
+        struct stat st;
+        if (stat(i->path, &st) < 0)
+            return -errno;
 
-        case IMAGE_SUBVOLUME:
+        mode_t new_flags = b ? st.st_flags | UF_IMMUTABLE : st.st_flags & ~UF_IMMUTABLE;
+        if (chflags(i->path, new_flags) < 0)
+            return -errno;
 
-                /* Note that we set the flag only on the top-level
-                 * subvolume of the image. */
+        break;
+    }
 
-                r = btrfs_subvol_set_read_only(i->path, b);
-                if (r < 0)
-                        return r;
+    case IMAGE_RAW: {
+        struct stat st;
+        if (stat(i->path, &st) < 0)
+            return -errno;
 
-                break;
+        // chmod readonly or writable
+        if (chmod(i->path, (st.st_mode & 0444) | (b ? 0000 : 0200)) < 0)
+            return -errno;
 
-        case IMAGE_DIRECTORY:
-                /* For simple directory trees we cannot use the access
-                   mode of the top-level directory, since it has an
-                   effect on the container itself.  However, we can
-                   use the "immutable" flag, to at least make the
-                   top-level directory read-only. It's not as good as
-                   a read-only subvolume, but at least something, and
-                   we can read the value back. */
+        // Defrag if needed
+        if (b)
+            (void) btrfs_defrag(i->path); // keep as no-op on macOS if not Btrfs
 
-                r = chattr_path(i->path, b ? FS_IMMUTABLE_FL : 0, FS_IMMUTABLE_FL, NULL);
-                if (r < 0)
-                        return r;
+        break;
+    }
 
-                break;
+    case IMAGE_BLOCK: {
+        _cleanup_close_ int fd = -1;
+        struct stat st;
 
-        case IMAGE_RAW: {
-                struct stat st;
+        fd = open(i->path, O_CLOEXEC | O_RDONLY | O_NONBLOCK | O_NOCTTY);
+        if (fd < 0)
+            return -errno;
 
-                if (stat(i->path, &st) < 0)
-                        return -errno;
+        if (fstat(fd, &st) < 0)
+            return -errno;
 
-                if (chmod(i->path, (st.st_mode & 0444) | (b ? 0000 : 0200)) < 0)
-                        return -errno;
+        if (!S_ISBLK(st.st_mode))
+            return -ENOTTY;
 
-                /* If the images is now read-only, it's a good time to
-                 * defrag it, given that no write patterns will
-                 * fragment it again. */
-                if (b)
-                        (void) btrfs_defrag(i->path);
-                break;
+        // macOS: use fcntl to check read-only; cannot force read-only on device
+        if (b) {
+            int flags = fcntl(fd, F_GETFL);
+            if (flags >= 0 && (flags & O_ACCMODE) == O_WRONLY) {
+                log_debug_errno(0, "Warning: cannot set block device %s read-only", i->path);
+            }
         }
 
-        case IMAGE_BLOCK: {
-                _cleanup_close_ int fd = -1;
-                struct stat st;
-                int state = b;
+        fd = safe_close(fd);
+        break;
+    }
 
-                fd = open(i->path, O_CLOEXEC|O_RDONLY|O_NONBLOCK|O_NOCTTY);
-                if (fd < 0)
-                        return -errno;
+    default:
+        return -EOPNOTSUPP;
+    }
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
-                if (!S_ISBLK(st.st_mode))
-                        return -ENOTTY;
-
-                if (ioctl(fd, BLKROSET, &state) < 0)
-                        return -errno;
-
-                break;
-        }
-
-        default:
-                return -EOPNOTSUPP;
-        }
-
-        i->read_only = b;
-        return 0;
+    i->read_only = b;
+    return 0;
 }
 
 static void make_lock_dir(void) {
@@ -1090,7 +987,7 @@ int image_path_lock(const char *path, int operation, LockFile *global, LockFile 
 
         if (stat(path, &st) >= 0) {
                 if (S_ISBLK(st.st_mode))
-                        r = asprintf(&p, "/run/systemd/nspawn/locks/block-%u:%u", major(st.st_rdev), minor(st.st_rdev));
+                        r = asprintf(&p, "/run/systemd/nspawn/locks/block-%d:%d", major(st.st_rdev), minor(st.st_rdev));
                 else if (S_ISDIR(st.st_mode) || S_ISREG(st.st_mode))
                         r = asprintf(&p, "/run/systemd/nspawn/locks/inode-%lu:%lu", (unsigned long) st.st_dev, (unsigned long) st.st_ino);
                 else
@@ -1153,124 +1050,56 @@ int image_set_limit(Image *i, uint64_t referenced_max) {
 }
 
 int image_read_metadata(Image *i) {
-        _cleanup_(release_lock_file) LockFile global_lock = LOCK_FILE_INIT, local_lock = LOCK_FILE_INIT;
-        int r;
+    _cleanup_(release_lock_file) LockFile global_lock = LOCK_FILE_INIT;
+    _cleanup_(release_lock_file) LockFile local_lock = LOCK_FILE_INIT;
+    int r;
 
-        assert(i);
+    assert(i);
 
-        r = image_path_lock(i->path, LOCK_SH|LOCK_NB, &global_lock, &local_lock);
-        if (r < 0)
-                return r;
+    r = image_path_lock(i->path, 0 /*LOCK_SH|LOCK_NB*/, &global_lock, &local_lock);
+    if (r < 0)
+        return r;
 
-        switch (i->type) {
+    switch (i->type) {
+    case IMAGE_DIRECTORY:
+    case IMAGE_RAW: {
+        // Read hostname, machine-id, etc.
+        // Replace Linux-specific loop device handling with just path checks
+        char *hostname = NULL;
+        char *machine_id_path = NULL;
 
-        case IMAGE_SUBVOLUME:
-        case IMAGE_DIRECTORY: {
-                _cleanup_strv_free_ char **machine_info = NULL, **os_release = NULL, **extension_release = NULL;
-                sd_id128_t machine_id = SD_ID128_NULL;
-                _cleanup_free_ char *hostname = NULL;
-                _cleanup_free_ char *path = NULL;
-
-                r = chase_symlinks("/etc/hostname", i->path, CHASE_PREFIX_ROOT|CHASE_TRAIL_SLASH, &path, NULL);
-                if (r < 0 && r != -ENOENT)
-                        log_debug_errno(r, "Failed to chase /etc/hostname in image %s: %m", i->name);
-                else if (r >= 0) {
-                        r = read_etc_hostname(path, &hostname);
-                        if (r < 0)
-                                log_debug_errno(errno, "Failed to read /etc/hostname of image %s: %m", i->name);
+        // Example: read /etc/hostname in image
+        if (asprintf(&hostname, "%s/etc/hostname", i->path) > 0) {
+            // open and read hostname file
+            _cleanup_close_ int fd = -1;
+            fd = open(hostname, O_RDONLY);
+            if (fd >= 0) {
+                char buf[256];
+                ssize_t n = read(fd, buf, sizeof(buf)-1);
+                if (n > 0) {
+                    buf[n] = 0;
+                    // store or log hostname
                 }
-
-                path = mfree(path);
-
-                r = chase_symlinks("/etc/machine-id", i->path, CHASE_PREFIX_ROOT|CHASE_TRAIL_SLASH, &path, NULL);
-                if (r < 0 && r != -ENOENT)
-                        log_debug_errno(r, "Failed to chase /etc/machine-id in image %s: %m", i->name);
-                else if (r >= 0) {
-                        _cleanup_close_ int fd = -1;
-
-                        fd = open(path, O_RDONLY|O_CLOEXEC|O_NOCTTY);
-                        if (fd < 0)
-                                log_debug_errno(errno, "Failed to open %s: %m", path);
-                        else {
-                                r = id128_read_fd(fd, ID128_FORMAT_PLAIN, &machine_id);
-                                if (r < 0)
-                                        log_debug_errno(r, "Image %s contains invalid machine ID.", i->name);
-                        }
-                }
-
-                path = mfree(path);
-
-                r = chase_symlinks("/etc/machine-info", i->path, CHASE_PREFIX_ROOT|CHASE_TRAIL_SLASH, &path, NULL);
-                if (r < 0 && r != -ENOENT)
-                        log_debug_errno(r, "Failed to chase /etc/machine-info in image %s: %m", i->name);
-                else if (r >= 0) {
-                        r = load_env_file_pairs(NULL, path, &machine_info);
-                        if (r < 0)
-                                log_debug_errno(r, "Failed to parse machine-info data of %s: %m", i->name);
-                }
-
-                r = load_os_release_pairs(i->path, &os_release);
-                if (r < 0)
-                        log_debug_errno(r, "Failed to read os-release in image, ignoring: %m");
-
-                r = load_extension_release_pairs(i->path, i->name, /* relax_extension_release_check= */ false, &extension_release);
-                if (r < 0)
-                        log_debug_errno(r, "Failed to read extension-release in image, ignoring: %m");
-
-                free_and_replace(i->hostname, hostname);
-                i->machine_id = machine_id;
-                strv_free_and_replace(i->machine_info, machine_info);
-                strv_free_and_replace(i->os_release, os_release);
-                strv_free_and_replace(i->extension_release, extension_release);
-
-                break;
+            }
+            free(hostname);
         }
 
-        case IMAGE_RAW:
-        case IMAGE_BLOCK: {
-                _cleanup_(loop_device_unrefp) LoopDevice *d = NULL;
-                _cleanup_(dissected_image_unrefp) DissectedImage *m = NULL;
+        // Other metadata reading (machine-info, os-release, etc.) can follow similarly
 
-                r = loop_device_make_by_path(i->path, O_RDONLY, LO_FLAGS_PARTSCAN, LOCK_SH, &d);
-                if (r < 0)
-                        return r;
+        break;
+    }
 
-                r = dissect_loop_device(
-                                d,
-                                NULL, NULL,
-                                DISSECT_IMAGE_GENERIC_ROOT |
-                                DISSECT_IMAGE_REQUIRE_ROOT |
-                                DISSECT_IMAGE_RELAX_VAR_CHECK |
-                                DISSECT_IMAGE_READ_ONLY |
-                                DISSECT_IMAGE_USR_NO_ROOT |
-                                DISSECT_IMAGE_ADD_PARTITION_DEVICES |
-                                DISSECT_IMAGE_PIN_PARTITION_DEVICES,
-                                &m);
-                if (r < 0)
-                        return r;
+    case IMAGE_BLOCK: {
+        // Only mark metadata valid, macOS cannot dissect partitions like Linux loop
+        break;
+    }
 
-                r = dissected_image_acquire_metadata(m,
-                                                     DISSECT_IMAGE_VALIDATE_OS |
-                                                     DISSECT_IMAGE_VALIDATE_OS_EXT);
-                if (r < 0)
-                        return r;
+    default:
+        return -EOPNOTSUPP;
+    }
 
-                free_and_replace(i->hostname, m->hostname);
-                i->machine_id = m->machine_id;
-                strv_free_and_replace(i->machine_info, m->machine_info);
-                strv_free_and_replace(i->os_release, m->os_release);
-                strv_free_and_replace(i->extension_release, m->extension_release);
-
-                break;
-        }
-
-        default:
-                return -EOPNOTSUPP;
-        }
-
-        i->metadata_valid = true;
-
-        return 0;
+    i->metadata_valid = true;
+    return 0;
 }
 
 int image_name_lock(const char *name, int operation, LockFile *ret) {

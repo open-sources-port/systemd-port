@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/prctl.h>
+#include <sys_compat/prctl.h>
 #include <unistd.h>
 
 #include "sd-resolve.h"
@@ -21,7 +21,7 @@
 #include "io-util.h"
 #include "list.h"
 #include "memory-util.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "missing_threads.h"
 #include "process-util.h"
 #include "resolve-private.h"
@@ -408,7 +408,7 @@ static void* thread_worker(void *p) {
         sd_resolve *resolve = p;
 
         /* Assign a pretty name to this thread */
-        (void) pthread_setname_np(pthread_self(), "sd-resolve");
+        (void) pthread_setname_np("sd-resolve");
 
         while (!resolve->dead) {
                 union {

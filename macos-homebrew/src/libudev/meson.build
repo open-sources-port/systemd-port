@@ -42,7 +42,7 @@ libudev_pc = custom_target(
         'libudev.pc',
         input : 'libudev.pc.in',
         output : 'libudev.pc',
-        command : [jinja2_cmdline, '@INPUT@', '@OUTPUT@'],
+        command : [jinja2_cmdline, '@INPUT@', '-o', '@OUTPUT@'],
         install : pkgconfiglibdir != 'no',
         install_tag : 'devel',
         install_dir : pkgconfiglibdir)

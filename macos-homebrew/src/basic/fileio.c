@@ -3,10 +3,12 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stdarg.h>
 #include <stdint.h>
-#include <stdio_ext.h>
+
+#include <sys_compat/stdio_ext.h>
+
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -1428,9 +1430,9 @@ int warn_file_is_world_accessible(const char *filename, struct stat *st, const c
         if (unit)
                 log_syntax(unit, LOG_WARNING, filename, line, 0,
                            "%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
-                           filename, st->st_mode & 07777);
+                           filename, (unsigned int) (st->st_mode & 07777));
         else
                 log_warning("%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
-                            filename, st->st_mode & 07777);
+                            filename, (unsigned int) (st->st_mode & 07777));
         return 0;
 }

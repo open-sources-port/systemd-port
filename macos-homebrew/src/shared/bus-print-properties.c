@@ -12,6 +12,7 @@
 #include "strv.h"
 #include "time-util.h"
 #include "user-util.h"
+#include <sys_compat/missing_syscall.h>
 
 int bus_print_property_value(const char *name, const char *expected_value, BusPrintPropertyFlags flags, const char *value) {
         assert(name);

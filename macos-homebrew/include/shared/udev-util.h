@@ -1,10 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#if HAVE_SYS_SDT_H
-#define SDT_USE_VARIADIC
-#include <sys/sdt.h>
-#endif
+#include <sys_compat/sdt.h>
 
 #include "sd-device.h"
 

@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
+#include "bus-control.h"
+
 #if HAVE_VALGRIND_MEMCHECK_H
 #include <valgrind/memcheck.h>
 #endif
@@ -10,7 +12,6 @@
 #include "sd-bus.h"
 
 #include "alloc-util.h"
-#include "bus-control.h"
 #include "bus-internal.h"
 #include "bus-message.h"
 #include "capability-util.h"
@@ -19,7 +20,6 @@
 #include "string-util.h"
 #include "strv.h"
 #include "user-util.h"
-#include "valgrind/valgrind.h"
 
 _public_ int sd_bus_get_unique_name(sd_bus *bus, const char **unique) {
         int r;

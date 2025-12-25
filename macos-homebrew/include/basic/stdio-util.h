@@ -20,6 +20,9 @@
 #define xsprintf(buf, fmt, ...) \
         assert_message_se(snprintf_ok(buf, ELEMENTSOF(buf), fmt, ##__VA_ARGS__), "xsprintf: " #buf "[] must be big enough")
 
+#if !defined(__GLIBC__)
+        #define VA_FORMAT_ADVANCE(format, ap) ((void)0)
+#else
 #define VA_FORMAT_ADVANCE(format, ap)                                   \
 do {                                                                    \
         int _argtypes[128];                                             \
@@ -67,3 +70,4 @@ do {                                                                    \
                 }                                                       \
         }                                                               \
 } while (false)
+#endif

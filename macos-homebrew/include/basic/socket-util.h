@@ -5,6 +5,7 @@
 #include <linux/netlink.h>
 #include <linux/if_ether.h>
 #include <compat/linux_if_infiniband.h>
+#include <sys_compat/ucred.h>
 #include <linux/if_packet.h>
 #include <netinet/in.h>
 #include <stdbool.h>
@@ -18,10 +19,11 @@
 #include "in-addr-util.h"
 #include <basic/macro.h>
 #include "missing_network.h"
-#include "missing_socket.h"
+#include <linux/socket.h>
 #include "sparse-endian.h"
 
-#if !defined(__linux__)
+#include <sys/stat.h>   // for mkdir
+#include <libgen.h>     // for dirname
 
 /* Linux-only socket error queue options — disable on macOS */
 #ifndef IP_RECVERR
@@ -36,7 +38,12 @@
 #define IPV6_RECVHOPLIMIT (-1)
 #endif
 
+#ifndef MSG_CMSG_CLOEXEC
+#define MSG_CMSG_CLOEXEC 0
 #endif
+
+/* macOS CMSG credentials type for compatibility */
+#define UCREDSIZE sizeof(struct ucred)
 
 union sockaddr_union {
         /* The minimal, abstract version */
@@ -195,14 +202,6 @@ ssize_t flush_mqueue(int fd);
 
 struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t length);
 
-/* Type-safe, dereferencing version of cmsg_find() */
-#define CMSG_FIND_DATA(mh, level, type, ctype) \
-        ({                                                            \
-                struct cmsghdr *_found;                               \
-                _found = cmsg_find(mh, level, type, CMSG_LEN(sizeof(ctype))); \
-                (ctype*) (_found ? CMSG_DATA(_found) : NULL);         \
-        })
-
 /* Resolves to a type that can carry cmsghdr structures. Make sure things are properly aligned, i.e. the type
  * itself is placed properly in memory and the size is also aligned to what's appropriate for "cmsghdr"
  * structures. */
@@ -211,7 +210,7 @@ struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t leng
                 struct cmsghdr cmsghdr;                                 \
                 uint8_t buf[size];                                      \
                 uint8_t align_check[(size) >= CMSG_SPACE(0) &&          \
-                                    (size) == CMSG_ALIGN(size) ? 1 : -1]; \
+                                    (size) == CMSG_ALIGN(size) ? 1 : 0]; \
         }
 
 /*
@@ -275,24 +274,22 @@ int socket_ioctl_fd(void);
 
 int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path);
 
+/* ------------------- setsockopt / getsockopt helpers ------------------- */
 static inline int setsockopt_int(int fd, int level, int optname, int value) {
-        if (setsockopt(fd, level, optname, &value, sizeof(value)) < 0)
-                return -errno;
-
-        return 0;
+    if (setsockopt(fd, level, optname, &value, sizeof(value)) < 0)
+        return -errno;
+    return 0;
 }
 
 static inline int getsockopt_int(int fd, int level, int optname, int *ret) {
-        int v;
-        socklen_t sl = sizeof(v);
-
-        if (getsockopt(fd, level, optname, &v, &sl) < 0)
-                return negative_errno();
-        if (sl != sizeof(v))
-                return -EIO;
-
-        *ret = v;
-        return 0;
+    int v;
+    socklen_t sl = sizeof(v);
+    if (getsockopt(fd, level, optname, &v, &sl) < 0)
+        return -errno;
+    if (sl != sizeof(v))
+        return -EIO;
+    *ret = v;
+    return 0;
 }
 
 int socket_bind_to_ifname(int fd, const char *ifname);

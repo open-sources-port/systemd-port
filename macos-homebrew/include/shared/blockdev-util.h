@@ -12,7 +12,7 @@
 #define SYS_BLOCK_PATH_MAX(suffix)                                      \
         (STRLEN("/sys/dev/block/") + DECIMAL_STR_MAX(dev_t) + 1 + DECIMAL_STR_MAX(dev_t) + strlen_ptr(suffix))
 #define xsprintf_sys_block_path(buf, suffix, devno)                     \
-        xsprintf(buf, "/sys/dev/block/%u:%u%s", major(devno), minor(devno), strempty(suffix))
+        xsprintf(buf, "/sys/dev/block/%d:%d%s", major(devno), minor(devno), strempty(suffix))
 
 typedef enum BlockDeviceLookupFlag {
         BLOCK_DEVICE_LOOKUP_WHOLE_DISK  = 1 << 0, /* whole block device, e.g. sda, nvme0n1, or loop0. */

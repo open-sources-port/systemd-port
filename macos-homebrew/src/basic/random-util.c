@@ -1,6 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
+#ifdef __APPLE__
+#include <sys_compat/elf-shim.h>
+#else
 #include <elf.h>
+#endif
+
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/random.h>
@@ -12,9 +17,7 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 
-#if HAVE_SYS_AUXV_H
-#  include <sys/auxv.h>
-#endif
+#include <sys_compat/auxv.h>
 
 #include "alloc-util.h"
 #include "env-util.h"
@@ -23,7 +26,7 @@
 #include "fileio.h"
 #include "io-util.h"
 #include "missing_random.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "missing_threads.h"
 #include "parse-util.h"
 #include "random-util.h"
@@ -52,9 +55,7 @@ static void fallback_random_bytes(void *p, size_t n) {
         };
 
         memcpy(state.label, "systemd fallback random bytes v1", sizeof(state.label));
-#if HAVE_SYS_AUXV_H
-        memcpy(state.auxval, ULONG_TO_PTR(getauxval(AT_RANDOM)), sizeof(state.auxval));
-#endif
+        // memcpy(state.auxval, ULONG_TO_PTR(getauxval(AT_RANDOM)), sizeof(state.auxval));
 
         while (n > 0) {
                 struct sha256_ctx ctx;
@@ -188,47 +189,29 @@ size_t random_pool_size(void) {
 }
 
 int random_write_entropy(int fd, const void *seed, size_t size, bool credit) {
-        _cleanup_close_ int opened_fd = -1;
-        int r;
+    _cleanup_close_ int opened_fd = -1;
+    int r;
 
-        assert(seed || size == 0);
+    assert(seed || size == 0);
 
-        if (size == 0)
-                return 0;
+    if (size == 0)
+        return 0;
 
-        if (fd < 0) {
-                opened_fd = open("/dev/urandom", O_WRONLY|O_CLOEXEC|O_NOCTTY);
-                if (opened_fd < 0)
-                        return -errno;
+    if (fd < 0) {
+        opened_fd = open("/dev/urandom", O_WRONLY | O_CLOEXEC | O_NOCTTY);
+        if (opened_fd < 0)
+            return -errno;
 
-                fd = opened_fd;
-        }
+        fd = opened_fd;
+    }
 
-        if (credit) {
-                _cleanup_free_ struct rand_pool_info *info = NULL;
+    // On macOS, we cannot credit entropy, just write the data if needed
+    (void) credit; // unused
+    r = loop_write(fd, seed, size, false);
+    if (r < 0)
+        return r;
 
-                /* The kernel API only accepts "int" as entropy count (which is in bits), let's avoid any
-                 * chance for confusion here. */
-                if (size > INT_MAX / 8)
-                        return -EOVERFLOW;
-
-                info = malloc(offsetof(struct rand_pool_info, buf) + size);
-                if (!info)
-                        return -ENOMEM;
-
-                info->entropy_count = size * 8;
-                info->buf_size = size;
-                memcpy(info->buf, seed, size);
-
-                if (ioctl(fd, RNDADDENTROPY, info) < 0)
-                        return -errno;
-        } else {
-                r = loop_write(fd, seed, size, false);
-                if (r < 0)
-                        return r;
-        }
-
-        return 1;
+    return 1;
 }
 
 uint64_t random_u64_range(uint64_t m) {

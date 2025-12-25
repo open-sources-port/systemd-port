@@ -3,11 +3,11 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#if HAVE_LINUX_MEMFD_H
+
 #include <linux/memfd.h>
-#endif
+
 #include <stdio.h>
-#include <sys/prctl.h>
+#include <sys_compat/prctl.h>
 
 #include "alloc-util.h"
 #include "errno-util.h"
@@ -16,7 +16,7 @@
 #include "memfd-util.h"
 #include "missing_fcntl.h"
 #include "missing_mman.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "string-util.h"
 #include "utf8.h"
 
@@ -30,7 +30,7 @@ int memfd_new(const char *name) {
                  * a hint indicating our library implementation, and
                  * add the thread name to it */
 
-                assert_se(prctl(PR_GET_NAME, (unsigned long) pr) >= 0);
+                assert_se(prctl(PR_GET_NAME, (unsigned long) pr, 0, 0, 0) >= 0);
 
                 if (isempty(pr))
                         name = "sd";

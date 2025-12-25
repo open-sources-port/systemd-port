@@ -43,7 +43,8 @@ static inline bool devnum_set_and_equal(dev_t a, dev_t b) {
 #define DEVNUM_STR_MAX (DECIMAL_STR_MAX(dev_t)-1+1+DECIMAL_STR_MAX(dev_t))
 
 #define DEVNUM_FORMAT_STR "%u:%u"
-#define DEVNUM_FORMAT_VAL(d) major(d), minor(d)
+// #define DEVNUM_FORMAT_VAL(d) major(d), minor(d)
+#define DEVNUM_FORMAT_VAL(d) ((unsigned)major(d)), ((unsigned)minor(d))
 
 static inline char *format_devnum(dev_t d, char buf[static DEVNUM_STR_MAX]) {
         return ASSERT_PTR(snprintf_ok(buf, DEVNUM_STR_MAX, DEVNUM_FORMAT_STR, DEVNUM_FORMAT_VAL(d)));

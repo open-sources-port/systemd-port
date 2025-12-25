@@ -7,6 +7,7 @@ all_includes = [
   basic_inc,
   fundamental_inc,
   udev_inc,
+  libsystemd_includes
 ]
 
 sd_journal_sources = files(
@@ -205,7 +206,7 @@ libsystemd_pc = custom_target(
         'libsystemd.pc',
         input : 'libsystemd.pc.in',
         output : 'libsystemd.pc',
-        command : [jinja2_cmdline, '@INPUT@', '@OUTPUT@'],
+        command : [jinja2_cmdline, '@INPUT@', '-o', '@OUTPUT@'],
         install : pkgconfiglibdir != 'no',
         install_tag : 'devel',
         install_dir : pkgconfiglibdir)

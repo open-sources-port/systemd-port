@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <errno.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <malloc/malloc.h>
 #include <string.h>
 

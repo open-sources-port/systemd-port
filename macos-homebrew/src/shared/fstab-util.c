@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <errno.h>
+#include <compat/errno.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -16,23 +18,17 @@
 #include "strv.h"
 
 int fstab_has_fstype(const char *fstype) {
-        _cleanup_endmntent_ FILE *f = NULL;
-        struct mntent *m;
+    struct statfs *mntbuf;
+    int count = getmntinfo(&mntbuf, MNT_NOWAIT);
+    if (!mntbuf)
+        return errno == ENOENT ? 0 : -errno;
 
-        f = setmntent(fstab_path(), "re");
-        if (!f)
-                return errno == ENOENT ? false : -errno;
+    for (int i = 0; i < count; i++) {
+        if (strcmp(mntbuf[i].f_fstypename, fstype) == 0)
+            return 1;
+    }
 
-        for (;;) {
-                errno = 0;
-                m = getmntent(f);
-                if (!m)
-                        return errno != 0 ? -errno : false;
-
-                if (streq(m->mnt_type, fstype))
-                        return true;
-        }
-        return false;
+    return 0;
 }
 
 bool fstab_is_extrinsic(const char *mount, const char *opts) {
@@ -60,23 +56,17 @@ bool fstab_is_extrinsic(const char *mount, const char *opts) {
 }
 
 int fstab_is_mount_point(const char *mount) {
-        _cleanup_endmntent_ FILE *f = NULL;
-        struct mntent *m;
+    struct statfs *mntbuf;
+    int count = getmntinfo(&mntbuf, MNT_NOWAIT);
+    if (!mntbuf)
+        return errno == ENOENT ? 0 : -errno;
 
-        f = setmntent(fstab_path(), "re");
-        if (!f)
-                return errno == ENOENT ? false : -errno;
+    for (int i = 0; i < count; i++) {
+        if (path_equal(mntbuf[i].f_mntonname, mount))
+            return 1;
+    }
 
-        for (;;) {
-                errno = 0;
-                m = getmntent(f);
-                if (!m)
-                        return errno != 0 ? -errno : false;
-
-                if (path_equal(m->mnt_dir, mount))
-                        return true;
-        }
-        return false;
+    return 0;
 }
 
 int fstab_filter_options(

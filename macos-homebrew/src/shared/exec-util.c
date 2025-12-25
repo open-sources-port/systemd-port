@@ -2,7 +2,7 @@
 
 #include <dirent.h>
 #include <errno.h>
-#include <sys/prctl.h>
+#include <sys_compat/prctl.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -18,7 +18,7 @@
 #include "fileio.h"
 #include "hashmap.h"
 #include "macro.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "process-util.h"
 #include "rlimit-util.h"
 #include "serialize.h"
@@ -31,6 +31,8 @@
 #include "terminal-util.h"
 #include "tmpfile-util.h"
 #include "util.h"
+
+#include <libgen.h>
 
 /* Put this test here for a lack of better place */
 assert_cc(EAGAIN == EWOULDBLOCK);

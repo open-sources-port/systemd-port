@@ -1,7 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/epoll.h>
-#include <sys/timerfd.h>
+#include <sys_compat/epoll.h>
+#include <sys_compat/timerfd.h>
+#include <sys_compat/signalfd.h>
+#include <sys_compat/signal.h>
+#include <sys_compat/missing_syscall.h>
+#include <linux/rtc.h>
 #include <sys/wait.h>
 
 #include "sd-daemon.h"
@@ -18,7 +22,6 @@
 #include "list.h"
 #include <basic/macro.h>
 #include "memory-util.h"
-#include "missing_syscall.h"
 #include "missing_threads.h"
 #include "prioq.h"
 #include "process-util.h"
@@ -558,14 +561,14 @@ static EventSourceType clock_to_event_source_type(clockid_t clock) {
         case CLOCK_BOOTTIME:
                 return SOURCE_TIME_BOOTTIME;
 
-        case CLOCK_MONOTONIC:
-                return SOURCE_TIME_MONOTONIC;
+        // case CLOCK_MONOTONIC:
+        //         return SOURCE_TIME_MONOTONIC;
 
-        case CLOCK_REALTIME_ALARM:
-                return SOURCE_TIME_REALTIME_ALARM;
+        // case CLOCK_REALTIME_ALARM:
+        //         return SOURCE_TIME_REALTIME_ALARM;
 
-        case CLOCK_BOOTTIME_ALARM:
-                return SOURCE_TIME_BOOTTIME_ALARM;
+        // case CLOCK_BOOTTIME_ALARM:
+        //         return SOURCE_TIME_BOOTTIME_ALARM;
 
         default:
                 return _SOURCE_EVENT_SOURCE_TYPE_INVALID;

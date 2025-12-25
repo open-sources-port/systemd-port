@@ -21,6 +21,8 @@
 #include "strv.h"
 #include "terminal-util.h"
 
+#include <libgen.h>
+
 static int files_add(
                 Hashmap *h,
                 Set *masked,

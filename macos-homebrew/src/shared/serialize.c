@@ -7,7 +7,7 @@
 #include "escape.h"
 #include "fileio.h"
 #include "missing_mman.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "parse-util.h"
 #include "process-util.h"
 #include "serialize.h"

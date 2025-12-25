@@ -9,15 +9,42 @@
 #include <unistd.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <fcntl.h>
 
 #define EPOLLIN  0x001
 #define EPOLLOUT 0x004
 #define EPOLLERR 0x008
 #define EPOLLHUP 0x010
+#define EPOLL_CLOEXEC 0
+#define EPOLL_CTL_ADD 1
+#define EPOLL_CTL_MOD 2
+#define EPOLL_CTL_DEL 3
+#define EPOLLONESHOT 0x10000000
+#define EPOLLIN 0x001
+
+#ifndef EPOLLPRI
+#define EPOLLPRI 0
+#endif
+
+#ifndef EPOLLRDHUP
+#define EPOLLRDHUP 0
+#endif
+
+#ifndef EPOLLET
+#define EPOLLET 0
+#endif
+
+typedef union epoll_data {
+    void *ptr;
+    int fd;
+    uint32_t u32;
+    uint64_t u64;
+} epoll_data_t;
 
 typedef struct epoll_event {
     uint32_t events;   // EPOLLIN, EPOLLOUT, etc.
     int fd;            // file descriptor
+    epoll_data_t data;
 } epoll_event;
 
 static inline int epoll_create(int size) {
@@ -81,6 +108,14 @@ static inline int epoll_wait(int epfd, struct epoll_event *events, int maxevents
     }
 
     return n;
+}
+
+static inline int epoll_create1(int flags) {
+    int fd = epoll_create(1);
+    if (fd < 0) return -1;
+    if (flags & EPOLL_CLOEXEC)
+        fcntl(fd, F_SETFD, FD_CLOEXEC);
+    return fd;
 }
 
 #endif // __APPLE__

@@ -5,6 +5,7 @@
 #include <stddef.h>
 
 #include <basic/macro.h>
+#include <sys/mount.h>
 
 bool fstab_is_extrinsic(const char *mount, const char *opts);
 int fstab_is_mount_point(const char *mount);

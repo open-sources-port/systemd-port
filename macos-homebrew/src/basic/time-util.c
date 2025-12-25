@@ -2,11 +2,11 @@
 
 #include <ctype.h>
 #include <errno.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/time.h>
-#include <sys/timerfd.h>
+#include <sys_compat/timerfd.h>
 #include <sys/types.h>
 #include <unistd.h>
 

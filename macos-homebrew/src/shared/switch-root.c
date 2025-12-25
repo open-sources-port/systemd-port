@@ -2,7 +2,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stdbool.h>
 #include <sys/mount.h>
 #include <sys/stat.h>
@@ -12,7 +12,7 @@
 #include "chase-symlinks.h"
 #include "fd-util.h"
 #include "log.h"
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "mkdir-label.h"
 #include "mount-util.h"
 #include "mountpoint-util.h"

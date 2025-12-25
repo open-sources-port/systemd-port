@@ -1,3 +1,7 @@
+#pragma once
+
+#include <net/if.h>
+
 /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
 #ifndef __HDLC_IOCTL_H__
 #define __HDLC_IOCTL_H__

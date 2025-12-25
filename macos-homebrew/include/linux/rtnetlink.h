@@ -8,6 +8,16 @@
 #include <linux/if_addr.h>
 #include <linux/neighbour.h>
 
+#ifdef RTM_NEWNEIGH
+#undef RTM_NEWNEIGH
+#endif
+#ifdef RTM_DELNEIGH
+#undef RTM_DELNEIGH
+#endif
+#ifdef RTM_GETNEIGH
+#undef RTM_GETNEIGH
+#endif
+
 /* rtnetlink families. Values up to 127 are reserved for real address
  * families, values above 128 may be used arbitrarily.
  */

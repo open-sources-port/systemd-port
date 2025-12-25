@@ -38,7 +38,7 @@
 #if HAVE_SECCOMP
 #include "seccomp-util.h"
 #endif
-#include "securebits-util.h"
+// #include "securebits-util.h"
 #include "signal-util.h"
 #include "socket-util.h"
 #include "sort-util.h"
@@ -120,7 +120,7 @@ static inline int seccomp_parse_errno_or_action(const char *eq) { return -EINVAL
 #endif
 DEFINE_BUS_APPEND_PARSE("i", seccomp_parse_errno_or_action);
 DEFINE_BUS_APPEND_PARSE("i", sched_policy_from_string);
-DEFINE_BUS_APPEND_PARSE("i", secure_bits_from_string);
+// DEFINE_BUS_APPEND_PARSE("i", secure_bits_from_string);
 DEFINE_BUS_APPEND_PARSE("i", signal_from_string);
 DEFINE_BUS_APPEND_PARSE("i", parse_ip_protocol);
 DEFINE_BUS_APPEND_PARSE_PTR("i", int32_t, int, ioprio_parse_priority);
@@ -989,8 +989,8 @@ static int bus_append_execute_property(sd_bus_message *m, const char *field, con
         if (streq(field, "SyslogFacility"))
                 return bus_append_log_facility_unshifted_from_string(m, field, eq);
 
-        if (streq(field, "SecureBits"))
-                return bus_append_secure_bits_from_string(m, field, eq);
+        // if (streq(field, "SecureBits"))
+        //         return bus_append_secure_bits_from_string(m, field, eq);
 
         if (streq(field, "CPUSchedulingPolicy"))
                 return bus_append_sched_policy_from_string(m, field, eq);

@@ -4,7 +4,8 @@
 #include <sched.h>
 
 #include <basic/macro.h>
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
+#include <sys_compat/cpu-set.h>
 
 /* This wraps the libc interface with a variable to keep the allocated size. */
 typedef struct CPUSet {

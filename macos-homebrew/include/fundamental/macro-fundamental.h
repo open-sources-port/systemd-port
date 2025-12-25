@@ -5,11 +5,12 @@
 #  include <assert.h>
 #endif
 
-#include <limits.h>
+#include <sys_compat/limits.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include "basic/macro.h"
+#include <sys/socket.h>
 
 #define _align_(x) __attribute__((__aligned__(x)))
 #define _alignas_(x) __attribute__((__aligned__(__alignof__(x))))
@@ -26,9 +27,25 @@
 #define _likely_(x) (__builtin_expect(!!(x), 1))
 #define _malloc_ __attribute__((__malloc__))
 #define _noinline_ __attribute__((noinline))
-#define _noreturn_ _Noreturn
+
+/*
+ * STRLEN - return the length of a string literal, minus the trailing NUL byte.
+ *          Contrary to strlen(), this is a constant expression.
+ * @x: a string literal.
+ */
+#ifndef STRLEN
+        #define STRLEN(x) (sizeof("" x) - 1)
+#endif
+
+#ifndef _noreturn_
+    #if defined(__GNUC__) || defined(__clang__)
+        #define _noreturn_ __attribute__((noreturn))
+    #else
+        #define _noreturn_
+    #endif
+#endif
+
 #define _packed_ __attribute__((__packed__))
-// #define _printf_(a, b) __attribute__((__format__(printf, a, b)))
 #define _public_ __attribute__((__visibility__("default")))
 // #define _pure_ __attribute__((__pure__))
 #define _retain_ __attribute__((__retain__))
@@ -42,7 +59,14 @@
     #define _section_(x) __attribute__((section(x)))
 #endif
 
-#define _sentinel_ __attribute__((__sentinel__))
+#ifndef _sentinel_
+    #if defined(__GNUC__) || defined(__clang__)
+        #define _sentinel_ __attribute__((sentinel))
+    #else
+        #define _sentinel_
+    #endif
+#endif
+
 #define _unlikely_(x) (__builtin_expect(!!(x), 0))
 #define _unused_ __attribute__((__unused__))
 #define _used_ __attribute__((__used__))
@@ -316,13 +340,6 @@
                 _ptr_;                          \
         })
 
-/*
- * STRLEN - return the length of a string literal, minus the trailing NUL byte.
- *          Contrary to strlen(), this is a constant expression.
- * @x: a string literal.
- */
-#define STRLEN(x) (sizeof(""x"") - sizeof(typeof(x[0])))
-
 #define mfree(memory)                           \
         ({                                      \
                 free(memory);                   \
@@ -368,3 +385,10 @@ static inline size_t ALIGN_TO(size_t l, size_t ali) {
         (v) = UPDATE_FLAG(v, flag, b)
 #define FLAGS_SET(v, flags) \
         ((~(v) & (flags)) == 0)
+
+
+#ifndef CMSG_ALIGN
+#define CMSG_ALIGN(len) \
+        (((len) + sizeof(size_t) - 1) & ~(sizeof(size_t) - 1))
+#endif
+

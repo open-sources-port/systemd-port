@@ -14,12 +14,12 @@
 #ifndef _UAPI_LINUX_ETHTOOL_H
 #define _UAPI_LINUX_ETHTOOL_H
 
-#include <compat/linux_const.h>
+#include <linux/const.h>
 #include <linux/types.h>
 #include <linux/if_ether.h>
 
 #ifndef __KERNEL__
-#include <limits.h> /* for INT_MAX */
+#include <sys_compat/limits.h> /* for INT_MAX */
 #endif
 
 #ifndef __KERNEL_DIV_ROUND_UP

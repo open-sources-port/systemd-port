@@ -14,7 +14,7 @@
 #include "id128-util.h"
 #include "io-util.h"
 #include <basic/macro.h>
-#include "missing_syscall.h"
+#include <sys_compat/missing_syscall.h>
 #include "missing_threads.h"
 #include "random-util.h"
 #include "user-util.h"

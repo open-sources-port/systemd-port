@@ -20,6 +20,8 @@
 #include <inttypes.h>
 
 #include "_sd-common.h"
+#include <linux/types.h>
+#include <compat/errno.h>
 
 _SD_BEGIN_DECLARATIONS;
 

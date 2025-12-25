@@ -80,7 +80,18 @@ int sd_netlink_open_fd(sd_netlink **ret, int fd) {
         if (r < 0)
                 return r;
 
-        r = getsockopt_int(fd, SOL_SOCKET, SO_PROTOCOL, &protocol);
+        // r = getsockopt_int(fd, SOL_SOCKET, SO_PROTOCOL, &protocol);
+        int type;
+        socklen_t len = sizeof(type);
+        r = getsockopt(fd, SOL_SOCKET, SO_TYPE, &type, &len);
+        if (r >= 0) {
+                // Map socket type to protocol if needed
+                switch (type) {
+                case SOCK_STREAM: protocol = IPPROTO_TCP; break;
+                case SOCK_DGRAM:  protocol = IPPROTO_UDP; break;
+                default:          protocol = 0; break;
+                }
+        }
         if (r < 0)
                 return r;
 

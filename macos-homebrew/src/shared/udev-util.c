@@ -2,7 +2,7 @@
 
 #include <ctype.h>
 #include <errno.h>
-#include <sys/inotify.h>
+#include <sys_compat/inotify.h>
 #include <unistd.h>
 
 #include "alloc-util.h"

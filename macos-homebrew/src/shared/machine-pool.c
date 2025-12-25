@@ -5,7 +5,7 @@
 #include "btrfs-util.h"
 #include "label.h"
 #include "machine-pool.h"
-#include "missing_magic.h"
+#include <linux/magic.h>
 #include "stat-util.h"
 
 static int check_btrfs(void) {
