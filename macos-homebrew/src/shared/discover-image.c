@@ -1066,7 +1066,7 @@ int image_read_metadata(Image *i) {
         // Read hostname, machine-id, etc.
         // Replace Linux-specific loop device handling with just path checks
         char *hostname = NULL;
-        char *machine_id_path = NULL;
+        // char *machine_id_path = NULL;
 
         // Example: read /etc/hostname in image
         if (asprintf(&hostname, "%s/etc/hostname", i->path) > 0) {

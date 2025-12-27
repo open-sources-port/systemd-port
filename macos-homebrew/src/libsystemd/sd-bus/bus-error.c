@@ -16,6 +16,12 @@
 #include "strv.h"
 #include "util.h"
 
+#if defined(__APPLE__) || defined(__FreeBSD__)
+        #define HAVE_ELF_BUS_ERROR_MAP 0
+#else
+        #define HAVE_ELF_BUS_ERROR_MAP 1
+#endif
+
 BUS_ERROR_MAP_ELF_REGISTER const sd_bus_error_map bus_standard_errors[] = {
         SD_BUS_ERROR_MAP("org.freedesktop.DBus.Error.Failed",                           EACCES),
         SD_BUS_ERROR_MAP("org.freedesktop.DBus.Error.NoMemory",                         ENOMEM),
@@ -54,9 +60,13 @@ BUS_ERROR_MAP_ELF_REGISTER const sd_bus_error_map bus_standard_errors[] = {
         SD_BUS_ERROR_MAP_END
 };
 
-/* GCC maps this magically to the beginning and end of the BUS_ERROR_MAP section */
-extern const sd_bus_error_map __start_SYSTEMD_BUS_ERROR_MAP[];
-extern const sd_bus_error_map __stop_SYSTEMD_BUS_ERROR_MAP[];
+#if HAVE_ELF_BUS_ERROR_MAP
+        extern const sd_bus_error_map __start_SYSTEMD_BUS_ERROR_MAP[];
+        extern const sd_bus_error_map __stop_SYSTEMD_BUS_ERROR_MAP[];
+#else
+        extern const sd_bus_error_map *systemd_bus_error_map;
+        extern const size_t systemd_bus_error_map_size;
+#endif
 
 /* Additional maps registered with sd_bus_error_add_map() are in this
  * NULL terminated array */
@@ -92,26 +102,35 @@ static int bus_error_name_to_errno(const char *name) {
                                 }
                         }
 
-        m = ALIGN_PTR(__start_SYSTEMD_BUS_ERROR_MAP);
-        while (m < __stop_SYSTEMD_BUS_ERROR_MAP) {
-                /* For magic ELF error maps, the end marker might
-                 * appear in the middle of things, since multiple maps
-                 * might appear in the same section. Hence, let's skip
-                 * over it, but realign the pointer to the next 8 byte
-                 * boundary, which is the selected alignment for the
-                 * arrays. */
-                if (m->code == BUS_ERROR_MAP_END_MARKER) {
-                        m = ALIGN_PTR(m + 1);
-                        continue;
-                }
+        #if HAVE_ELF_BUS_ERROR_MAP
+                m = ALIGN_PTR(__start_SYSTEMD_BUS_ERROR_MAP);
+                while (m < __stop_SYSTEMD_BUS_ERROR_MAP) {
+                        if (m->code == BUS_ERROR_MAP_END_MARKER) {
+                                m = ALIGN_PTR(m + 1);
+                                continue;
+                        }
 
-                if (streq(m->name, name)) {
-                        assert(m->code > 0);
-                        return m->code;
-                }
+                        if (streq(m->name, name)) {
+                                assert(m->code > 0);
+                                return m->code;
+                        }
 
-                m++;
-        }
+                        m++;
+                }
+        #else
+                for (m = systemd_bus_error_map;
+                m < systemd_bus_error_map + systemd_bus_error_map_size;
+                m++) {
+
+                        if (m->code == BUS_ERROR_MAP_END_MARKER)
+                                continue;
+
+                        if (streq(m->name, name)) {
+                                assert(m->code > 0);
+                                return m->code;
+                        }
+                }
+        #endif
 
         return EIO;
 }

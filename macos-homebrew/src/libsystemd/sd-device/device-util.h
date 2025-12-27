@@ -9,6 +9,7 @@
 
 #include "log.h"
 #include <basic/macro.h>
+#include <linux/fs.h>
 
 #define device_unref_and_replace(a, b)                                  \
         unref_and_replace_full(a, b, sd_device_ref, sd_device_unref)

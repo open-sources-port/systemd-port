@@ -38,6 +38,8 @@
 #include "strv.h"
 #include "unit-file.h"
 
+#include <libgen.h>
+
 #define UNIT_FILE_FOLLOW_SYMLINK_MAX 64
 
 typedef enum SearchFlags {
@@ -437,9 +439,9 @@ void install_changes_dump(int r, const char *verb, const InstallChange *changes,
                         err = log_error_errno(changes[i].type, "Failed to %s unit, unit %s does not exist.",
                                               verb, changes[i].path);
                         break;
-                case -EUNATCH:
-                        err = log_error_errno(changes[i].type, "Failed to %s unit, cannot resolve specifiers in \"%s\".",
-                                              verb, changes[i].path);
+                // case -EUNATCH:
+                //         err = log_error_errno(changes[i].type, "Failed to %s unit, cannot resolve specifiers in \"%s\".",
+                //                               verb, changes[i].path);
                         break;
                 default:
                         assert(changes[i].type < 0);
@@ -1147,7 +1149,9 @@ static int install_info_add(
                  * workaround a bug in gcc that generates a -Wnonnull warning when calling basename(),
                  * but this cannot be possible in any code path (See #6119). */
                 assert_se(path);
-                name = basename(path);
+
+                char *tmp_path = strdup(path);  // make writable copy
+                name = basename(tmp_path);
         }
 
         if (!unit_name_is_valid(name, UNIT_NAME_ANY))

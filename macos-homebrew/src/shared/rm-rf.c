@@ -19,6 +19,7 @@
 #include "rm-rf.h"
 #include "stat-util.h"
 #include "string-util.h"
+#include <sys_compat/syncfs.h>
 
 /* We treat tmpfs/ramfs + cgroupfs as non-physical file systems. cgroupfs is similar to tmpfs in a way
  * after all: we can create arbitrary directory hierarchies in it, and hence can also use rm_rf() on it
@@ -249,7 +250,7 @@ static int rm_rf_inner_child(
                 if (subdir_fd < 0)
                         return subdir_fd;
 
-                /* We pass REMOVE_PHYSICAL here, to avoid doing the flinux_statfs() to check the file system type
+                /* We pass REMOVE_PHYSICAL here, to avoid doing the linux_statfs() to check the file system type
                  * again for each directory */
                 q = rm_rf_children_impl(subdir_fd, flags | REMOVE_PHYSICAL, root_dev, old_mode);
 
@@ -347,12 +348,14 @@ static int rm_rf_children_impl(
                                         * one we passed. */
 
                         if (!(flags & REMOVE_PHYSICAL)) {
-                                struct statfs sfs;
+                                struct linux_statfs sfs;
 
-                                if (flinux_statfs(fd, &sfs) < 0)
+                                if (linux_statfs_fd(fd, &sfs) < 0)
                                         return -errno;
 
-                                if (is_physical_fs(&sfs)) {
+                                struct statfs s;
+                                linux_to_statfs(&sfs, &s);
+                                if (is_physical_fs(&s)) {
                                         /* We refuse to clean physical file systems with this call, unless
                                          * explicitly requested. This is extra paranoia just to be sure we
                                          * never ever remove non-state data. */
@@ -477,9 +480,12 @@ int rm_rf(const char *path, RemoveFlags flags) {
 
                 if (!FLAGS_SET(flags, REMOVE_PHYSICAL)) {
                         struct statfs s;
+                        struct linux_statfs ls;
 
-                        if (linux_statfs(path, &s) < 0)
+                        if (linux_statfs(path, &ls) < 0)
                                 return -errno;
+                        
+                        statfs_to_linux(&s, &ls);
                         if (is_physical_fs(&s))
                                 return log_error_errno(SYNTHETIC_ERRNO(EPERM),
                                                        "Attempted to remove files from a disk file system under \"%s\", refusing.",

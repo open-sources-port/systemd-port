@@ -65,8 +65,8 @@ int is_device_node(const char *path) {
 
 int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup) {
         _cleanup_close_ int fd = -1;
-        struct dirent *buf;
-        size_t m;
+        // struct dirent *buf;
+        // size_t m;
 
         if (path) {
                 assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
@@ -92,26 +92,38 @@ int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup) 
          * ".."), and only once we have seen if there's a third we know whether the dir is empty or not. If
          * 'ignore_hidden_or_backup' is true we'll allocate a bit more, since we might skip over a bunch of
          * entries that we end up ignoring. */
-        m = (ignore_hidden_or_backup ? 16 : 3) * DIRENT_SIZE_MAX;
-        buf = alloca(m);
+        // m = (ignore_hidden_or_backup ? 16 : 3) * DIRENT_SIZE_MAX;
+        // buf = alloca(m);
+
+        DIR *d;
+        struct dirent *de;
+
+        d = fdopendir(fd);
+        if (!d)
+                return -errno;
 
         for (;;) {
-                struct dirent *de;
-                ssize_t n;
+                errno = 0;
+                de = readdir(d);
+                if (!de) {
+                        if (errno != 0) {
+                                int e = errno;
+                                closedir(d);
+                                return -e;
+                        }
+                        break; /* end of directory */
+                }
 
-                n = getdents64(fd, buf, m);
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                if (ignore_hidden_or_backup
+                    ? hidden_or_backup_file(de->d_name)
+                    : dot_or_dot_dot(de->d_name))
+                        continue;
 
-                assert((size_t) n <= m);
-                msan_unpoison(buf, n);
-
-                FOREACH_DIRENT_IN_BUFFER(de, buf, n)
-                        if (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
-                                return 0;
+                closedir(d);
+                return 0;
         }
+
+        closedir(d);
 
         return 1;
 }
@@ -205,19 +217,29 @@ bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) {
 }
 
 int fd_is_fs_type(int fd, statfs_f_type_t magic_value) {
-        struct statfs s;
+        struct statfs s_real;
 
-        if (flinux_statfs(fd, &s) < 0)
+        // Get macOS statfs info from the file descriptor
+        if (fstatfs(fd, &s_real) < 0)
                 return -errno;
 
-        return is_fs_type(&s, magic_value);
+        struct linux_statfs s_linux;
+        statfs_to_linux(&s_real, &s_linux);  // convert to Linux-style struct
+
+        struct statfs ns;
+        linux_to_statfs(&s_linux, &ns);      // convert back if your is_fs_type expects statfs
+
+        return is_fs_type(&ns, magic_value);
 }
 
 int path_is_fs_type(const char *path, statfs_f_type_t magic_value) {
+        struct linux_statfs ls;
         struct statfs s;
 
-        if (linux_statfs(path, &s) < 0)
+        if (linux_statfs(path, &ls) < 0)
                 return -errno;
+
+        linux_to_statfs(&ls, &s);
 
         return is_fs_type(&s, magic_value);
 }
@@ -231,37 +253,47 @@ bool is_network_fs(const struct statfs *s) {
 }
 
 int fd_is_temporary_fs(int fd) {
+        struct linux_statfs ls;
         struct statfs s;
 
-        if (flinux_statfs(fd, &s) < 0)
+        if (linux_statfs_fd(fd, &ls) < 0)
                 return -errno;
 
+        linux_to_statfs(&ls, &s);
         return is_temporary_fs(&s);
 }
 
 int fd_is_network_fs(int fd) {
+        struct linux_statfs ls;
         struct statfs s;
 
-        if (flinux_statfs(fd, &s) < 0)
+        if (linux_statfs_fd(fd, &ls) < 0)
                 return -errno;
 
+        linux_to_statfs(&ls, &s);
         return is_network_fs(&s);
 }
 
 int path_is_temporary_fs(const char *path) {
+        struct linux_statfs ls;
         struct statfs s;
 
-        if (linux_statfs(path, &s) < 0)
+        if (linux_statfs(path, &ls) < 0)
                 return -errno;
+
+        linux_to_statfs(&ls, &s);
 
         return is_temporary_fs(&s);
 }
 
 int path_is_network_fs(const char *path) {
+        struct linux_statfs ls;
         struct statfs s;
 
-        if (linux_statfs(path, &s) < 0)
+        if (linux_statfs(path, &ls) < 0)
                 return -errno;
+
+        linux_to_statfs(&ls, &s);
 
         return is_network_fs(&s);
 }
@@ -435,8 +467,8 @@ int statx_fallback(int dfd, const char *path, int flags, unsigned mask, struct s
                 .stx_atime.tv_nsec = st.st_atim.tv_nsec,
                 .stx_mtime.tv_sec = st.st_mtim.tv_sec,
                 .stx_mtime.tv_nsec = st.st_mtim.tv_nsec,
-                .stx_ctime.tv_sec = st.st_ctim.tv_sec,
-                .stx_ctime.tv_nsec = st.st_ctim.tv_nsec,
+                .stx_ctime.tv_sec = st.st_ctimespec.tv_sec,
+                .stx_ctime.tv_nsec = st.st_ctimespec.tv_nsec,
         };
 
         return 0;

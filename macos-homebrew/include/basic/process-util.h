@@ -14,6 +14,7 @@
 #include "alloc-util.h"
 #include "format-util.h"
 #include <basic/macro.h>
+#include <basic/raw-clone.h>
 #include "time-util.h"
 #include <compat/compat-glibc.h>
 
@@ -205,5 +206,3 @@ bool invoked_by_systemd(void);
 _noreturn_ void freeze(void);
 
 bool argv_looks_like_help(int argc, char **argv);
-
-pid_t raw_clone(unsigned long flags);

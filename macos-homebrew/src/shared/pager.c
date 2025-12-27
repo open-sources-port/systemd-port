@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys_compat/prctl.h>
+#include <sys_compat/pipe.h>
 #include <unistd.h>
 
 #include "sd-login.h"

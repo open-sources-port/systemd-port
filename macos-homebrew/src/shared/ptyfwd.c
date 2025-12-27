@@ -25,6 +25,11 @@
 #include "terminal-util.h"
 #include "time-util.h"
 
+#include <sys/param.h>
+#include <sys/ttycom.h>
+
+#define TIOCINQ FIONREAD
+
 struct PTYForward {
         sd_event *event;
 

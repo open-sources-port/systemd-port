@@ -663,10 +663,19 @@ int reset_uid_gid(void) {
         if (r < 0)
                 return r;
 
-        if (setresgid(0, 0, 0) < 0)
+        // if (setresgid(0, 0, 0) < 0)
+        //         return -errno;
+
+        // return RET_NERRNO(setresuid(0, 0, 0));
+        /* macOS has no saved UID/GID, only real + effective */
+
+        if (setregid(0, 0) < 0)
                 return -errno;
 
-        return RET_NERRNO(setresuid(0, 0, 0));
+        if (setreuid(0, 0) < 0)
+                return -errno;
+
+        return 0;
 }
 
 int take_etc_passwd_lock(const char *root) {
@@ -947,33 +956,27 @@ int putpwent_sane(const struct passwd *pw, FILE *stream) {
         assert(pw);
         assert(stream);
 
-        errno = 0;
-        if (putpwent(pw, stream) != 0)
-                return errno_or_else(EIO);
-
-        return 0;
+        (void)pw; (void)stream;
+        errno = ENOTSUP;
+        return -1;
 }
 
 int putspent_sane(const struct spwd *sp, FILE *stream) {
         assert(sp);
         assert(stream);
 
-        errno = 0;
-        if (putspent(sp, stream) != 0)
-                return errno_or_else(EIO);
-
-        return 0;
+        (void)sp; (void)stream;
+        errno = ENOTSUP;
+        return -1;
 }
 
 int putgrent_sane(const struct group *gr, FILE *stream) {
         assert(gr);
         assert(stream);
 
-        errno = 0;
-        if (putgrent(gr, stream) != 0)
-                return errno_or_else(EIO);
-
-        return 0;
+        (void)gr; (void)stream;
+        errno = ENOTSUP;
+        return -1;
 }
 
 #if ENABLE_GSHADOW
@@ -981,11 +984,14 @@ int putsgent_sane(const struct sgrp *sg, FILE *stream) {
         assert(sg);
         assert(stream);
 
-        errno = 0;
-        if (putsgent(sg, stream) != 0)
-                return errno_or_else(EIO);
+        // errno = 0;
+        // if (putsgent(sg, stream) != 0)
+        //         return errno_or_else(EIO);
 
-        return 0;
+        // return 0;
+        (void)sg; (void)stream;
+        errno = ENOTSUP;
+        return -1;
 }
 #endif
 
@@ -993,39 +999,27 @@ int fgetpwent_sane(FILE *stream, struct passwd **pw) {
         assert(stream);
         assert(pw);
 
-        errno = 0;
-        struct passwd *p = fgetpwent(stream);
-        if (!p && errno != ENOENT)
-                return errno_or_else(EIO);
-
-        *pw = p;
-        return !!p;
+        (void)pw; (void)stream;
+        errno = ENOTSUP;
+        return -1;
 }
 
 int fgetspent_sane(FILE *stream, struct spwd **sp) {
         assert(stream);
         assert(sp);
 
-        errno = 0;
-        struct spwd *s = fgetspent(stream);
-        if (!s && errno != ENOENT)
-                return errno_or_else(EIO);
-
-        *sp = s;
-        return !!s;
+        (void)sp; (void)stream;
+        errno = ENOTSUP;
+        return -1;
 }
 
 int fgetgrent_sane(FILE *stream, struct group **gr) {
         assert(stream);
         assert(gr);
 
-        errno = 0;
-        struct group *g = fgetgrent(stream);
-        if (!g && errno != ENOENT)
-                return errno_or_else(EIO);
-
-        *gr = g;
-        return !!g;
+        (void)gr; (void)stream;
+        errno = ENOTSUP;
+        return -1;
 }
 
 #if ENABLE_GSHADOW
@@ -1033,13 +1027,16 @@ int fgetsgent_sane(FILE *stream, struct sgrp **sg) {
         assert(stream);
         assert(sg);
 
-        errno = 0;
-        struct sgrp *s = fgetsgent(stream);
-        if (!s && errno != ENOENT)
-                return errno_or_else(EIO);
+        // errno = 0;
+        // struct sgrp *s = fgetsgent(stream);
+        // if (!s && errno != ENOENT)
+        //         return errno_or_else(EIO);
 
-        *sg = s;
-        return !!s;
+        // *sg = s;
+        // return !!s;
+        (void)sg; (void)stream;
+        errno = ENOTSUP;
+        return -1;
 }
 #endif
 

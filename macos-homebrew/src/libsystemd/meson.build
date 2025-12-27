@@ -182,7 +182,8 @@ libsystemd_shared = shared_library(
                      libbasic_compress],
         dependencies : [threads],
                         # librt],
-        build_by_default : false)
+        build_by_default : false,
+)
 
 libsystemd_static = static_library(
         'systemd_static',
@@ -190,8 +191,7 @@ libsystemd_static = static_library(
         # include_directories : libsystemd_includes,
         include_directories : all_includes,
         c_args : libsystemd_c_args,
-        link_with : [libbasic,
-                     libbasic_compress],
+        link_with : [libbasic, libbasic_compress, liblinux],
         dependencies : [threads],
                         # librt],
         build_by_default : false)

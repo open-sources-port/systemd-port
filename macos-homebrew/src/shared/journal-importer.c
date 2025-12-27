@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <errno.h>
-#include <malloc.h>
+#include <sys_compat/malloc.h>
 #include <unistd.h>
 
 #include "alloc-util.h"

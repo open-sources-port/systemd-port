@@ -1,10 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <errno.h>
+#include <compat/errno.h>
 #include <locale.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <inttypes.h>
+#include <math.h>
 
 #include "sd-messages.h"
 
@@ -1584,7 +1586,7 @@ static int json_format(FILE *f, JsonVariant *v, JsonFormatFlags flags, const cha
                 if (flags & JSON_FORMAT_COLOR)
                         fputs(ansi_highlight_blue(), f);
 
-                fprintf(f, "%" PRIdMAX, json_variant_integer(v));
+                fprintf(f, "%" PRId64, json_variant_integer(v));
 
                 if (flags & JSON_FORMAT_COLOR)
                         fputs(ANSI_NORMAL, f);
@@ -1594,7 +1596,7 @@ static int json_format(FILE *f, JsonVariant *v, JsonFormatFlags flags, const cha
                 if (flags & JSON_FORMAT_COLOR)
                         fputs(ansi_highlight_blue(), f);
 
-                fprintf(f, "%" PRIuMAX, json_variant_unsigned(v));
+                fprintf(f, "%" PRIu64, json_variant_unsigned(v));
 
                 if (flags & JSON_FORMAT_COLOR)
                         fputs(ANSI_NORMAL, f);
@@ -2599,7 +2601,8 @@ static int json_parse_number(const char **p, JsonValue *ret) {
         *p = c;
 
         if (is_real) {
-                ret->real = ((negative ? -1.0 : 1.0) * (x + (y / shift))) * exp10((exponent_negative ? -1.0 : 1.0) * exponent);
+                // ret->real = ((negative ? -1.0 : 1.0) * (x + (y / shift))) * exp10((exponent_negative ? -1.0 : 1.0) * exponent);
+                ret->real = ((negative ? -1.0 : 1.0) * (x + (y / shift))) * pow(10.0, (exponent_negative ? -1.0 : 1.0) * exponent);
                 return JSON_TOKEN_REAL;
         } else if (negative) {
                 ret->integer = i;

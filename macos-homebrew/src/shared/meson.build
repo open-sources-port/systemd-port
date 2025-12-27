@@ -337,7 +337,7 @@ shared_sources = files(
         join_paths(shared_inc_path, 'userdb-dropin.h'),
         'userdb.c',
         join_paths(shared_inc_path, 'userdb.h'),
-        join_paths(shared_inc_path, 'utmp-wtmp.h'),
+        # join_paths(shared_inc_path, 'utmp-wtmp.h'),
         'varlink.c',
         join_paths(shared_inc_path, 'varlink.h'),
         join_paths(shared_inc_path, 'varlink-internal.h'),
@@ -383,9 +383,9 @@ if conf.get('HAVE_ACL') == 1
         )
 endif
 
-if conf.get('ENABLE_UTMP') == 1
-        shared_sources += files('utmp-wtmp.c')
-endif
+# if conf.get('ENABLE_UTMP') == 1
+#        shared_sources += files('utmp-wtmp.c')
+# endif
 
 if conf.get('HAVE_SECCOMP') == 1
         shared_sources += files('seccomp-util.c')
@@ -491,15 +491,14 @@ libshared_static = static_library(
         build_by_default : false)
 
 libshared = shared_library(
-        libshared_name,
-        include_directories : shared_includes,
-        c_args : ['-fvisibility=default'],
-        link_args : ['-shared',
-                     '-Wl,--version-script=' + libshared_sym_path],
-        link_whole : [libshared_static,
-                      libbasic,
-                      libbasic_gcrypt,
-                      libsystemd_static],
-        dependencies : libshared_deps,
-        install : true,
-        install_dir : rootpkglibdir)
+    libshared_name,
+    include_directories : shared_includes,
+    c_args : ['-fvisibility=default'],
+    link_args : ['-Wl,-exported_symbols_list,' + libsystemd_sym_path],
+    link_whole : [libshared_static,
+                  libbasic,
+                  libbasic_gcrypt,
+                  libsystemd_static],
+    dependencies : libshared_deps,
+    install : true,
+    install_dir : rootpkglibdir)

@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <linux/socket.h>
 #include <sys/un.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -16,6 +17,111 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sys/ucred.h>
+#include <stddef.h>
+
+int fd_set_rcvbuf(int fd, size_t n, bool increase) {
+    int cur = 0;
+    socklen_t len = sizeof(cur);
+    int newv;
+
+    if (fd < 0)
+        return -EINVAL;
+
+    if (n > INT_MAX)
+        n = INT_MAX;
+
+    /*
+     * If we only want to increase, read current value first
+     */
+    if (increase) {
+        if (getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &cur, &len) < 0)
+            return -errno;
+
+        if ((size_t) cur >= n)
+            return 0;
+    }
+
+    newv = (int) n;
+
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &newv, sizeof(newv)) < 0)
+        return -errno;
+
+    return 0;
+}
+
+int fd_set_sndbuf(int fd, size_t n, bool increase) {
+    int cur = 0;
+    socklen_t len = sizeof(cur);
+    int newv;
+
+    if (fd < 0)
+        return -EINVAL;
+
+    if (n > INT_MAX)
+        n = INT_MAX;
+
+    if (increase) {
+        if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &cur, &len) < 0)
+            return -errno;
+
+        if ((size_t) cur >= n)
+            return 0;
+    }
+
+    newv = (int) n;
+
+    if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &newv, sizeof(newv)) < 0)
+        return -errno;
+
+    return 0;
+}
+
+struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t min_len) {
+    struct cmsghdr *cmsg;
+
+    if (!mh)
+        return NULL;
+
+    for (cmsg = CMSG_FIRSTHDR(mh);
+         cmsg != NULL;
+         cmsg = CMSG_NXTHDR(mh, cmsg)) {
+
+        if (cmsg->cmsg_level != level)
+            continue;
+
+        if (cmsg->cmsg_type != type)
+            continue;
+
+        if (cmsg->cmsg_len < min_len)
+            continue;
+
+        return cmsg;
+    }
+
+    return NULL;
+}
+
+int connect_unix_path(int fd, int dir_fd, const char *path) {
+    struct sockaddr_un sa;
+
+    if (!path)
+        return -EINVAL;
+
+    if (dir_fd != AT_FDCWD)
+        return -ENOTSUP; /* macOS: no dirfd-based AF_UNIX */
+
+    if (strlen(path) >= sizeof(sa.sun_path))
+        return -ENAMETOOLONG;
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sun_family = AF_UNIX;
+    strncpy(sa.sun_path, path, sizeof(sa.sun_path) - 1);
+
+    if (connect(fd, (struct sockaddr*)&sa, sizeof(sa)) < 0)
+        return -errno;
+
+    return 0;
+}
 
 /* ------------------- Socket Type Table ------------------- */
 static const char * const socket_address_type_table[] = {

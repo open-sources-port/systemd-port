@@ -9,6 +9,7 @@
 #include "user-record-show.h"
 #include "user-util.h"
 #include "userdb.h"
+#include <compat/errno.h>
 
 const char *user_record_state_color(const char *state) {
         if (STR_IN_SET(state, "unfixated", "absent"))

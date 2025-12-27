@@ -24,6 +24,8 @@
 #include "user-util.h"
 #include "utmp-wtmp.h"
 
+#include <sys_compat/missing_syscall.h>
+
 int utmp_get_runlevel(int *runlevel, int *previous) {
         _unused_ _cleanup_(utxent_cleanup) bool utmpx = false;
         struct utmpx *found, lookup = { .ut_type = RUN_LVL };

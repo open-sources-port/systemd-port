@@ -3,6 +3,7 @@
 #include "conf-parser.h"
 #include "resolve-util.h"
 #include "string-table.h"
+#include <sys_compat/endian.h>
 
 DEFINE_CONFIG_PARSE_ENUM(config_parse_resolve_support, resolve_support, ResolveSupport, "Failed to parse resolve support setting");
 DEFINE_CONFIG_PARSE_ENUM(config_parse_dnssec_mode, dnssec_mode, DnssecMode, "Failed to parse DNSSEC mode setting");

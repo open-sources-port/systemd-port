@@ -33,6 +33,8 @@
 #include "user-util.h"
 #include "virt.h"
 
+#include <basic/missing_mount.h>
+
 typedef enum MountMode {
         MNT_NONE           = 0,
         MNT_FATAL          = 1 << 0,
@@ -188,7 +190,7 @@ static int mount_one(const MountPoint *p, bool relabel) {
                   strna(p->options));
 
         if (FLAGS_SET(p->mode, MNT_FOLLOW_SYMLINK))
-                r = RET_NERRNO(mount(p->what, p->where, p->type, p->flags, p->options));
+                r = RET_NERRNO(mount(p->what, p->where, 0, NULL));
         else
                 r = mount_nofollow(p->what, p->where, p->type, p->flags, p->options);
         if (r < 0) {
@@ -204,7 +206,8 @@ static int mount_one(const MountPoint *p, bool relabel) {
                 if (access(p->where, W_OK) < 0) {
                         r = -errno;
 
-                        (void) umount2(p->where, UMOUNT_NOFOLLOW);
+                        // (void) umount2(p->where, MNT_NOFOLLOW);
+                        unmount(p->where, MNT_NOFOLLOW);
                         (void) rmdir(p->where);
 
                         log_full_errno(priority, r, "Mount point %s not writable after mounting: %m", p->where);
@@ -356,7 +359,7 @@ int mount_cgroup_controllers(void) {
         }
 
         /* Now that we mounted everything, let's make the tmpfs the cgroup file systems are mounted into read-only. */
-        (void) mount_nofollow("tmpfs", "/sys/fs/cgroup", "tmpfs", MS_REMOUNT|MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_STRICTATIME|MS_RDONLY, "mode=755" TMPFS_LIMITS_SYS_FS_CGROUP);
+        (void) mount_nofollow("tmpfs", "/sys/fs/cgroup", "tmpfs", MS_NOSUID|MS_NOEXEC|MS_NODEV|MS_STRICTATIME|MS_RDONLY, "mode=755" TMPFS_LIMITS_SYS_FS_CGROUP);
 
         return 0;
 }
@@ -405,7 +408,7 @@ static int relabel_tree(const char *path) {
 
 static int relabel_cgroup_filesystems(void) {
         int r;
-        struct statfs st;
+        struct linux_statfs st;
 
         r = cg_all_unified();
         if (r == 0) {
@@ -416,14 +419,14 @@ static int relabel_cgroup_filesystems(void) {
                 if (linux_statfs("/sys/fs/cgroup", &st) < 0)
                         return log_error_errno(errno, "Failed to determine mount flags for /sys/fs/cgroup: %m");
 
-                if (st.f_flags & ST_RDONLY)
-                        (void) mount_nofollow(NULL, "/sys/fs/cgroup", NULL, MS_REMOUNT, NULL);
+                // if (st.f_flags & ST_RDONLY)
+                //         (void) mount_nofollow(NULL, "/sys/fs/cgroup", NULL, MS_REMOUNT, NULL);
 
                 (void) label_fix("/sys/fs/cgroup", 0);
                 (void) relabel_tree("/sys/fs/cgroup");
 
-                if (st.f_flags & ST_RDONLY)
-                        (void) mount_nofollow(NULL, "/sys/fs/cgroup", NULL, MS_REMOUNT|MS_RDONLY, NULL);
+                // if (st.f_flags & ST_RDONLY)
+                //         (void) mount_nofollow(NULL, "/sys/fs/cgroup", NULL, MS_REMOUNT|MS_RDONLY, NULL);
 
         } else if (r < 0)
                 return log_error_errno(r, "Failed to determine whether we are in all unified mode: %m");
@@ -544,9 +547,9 @@ int mount_setup(bool loaded_policy, bool leave_propagation) {
          * needed. Note that we set this only when we are invoked directly by the kernel. If we are invoked by a
          * container manager we assume the container manager knows what it is doing (for example, because it set up
          * some directories with different propagation modes). */
-        if (detect_container() <= 0 && !leave_propagation)
-                if (mount(NULL, "/", NULL, MS_REC|MS_SHARED, NULL) < 0)
-                        log_warning_errno(errno, "Failed to set up the root directory for shared mount propagation: %m");
+        // if (detect_container() <= 0 && !leave_propagation)
+        //         if (mount(NULL, "/", NULL, MS_REC|MS_SHARED, NULL) < 0)
+        //                 log_warning_errno(errno, "Failed to set up the root directory for shared mount propagation: %m");
 
         /* Create a few directories we always want around, Note that sd_booted() checks for /run/systemd/system, so
          * this mkdir really needs to stay for good, otherwise software that copied sd-daemon.c into their sources will

@@ -6,7 +6,7 @@
 #endif
 
 #include <fcntl.h>
-#include <compat/compat_malloc.h>
+#include <sys_compat/malloc.h>
 #include <sys/mman.h>
 #include <sys_compat/prctl.h>
 

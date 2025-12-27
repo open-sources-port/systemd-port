@@ -20,3 +20,7 @@ usec_t watchdog_runtime_wait(void);
 static inline void watchdog_free_device(void) {
         (void) watchdog_set_device(NULL);
 }
+
+static inline bool watchdog_supported(void) {
+        return false;
+}

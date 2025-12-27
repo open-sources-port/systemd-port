@@ -59,13 +59,6 @@ int switch_root(const char *new_root,
         if (r == 0) /* Doesn't exist yet. Let's create it */
                 (void) mkdir_p_label(resolved_old_root_after, 0755);
 
-        /* Work-around for kernel design: the kernel refuses MS_MOVE if any file systems are mounted MS_SHARED. Hence
-         * remount them MS_PRIVATE here as a work-around.
-         *
-         * https://bugzilla.redhat.com/show_bug.cgi?id=847418 */
-        if (mount(NULL, "/", NULL, MS_REC|MS_PRIVATE, NULL) < 0)
-                return log_error_errno(errno, "Failed to set \"/\" mount propagation to private: %m");
-
         FOREACH_STRING(path, "/sys", "/dev", "/run", "/proc") {
                 _cleanup_free_ char *chased = NULL;
 
@@ -83,8 +76,8 @@ int switch_root(const char *new_root,
                          /* Doesn't exist yet? */
                         (void) mkdir_p_label(chased, 0755);
 
-                if (mount(path, chased, NULL, mount_flags, NULL) < 0)
-                        return log_error_errno(errno, "Failed to mount %s to %s: %m", path, chased);
+                // if (mount(path, chased, NULL, mount_flags, NULL) < 0)
+                //         return log_error_errno(errno, "Failed to mount %s to %s: %m", path, chased);
         }
 
         /* Do not fail if base_filesystem_create() fails. Not all switch roots are like base_filesystem_create() wants
@@ -97,18 +90,18 @@ int switch_root(const char *new_root,
 
         /* We first try a pivot_root() so that we can umount the old root dir. In many cases (i.e. where rootfs is /),
          * that's not possible however, and hence we simply overmount root */
-        if (pivot_root(new_root, resolved_old_root_after) >= 0) {
+        // if (pivot_root(new_root, resolved_old_root_after) >= 0) {
 
-                /* Immediately get rid of the old root, if detach_oldroot is set.
-                 * Since we are running off it we need to do this lazily. */
-                if (unmount_old_root) {
-                        r = umount_recursive(old_root_after, MNT_DETACH);
-                        if (r < 0)
-                                log_warning_errno(r, "Failed to unmount old root directory tree, ignoring: %m");
-                }
+        //         /* Immediately get rid of the old root, if detach_oldroot is set.
+        //          * Since we are running off it we need to do this lazily. */
+        //         if (unmount_old_root) {
+        //                 r = umount_recursive(old_root_after, MNT_DETACH);
+        //                 if (r < 0)
+        //                         log_warning_errno(r, "Failed to unmount old root directory tree, ignoring: %m");
+        //         }
 
-        } else if (mount(new_root, "/", NULL, MS_MOVE, NULL) < 0)
-                return log_error_errno(errno, "Failed to move %s to /: %m", new_root);
+        // } else if (mount(new_root, "/", NULL, MS_MOVE, NULL) < 0)
+        //         return log_error_errno(errno, "Failed to move %s to /: %m", new_root);
 
         if (chroot(".") < 0)
                 return log_error_errno(errno, "Failed to change root: %m");

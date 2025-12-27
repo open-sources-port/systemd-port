@@ -14,78 +14,79 @@
 #include "stat-util.h"
 
 int resize_fs(int fd, uint64_t sz, uint64_t *ret_size) {
-        struct statfs sfs;
+    struct linux_statfs sfs_buf;
+    struct statfs s_buf;
 
-        assert(fd >= 0);
+    struct linux_statfs *sfs = &sfs_buf;
+    struct statfs *s = &s_buf;
 
-        /* Rounds down to next block size */
+    assert(fd >= 0);
 
-        if (sz <= 0 || sz == UINT64_MAX)
-                return -ERANGE;
+    /* Rounds down to next block size */
+    if (sz == 0 || sz == UINT64_MAX)
+        return -ERANGE;
 
-        if (flinux_statfs(fd, &sfs) < 0)
-                return -errno;
+    if (linux_statfs_fd(fd, sfs) < 0)
+        return -errno;
 
-        if (is_fs_type(&sfs, EXT4_SUPER_MAGIC)) {
-                uint64_t u;
+    linux_to_statfs(sfs, s);
 
-                if (sz < EXT4_MINIMAL_SIZE)
-                        return -ERANGE;
+    if (is_fs_type(s, EXT4_SUPER_MAGIC)) {
+        uint64_t u;
 
-                u = sz / sfs.f_bsize;
+        if (sz < EXT4_MINIMAL_SIZE)
+            return -ERANGE;
 
-                if (ioctl(fd, EXT4_IOC_RESIZE_FS, &u) < 0)
-                        return -errno;
+        u = sz / s->f_bsize;
 
-                if (ret_size)
-                        *ret_size = u * sfs.f_bsize;
+        if (ioctl(fd, EXT4_IOC_RESIZE_FS, &u) < 0)
+            return -errno;
 
-        } else if (is_fs_type(&sfs, BTRFS_SUPER_MAGIC)) {
-                struct btrfs_ioctl_vol_args args = {};
+        if (ret_size)
+            *ret_size = u * s->f_bsize;
 
-                /* 256M is the minimize size enforced by the btrfs kernel code when resizing (which is
-                 * strange btw, as mkfs.btrfs is fine creating file systems > 109M). It will return EINVAL in
-                 * that case, let's catch this error beforehand though, and report a more explanatory
-                 * error. */
+    } else if (is_fs_type(s, BTRFS_SUPER_MAGIC)) {
+        struct btrfs_ioctl_vol_args args = {};
 
-                if (sz < BTRFS_MINIMAL_SIZE)
-                        return -ERANGE;
+        if (sz < BTRFS_MINIMAL_SIZE)
+            return -ERANGE;
 
-                sz -= sz % sfs.f_bsize;
+        sz -= sz % s->f_bsize;
 
-                xsprintf(args.name, "%" PRIu64, sz);
+        xsprintf(args.name, "%" PRIu64, sz);
 
-                if (ioctl(fd, BTRFS_IOC_RESIZE, &args) < 0)
-                        return -errno;
+        if (ioctl(fd, BTRFS_IOC_RESIZE, &args) < 0)
+            return -errno;
 
-                if (ret_size)
-                        *ret_size = sz;
+        if (ret_size)
+            *ret_size = sz;
 
-        } else if (is_fs_type(&sfs, XFS_SB_MAGIC)) {
-                xfs_fsop_geom_t geo;
-                xfs_growfs_data_t d;
+    } else if (is_fs_type(s, XFS_SB_MAGIC)) {
+        xfs_fsop_geom_t geo;
+        xfs_growfs_data_t d;
 
-                if (sz < XFS_MINIMAL_SIZE)
-                        return -ERANGE;
+        if (sz < XFS_MINIMAL_SIZE)
+            return -ERANGE;
 
-                if (ioctl(fd, XFS_IOC_FSGEOMETRY, &geo) < 0)
-                        return -errno;
+        if (ioctl(fd, XFS_IOC_FSGEOMETRY, &geo) < 0)
+            return -errno;
 
-                d = (xfs_growfs_data_t) {
-                        .imaxpct = geo.imaxpct,
-                        .newblocks = sz / geo.blocksize,
-                };
+        d = (xfs_growfs_data_t) {
+            .imaxpct = geo.imaxpct,
+            .newblocks = sz / geo.blocksize,
+        };
 
-                if (ioctl(fd, XFS_IOC_FSGROWFSDATA, &d) < 0)
-                        return -errno;
+        if (ioctl(fd, XFS_IOC_FSGROWFSDATA, &d) < 0)
+            return -errno;
 
-                if (ret_size)
-                        *ret_size = d.newblocks * geo.blocksize;
+        if (ret_size)
+            *ret_size = d.newblocks * geo.blocksize;
 
-        } else
-                return -EOPNOTSUPP;
+    } else {
+        return -EOPNOTSUPP;
+    }
 
-        return 0;
+    return 0;
 }
 
 uint64_t minimal_size_by_fs_magic(statfs_f_type_t magic) {

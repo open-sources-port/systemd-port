@@ -1,4 +1,5 @@
 #include "linux/mqueue_shm.h"
+#include "linux/mqueue.h"
 #include <sys/event.h>
 #include <unistd.h>
 
@@ -24,3 +25,4 @@ void mq_notify_trigger(struct mq_shared *shm) {
 
     shm->notify_enabled = 0;
 }
+

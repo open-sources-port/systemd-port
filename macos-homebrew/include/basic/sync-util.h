@@ -9,3 +9,15 @@ int fsync_parent_at(int at_fd, const char *path);
 int fsync_path_and_parent_at(int at_fd, const char *path);
 
 int syncfs_path(int at_fd, const char *path);
+
+static inline int syncfs(int fd) {
+    if (fd < 0)
+            return 0;
+
+    #ifdef F_FULLFSYNC
+            if (fcntl(fd, F_FULLFSYNC) == 0)
+                    return 0;
+    #endif
+
+    return fsync(fd);
+}

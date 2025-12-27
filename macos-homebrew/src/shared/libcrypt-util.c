@@ -11,8 +11,7 @@
  * same way since ages without any problems.
  */
 #  include <crypt.h>
-#else
-#  include <unistd.h>
+
 #endif
 
 #include <errno.h>
@@ -28,6 +27,16 @@
 #include "random-util.h"
 #include "string-util.h"
 #include "strv.h"
+
+#include <unistd.h>
+#include <pthread.h>
+#include <compat/errno.h>
+
+/*
+ * macOS only provides crypt(), which is NOT thread-safe.
+ * Protect it with a mutex.
+ */
+static pthread_mutex_t crypt_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int make_salt(char **ret) {
 
@@ -103,32 +112,40 @@ int make_salt(char **ret) {
 
 /* Provide a poor man's fallback that uses a fixed size buffer. */
 
-static char* systemd_crypt_ra(const char *phrase, const char *setting, void **data, int *size) {
+static char* systemd_crypt_ra(
+                const char *phrase,
+                const char *setting,
+                void **data,
+                int *size) {
+
+        char *t;
+
         assert(data);
         assert(size);
 
-        /* We allocate the buffer because crypt(3) says: struct crypt_data may be quite large (32kB in this
-         * implementation of libcrypt; over 128kB in some other implementations). This is large enough that
-         * it may be unwise to allocate it on the stack. */
+        /* macOS does not use external crypt state */
+        *data = NULL;
+        *size = 0;
 
-        if (!*data) {
-                *data = new0(struct crypt_data, 1);
-                if (!*data) {
-                        errno = ENOMEM;
-                        return NULL;
-                }
-
-                *size = (int) (sizeof(struct crypt_data));
+        if (!phrase || !setting) {
+                errno = EINVAL;
+                return NULL;
         }
 
-        char *t = crypt_r(phrase, setting, *data);
+        pthread_mutex_lock(&crypt_mutex);
+        t = crypt(phrase, setting);
+        pthread_mutex_unlock(&crypt_mutex);
+
         if (!t)
                 return NULL;
 
-        /* crypt_r may return a pointer to an invalid hashed password on error. Our callers expect NULL on
-         * error, so let's just return that. */
-        if (t[0] == '*')
+        /* Match Linux/systemd behavior:
+         * crypt_r() may return "*" on failure
+         */
+        if (t[0] == '*') {
+                errno = EINVAL;
                 return NULL;
+        }
 
         return t;
 }

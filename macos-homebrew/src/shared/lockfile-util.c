@@ -15,6 +15,8 @@
 #include "missing_fcntl.h"
 #include "path-util.h"
 
+#include <libgen.h>
+
 int make_lock_file(const char *p, int operation, LockFile *ret) {
         _cleanup_close_ int fd = -1;
         _cleanup_free_ char *t = NULL;
@@ -89,7 +91,11 @@ int make_lock_file_for(const char *p, int operation, LockFile *ret) {
         assert(p);
         assert(ret);
 
-        fn = basename(p);
+        char p_copy[PATH_MAX];
+        strncpy(p_copy, p, sizeof(p_copy));
+        p_copy[PATH_MAX-1] = '\0';
+
+        fn = basename(p_copy);
         if (!filename_is_valid(fn))
                 return -EINVAL;
 

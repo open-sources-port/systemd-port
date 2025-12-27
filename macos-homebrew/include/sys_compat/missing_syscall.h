@@ -192,14 +192,16 @@
 #define AT_EMPTY_PATH 0x1000
 #endif
 
-#ifdef __APPLE__
 #ifndef O_PATH
 #define O_PATH 0
 #endif
 
+#ifdef __APPLE__
+#define O_DIRECT 0
+#endif
+
 #ifndef ENOTUNIQ
 #define ENOTUNIQ 76
-#endif
 #endif
 
 int dup3(int oldfd, int newfd, int flags);

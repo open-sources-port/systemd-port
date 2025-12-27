@@ -3,7 +3,7 @@
 
 #include <alloca.h>
 
-#include <compat/compat_malloc.h>
+#include <sys_compat/malloc.h>
 
 #include <stddef.h>
 #include <stdlib.h>

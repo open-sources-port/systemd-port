@@ -12,8 +12,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <sys_compat/inotify.h>
+#include <sys_compat/missing_syscall.h>
 #include <sys/ioctl.h>
-#include <sys/sysmacros.h>
+// #include <sys/sysmacros.h>
+#include <basic/macro.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/utsname.h>
@@ -63,17 +65,17 @@ int chvt(int vt) {
         if (fd < 0)
                 return -errno;
 
-        if (vt <= 0) {
-                int tiocl[2] = {
-                        TIOCL_GETKMSGREDIRECT,
-                        0
-                };
+        // if (vt <= 0) {
+        //         int tiocl[2] = {
+        //                 TIOCL_GETKMSGREDIRECT,
+        //                 0
+        //         };
 
-                if (ioctl(fd, TIOCLINUX, tiocl) < 0)
-                        return -errno;
+        //         if (ioctl(fd, TIOCLINUX, tiocl) < 0)
+        //                 return -errno;
 
-                vt = tiocl[0] <= 0 ? 1 : tiocl[0];
-        }
+        //         vt = tiocl[0] <= 0 ? 1 : tiocl[0];
+        // }
 
         return RET_NERRNO(ioctl(fd, VT_ACTIVATE, vt));
 }
@@ -251,7 +253,7 @@ int reset_terminal_fd(int fd, bool switch_to_text) {
 
         /* Switch to text mode */
         if (switch_to_text)
-                if (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
+                // if (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
                         log_debug_errno(errno, "KDSETMODE ioctl for switching to text mode failed on TTY, ignoring: %m");
 
 
@@ -267,7 +269,8 @@ int reset_terminal_fd(int fd, bool switch_to_text) {
          * hardware is set up we don't touch assuming that somebody
          * else will do that for us */
 
-        termios.c_iflag &= ~(IGNBRK | BRKINT | ISTRIP | INLCR | IGNCR | IUCLC);
+        // termios.c_iflag &= ~(IGNBRK | BRKINT | ISTRIP | INLCR | IGNCR | IUCLC);
+        termios.c_iflag &= ~(IGNBRK | BRKINT | ISTRIP | INLCR | IGNCR);
         termios.c_iflag |= ICRNL | IMAXBEL | IUTF8;
         termios.c_oflag |= ONLCR | OPOST;
         termios.c_cflag |= CREAD;
@@ -356,126 +359,135 @@ int acquire_terminal(
                 AcquireTerminalFlags flags,
                 usec_t timeout) {
 
-        _cleanup_close_ int notify = -1, fd = -1;
-        usec_t ts = USEC_INFINITY;
-        int r, wd = -1;
+        // _cleanup_close_ int notify = -1, fd = -1;
+        // usec_t ts = USEC_INFINITY;
+        // int r, wd = -1;
 
-        assert(name);
-        assert(IN_SET(flags & ~ACQUIRE_TERMINAL_PERMISSIVE, ACQUIRE_TERMINAL_TRY, ACQUIRE_TERMINAL_FORCE, ACQUIRE_TERMINAL_WAIT));
+        // assert(name);
+        // assert(IN_SET(flags & ~ACQUIRE_TERMINAL_PERMISSIVE, ACQUIRE_TERMINAL_TRY, ACQUIRE_TERMINAL_FORCE, ACQUIRE_TERMINAL_WAIT));
 
-        /* We use inotify to be notified when the tty is closed. We create the watch before checking if we can actually
-         * acquire it, so that we don't lose any event.
-         *
-         * Note: strictly speaking this actually watches for the device being closed, it does *not* really watch
-         * whether a tty loses its controlling process. However, unless some rogue process uses TIOCNOTTY on /dev/tty
-         * *after* closing its tty otherwise this will not become a problem. As long as the administrator makes sure to
-         * not configure any service on the same tty as an untrusted user this should not be a problem. (Which they
-         * probably should not do anyway.) */
+        // /* We use inotify to be notified when the tty is closed. We create the watch before checking if we can actually
+        //  * acquire it, so that we don't lose any event.
+        //  *
+        //  * Note: strictly speaking this actually watches for the device being closed, it does *not* really watch
+        //  * whether a tty loses its controlling process. However, unless some rogue process uses TIOCNOTTY on /dev/tty
+        //  * *after* closing its tty otherwise this will not become a problem. As long as the administrator makes sure to
+        //  * not configure any service on the same tty as an untrusted user this should not be a problem. (Which they
+        //  * probably should not do anyway.) */
 
-        if ((flags & ~ACQUIRE_TERMINAL_PERMISSIVE) == ACQUIRE_TERMINAL_WAIT) {
-                notify = inotify_init1(IN_CLOEXEC | (timeout != USEC_INFINITY ? IN_NONBLOCK : 0));
-                if (notify < 0)
-                        return -errno;
+        // if ((flags & ~ACQUIRE_TERMINAL_PERMISSIVE) == ACQUIRE_TERMINAL_WAIT) {
+        //         notify = inotify_init1(IN_CLOEXEC | (timeout != USEC_INFINITY ? IN_NONBLOCK : 0));
+        //         if (notify < 0)
+        //                 return -errno;
 
-                wd = inotify_add_watch(notify, name, IN_CLOSE);
-                if (wd < 0)
-                        return -errno;
+        //         wd = inotify_add_watch(notify, name, IN_CLOSE);
+        //         if (wd < 0)
+        //                 return -errno;
 
-                if (timeout != USEC_INFINITY)
-                        ts = now(CLOCK_MONOTONIC);
-        }
+        //         if (timeout != USEC_INFINITY)
+        //                 ts = now(CLOCK_MONOTONIC);
+        // }
 
-        for (;;) {
-                struct sigaction sa_old, sa_new = {
-                        .sa_handler = SIG_IGN,
-                        .sa_flags = SA_RESTART,
-                };
+        // for (;;) {
+        //         struct sigaction sa_old, sa_new = {
+        //                 .sa_handler = SIG_IGN,
+        //                 .sa_flags = SA_RESTART,
+        //         };
 
-                if (notify >= 0) {
-                        r = flush_fd(notify);
-                        if (r < 0)
-                                return r;
-                }
+        //         if (notify >= 0) {
+        //                 r = flush_fd(notify);
+        //                 if (r < 0)
+        //                         return r;
+        //         }
 
-                /* We pass here O_NOCTTY only so that we can check the return value TIOCSCTTY and have a reliable way
-                 * to figure out if we successfully became the controlling process of the tty */
-                fd = open_terminal(name, O_RDWR|O_NOCTTY|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+        //         /* We pass here O_NOCTTY only so that we can check the return value TIOCSCTTY and have a reliable way
+        //          * to figure out if we successfully became the controlling process of the tty */
+        //         fd = open_terminal(name, O_RDWR|O_NOCTTY|O_CLOEXEC);
+        //         if (fd < 0)
+        //                 return fd;
 
-                /* Temporarily ignore SIGHUP, so that we don't get SIGHUP'ed if we already own the tty. */
-                assert_se(sigaction(SIGHUP, &sa_new, &sa_old) == 0);
+        //         /* Temporarily ignore SIGHUP, so that we don't get SIGHUP'ed if we already own the tty. */
+        //         assert_se(sigaction(SIGHUP, &sa_new, &sa_old) == 0);
 
-                /* First, try to get the tty */
-                r = RET_NERRNO(ioctl(fd, TIOCSCTTY, (flags & ~ACQUIRE_TERMINAL_PERMISSIVE) == ACQUIRE_TERMINAL_FORCE));
+        //         /* First, try to get the tty */
+        //         r = RET_NERRNO(ioctl(fd, TIOCSCTTY, (flags & ~ACQUIRE_TERMINAL_PERMISSIVE) == ACQUIRE_TERMINAL_FORCE));
 
-                /* Reset signal handler to old value */
-                assert_se(sigaction(SIGHUP, &sa_old, NULL) == 0);
+        //         /* Reset signal handler to old value */
+        //         assert_se(sigaction(SIGHUP, &sa_old, NULL) == 0);
 
-                /* Success? Exit the loop now! */
-                if (r >= 0)
-                        break;
+        //         /* Success? Exit the loop now! */
+        //         if (r >= 0)
+        //                 break;
 
-                /* Any failure besides -EPERM? Fail, regardless of the mode. */
-                if (r != -EPERM)
-                        return r;
+        //         /* Any failure besides -EPERM? Fail, regardless of the mode. */
+        //         if (r != -EPERM)
+        //                 return r;
 
-                if (flags & ACQUIRE_TERMINAL_PERMISSIVE) /* If we are in permissive mode, then EPERM is fine, turn this
-                                                          * into a success. Note that EPERM is also returned if we
-                                                          * already are the owner of the TTY. */
-                        break;
+        //         if (flags & ACQUIRE_TERMINAL_PERMISSIVE) /* If we are in permissive mode, then EPERM is fine, turn this
+        //                                                   * into a success. Note that EPERM is also returned if we
+        //                                                   * already are the owner of the TTY. */
+        //                 break;
 
-                if (flags != ACQUIRE_TERMINAL_WAIT) /* If we are in TRY or FORCE mode, then propagate EPERM as EPERM */
-                        return r;
+        //         if (flags != ACQUIRE_TERMINAL_WAIT) /* If we are in TRY or FORCE mode, then propagate EPERM as EPERM */
+        //                 return r;
 
-                assert(notify >= 0);
-                assert(wd >= 0);
+        //         assert(notify >= 0);
+        //         assert(wd >= 0);
 
-                for (;;) {
-                        union inotify_event_buffer buffer;
-                        ssize_t l;
+        //         for (;;) {
+        //                 union inotify_event_buffer buffer;
+        //                 ssize_t l;
 
-                        if (timeout != USEC_INFINITY) {
-                                usec_t n;
+        //                 if (timeout != USEC_INFINITY) {
+        //                         usec_t n;
 
-                                assert(ts != USEC_INFINITY);
+        //                         assert(ts != USEC_INFINITY);
 
-                                n = usec_sub_unsigned(now(CLOCK_MONOTONIC), ts);
-                                if (n >= timeout)
-                                        return -ETIMEDOUT;
+        //                         n = usec_sub_unsigned(now(CLOCK_MONOTONIC), ts);
+        //                         if (n >= timeout)
+        //                                 return -ETIMEDOUT;
 
-                                r = fd_wait_for_event(notify, POLLIN, usec_sub_unsigned(timeout, n));
-                                if (r < 0)
-                                        return r;
-                                if (r == 0)
-                                        return -ETIMEDOUT;
-                        }
+        //                         r = fd_wait_for_event(notify, POLLIN, usec_sub_unsigned(timeout, n));
+        //                         if (r < 0)
+        //                                 return r;
+        //                         if (r == 0)
+        //                                 return -ETIMEDOUT;
+        //                 }
 
-                        l = read(notify, &buffer, sizeof(buffer));
-                        if (l < 0) {
-                                if (ERRNO_IS_TRANSIENT(errno))
-                                        continue;
+        //                 l = read(notify, &buffer, sizeof(buffer));
+        //                 if (l < 0) {
+        //                         if (ERRNO_IS_TRANSIENT(errno))
+        //                                 continue;
 
-                                return -errno;
-                        }
+        //                         return -errno;
+        //                 }
 
-                        FOREACH_INOTIFY_EVENT(e, buffer, l) {
-                                if (e->mask & IN_Q_OVERFLOW) /* If we hit an inotify queue overflow, simply check if the terminal is up for grabs now. */
-                                        break;
+        //                 FOREACH_INOTIFY_EVENT(e, buffer, l) {
+        //                         if (e->mask & IN_Q_OVERFLOW) /* If we hit an inotify queue overflow, simply check if the terminal is up for grabs now. */
+        //                                 break;
 
-                                if (e->wd != wd || !(e->mask & IN_CLOSE)) /* Safety checks */
-                                        return -EIO;
-                        }
+        //                         if (e->wd != wd || !(e->mask & IN_CLOSE)) /* Safety checks */
+        //                                 return -EIO;
+        //                 }
 
-                        break;
-                }
+        //                 break;
+        //         }
 
-                /* We close the tty fd here since if the old session ended our handle will be dead. It's important that
-                 * we do this after sleeping, so that we don't enter an endless loop. */
-                fd = safe_close(fd);
-        }
+        //         /* We close the tty fd here since if the old session ended our handle will be dead. It's important that
+        //          * we do this after sleeping, so that we don't enter an endless loop. */
+        //         fd = safe_close(fd);
+        // }
 
-        return TAKE_FD(fd);
+        // return TAKE_FD(fd);
+        (void)flags;
+        (void)timeout;
+
+        // macOS does not support Linux TTY acquisition
+        int fd = open(name, O_RDWR | O_NOCTTY | O_CLOEXEC);
+        if (fd < 0)
+                return -errno;
+
+        return fd; // return FD directly
 }
 
 int release_terminal(void) {
@@ -504,8 +516,10 @@ int release_terminal(void) {
 }
 
 int terminal_vhangup_fd(int fd) {
-        assert(fd >= 0);
-        return RET_NERRNO(ioctl(fd, TIOCVHANGUP));
+        // assert(fd >= 0);
+        // return RET_NERRNO(ioctl(fd, TIOCVHANGUP));
+        (void)fd;
+        return -ENOSYS; // F
 }
 
 int terminal_vhangup(const char *name) {
@@ -1011,7 +1025,7 @@ int get_ctty(pid_t pid, dev_t *ret_devnr, char **ret) {
                  * /dev/pts/ matches the one we are looking for. This way we don't have to hardcode the major
                  * number (which is 136 btw), but we still rely on the fact that PTY numbers map directly to
                  * the minor number of the pty. */
-                xsprintf(pty, "/dev/pts/%u", minor(devnr));
+                xsprintf(pty, "/dev/pts/%d", minor(devnr));
 
                 if (stat(pty, &st) < 0) {
                         if (errno != ENOENT)
@@ -1111,23 +1125,28 @@ int openpt_allocate(int flags, char **ret_slave) {
 }
 
 static int ptsname_namespace(int pty, char **ret) {
-        int no = -1, r;
+        char buf[PATH_MAX];
+        int r;
 
-        /* Like ptsname(), but doesn't assume that the path is
-         * accessible in the local namespace. */
+        assert(pty >= 0);
+        assert(ret);
 
-        r = ioctl(pty, TIOCGPTN, &no);
-        if (r < 0)
-                return -errno;
+        /* macOS does not support TIOCGPTN or /dev/pts.
+         * Use POSIX ptsname_r(), which returns the correct
+         * device path in the local namespace.
+         */
 
-        if (no < 0)
-                return -EIO;
+        r = ptsname_r(pty, buf, sizeof(buf));
+        if (r != 0)
+                return -r;
 
-        if (asprintf(ret, "/dev/pts/%i", no) < 0)
+        *ret = strdup(buf);
+        if (!*ret)
                 return -ENOMEM;
 
         return 0;
 }
+
 
 int openpt_allocate_in_namespace(pid_t pid, int flags, char **ret_slave) {
         _cleanup_close_ int pidnsfd = -1, mntnsfd = -1, usernsfd = -1, rootfd = -1, fd = -1;
@@ -1362,61 +1381,44 @@ int vt_default_utf8(void) {
 }
 
 int vt_reset_keyboard(int fd) {
-        int kb;
-
-        /* If we can't read the default, then default to unicode. It's 2017 after all. */
-        kb = vt_default_utf8() != 0 ? K_UNICODE : K_XLATE;
-
-        return RET_NERRNO(ioctl(fd, KDSKBMODE, kb));
+        /* macOS has no virtual terminals or kernel keyboard modes.
+         * There is nothing to reset here.
+         */
+        (void) fd;
+        return 0;
 }
 
 int vt_restore(int fd) {
-        static const struct vt_mode mode = {
-                .mode = VT_AUTO,
-        };
-        int r, q = 0;
+        int r;
 
+        /* macOS has no virtual terminals. If this isn't a tty,
+         * behave consistently with the original function.
+         */
         if (isatty(fd) < 1)
-                return log_debug_errno(errno, "Asked to restore the VT for an fd that does not refer to a terminal: %m");
+                return log_debug_errno(errno,
+                        "Asked to restore the VT for an fd that does not refer to a terminal: %m");
 
-        if (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
-                q = log_debug_errno(errno, "Failed to set VT in text mode, ignoring: %m");
+        /* No VT mode, no keyboard mode to restore on macOS */
 
-        r = vt_reset_keyboard(fd);
-        if (r < 0) {
-                log_debug_errno(r, "Failed to reset keyboard mode, ignoring: %m");
-                if (q >= 0)
-                        q = r;
-        }
-
-        if (ioctl(fd, VT_SETMODE, &mode) < 0) {
-                log_debug_errno(errno, "Failed to set VT_AUTO mode, ignoring: %m");
-                if (q >= 0)
-                        q = -errno;
-        }
-
+        /* Still restore permissions, this is meaningful */
         r = fchmod_and_chown(fd, TTY_MODE, 0, GID_INVALID);
-        if (r < 0) {
-                log_debug_errno(r, "Failed to chmod()/chown() VT, ignoring: %m");
-                if (q >= 0)
-                        q = r;
-        }
+        if (r < 0)
+                return log_debug_errno(r,
+                        "Failed to chmod()/chown() terminal, ignoring: %m");
 
-        return q;
+        return 0;
 }
 
 int vt_release(int fd, bool restore) {
         assert(fd >= 0);
 
-        /* This function releases the VT by acknowledging the VT-switch signal
-         * sent by the kernel and optionally reset the VT in text and auto
-         * VT-switching modes. */
+        /* macOS has no virtual terminals or VT switching.
+         * Releasing a VT is a no-op.
+         */
 
         if (isatty(fd) < 1)
-                return log_debug_errno(errno, "Asked to release the VT for an fd that does not refer to a terminal: %m");
-
-        if (ioctl(fd, VT_RELDISP, 1) < 0)
-                return -errno;
+                return log_debug_errno(errno,
+                        "Asked to release the VT for an fd that does not refer to a terminal: %m");
 
         if (restore)
                 return vt_restore(fd);

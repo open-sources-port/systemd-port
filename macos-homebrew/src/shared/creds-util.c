@@ -178,7 +178,13 @@ static int make_credential_host_secret(
          * linkat(2) step at the end.  The reason is that linkat(2) requires the CAP_DAC_READ_SEARCH
          * capability when it uses the AT_EMPTY_PATH flag. */
         if (have_effective_cap(CAP_DAC_READ_SEARCH) > 0) {
-                fd = openat(dfd, ".", O_CLOEXEC|O_WRONLY|O_TMPFILE, 0400);
+                // fd = openat(dfd, ".", O_CLOEXEC|O_WRONLY|O_TMPFILE, 0400);
+                char template[] = "/tmp/tmpfileXXXXXX";
+                fd = mkstemp(template);
+                if (fd >= 0) {
+                        // optionally unlink the file so it's removed when closed
+                        unlink(template);
+                }
                 if (fd < 0)
                         log_debug_errno(errno, "Failed to create temporary credential file with O_TMPFILE, proceeding without: %m");
         }

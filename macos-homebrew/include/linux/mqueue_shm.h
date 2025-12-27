@@ -22,3 +22,5 @@ struct mq_shared {
 
     char messages[MQ_MAX_MSG][MQ_MAX_MSGSIZE];
 };
+
+void mq_notify_trigger(struct mq_shared *shm);

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <netinet/ether.h>
+// #include <netinet/ether.h>
+#include <net/ethernet.h>
 
 #include "condition.h"
 #include "env-util.h"

@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <sys/mount.h>
+#include <basic/missing_mount.h>
 
 #include "cgroup-util.h"
 #include "dns-domain.h"
