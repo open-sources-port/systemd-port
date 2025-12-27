@@ -779,9 +779,16 @@ static int bus_append_cgroup_property(sd_bus_message *m, const char *field, cons
                         if (r < 0)
                                 return bus_log_create_error(r);
 
-                        prefix.in6 = (struct in6_addr) {
-                                .s6_addr32[0] = htobe32(0xfe800000)
-                        };
+                        // prefix.in6 = (struct in6_addr) {
+                        //         .s6_addr32[0] = htobe32(0xfe800000)
+                        // };
+                        prefix.in6 = ({
+                                struct in6_addr _a = {};
+                                uint32_t _v = htobe32(0xfe800000);
+                                memcpy(&_a.s6_addr[0], &_v, sizeof(_v));
+                                _a;
+                        });
+
                         r = bus_append_ip_address_access(m, AF_INET6, &prefix, 64);
                         if (r < 0)
                                 return bus_log_create_error(r);
@@ -794,9 +801,15 @@ static int bus_append_cgroup_property(sd_bus_message *m, const char *field, cons
                         if (r < 0)
                                 return bus_log_create_error(r);
 
-                        prefix.in6 = (struct in6_addr) {
-                                .s6_addr32[0] = htobe32(0xff000000)
-                        };
+                        // prefix.in6 = (struct in6_addr) {
+                        //         .s6_addr32[0] = htobe32(0xff000000)
+                        // };
+                        prefix.in6 = ({
+                                struct in6_addr _a = {};
+                                uint32_t _v = htobe32(0xff000000);
+                                memcpy(&_a.s6_addr[0], &_v, sizeof(_v));
+                                _a;
+                        });
                         r = bus_append_ip_address_access(m, AF_INET6, &prefix, 8);
                         if (r < 0)
                                 return bus_log_create_error(r);

@@ -56,8 +56,6 @@ int on_ac_power(void);
 
 bool udev_available(void);
 
-#if HAVE_SYS_SDT_H
-
 /* Each trace point can have different number of additional arguments. Note that when the macro is used only
  * additional arguments are listed in the macro invocation!
  *
@@ -79,6 +77,6 @@ bool udev_available(void);
                 (void) sd_device_get_subsystem(_d, &_s);                                                   \
                 STAP_PROBEV(udev, name, device_action_to_string(_a), _n, _p, _s __VA_OPT__(,) __VA_ARGS__);\
         } while (false);
-#else
-#define DEVICE_TRACE_POINT(name, dev, ...) ((void) 0)
-#endif
+// #else
+// #define DEVICE_TRACE_POINT(name, dev, ...) ((void) 0)
+// #endif

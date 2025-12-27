@@ -41,26 +41,7 @@
 
 #include <sys/xattr.h>
 #include <errno.h>
-
-/* Map Linux-style flags to macOS options */
-static inline int setxattr_portable(const char *path, const char *name,
-                                    const void *value, size_t size, int flags) {
-    int options = 0;
-    if (flags & XATTR_CREATE)    options |= XATTR_CREATE;
-    if (flags & XATTR_REPLACE)   options |= XATTR_REPLACE;
-
-    /* position is always 0 on regular files */
-    return setxattr(path, name, value, size, 0, options);
-}
-
-static inline ssize_t getxattr_portable(const char *path, const char *name,
-                                        void *value, size_t size) {
-    return getxattr(path, name, value, size, 0, 0);
-}
-
-static inline int removexattr_portable(const char *path, const char *name) {
-    return removexattr(path, name, 0);  /* options = 0 for regular files */
-}
+#include <sys_compat/xattr.h>
 
 static int cg_enumerate_items(const char *controller, const char *path, FILE **_f, const char *item) {
         _cleanup_free_ char *fs = NULL;

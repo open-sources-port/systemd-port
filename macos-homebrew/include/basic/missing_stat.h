@@ -9,6 +9,7 @@
 #endif
 
 #include "missing_fs.h"
+#include <sys_compat/statfs.h>
 
 /* a528d35e8bfcc521d7cb70aaf03e1bd296c8493f (4.11) */
 #ifndef AT_STATX_SYNC_AS_STAT

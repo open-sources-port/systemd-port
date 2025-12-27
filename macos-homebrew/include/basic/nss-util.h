@@ -6,6 +6,7 @@
 #include <nss.h>
 #include <pwd.h>
 #include <resolv.h>
+#include <sys_compat/sgrp.h>
 
 #define NSS_SIGNALS_BLOCK SIGALRM,SIGVTALRM,SIGPIPE,SIGCHLD,SIGTSTP,SIGIO,SIGHUP,SIGUSR1,SIGUSR2,SIGPROF,SIGURG,SIGWINCH
 

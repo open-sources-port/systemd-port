@@ -3,8 +3,8 @@
 
 #include <inttypes.h>
 
-// Replaced #include <compat/compat_malloc.h>
-#include <compat/compat_malloc.h>
+// Replaced #include <sys_compat/malloc.h>
+#include <sys_compat/malloc.h>
 
 #include <stdbool.h>
 #include <string.h>

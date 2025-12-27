@@ -33,6 +33,7 @@
 #include <basic/macro.h>
 #include "string-util.h"
 #include "utf8.h"
+#include <sys_compat/endian.h>
 
 bool unichar_is_valid(char32_t ch) {
 

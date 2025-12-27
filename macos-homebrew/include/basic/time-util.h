@@ -62,6 +62,7 @@ typedef enum TimestampStyle {
 #define NSEC_PER_USEC ((nsec_t) 1000ULL)
 #endif
 
+#define USEC_PER_MIN  ((usec_t) (60ULL*USEC_PER_SEC))
 #define USEC_PER_MINUTE ((usec_t) (60ULL*USEC_PER_SEC))
 #define NSEC_PER_MINUTE ((nsec_t) (60ULL*NSEC_PER_SEC))
 #define USEC_PER_HOUR ((usec_t) (60ULL*USEC_PER_MINUTE))
@@ -137,7 +138,72 @@ struct timeval* timeval_store(struct timeval *tv, usec_t u);
 
 char* format_timestamp_style(char *buf, size_t l, usec_t t, TimestampStyle style) _warn_unused_result_;
 char* format_timestamp_relative(char *buf, size_t l, usec_t t) _warn_unused_result_;
-char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) _warn_unused_result_;
+
+static inline char* format_timespan(
+                char *buf,
+                size_t l,
+                usec_t t,
+                usec_t accuracy) {
+
+        static const struct {
+                usec_t usec;
+                const char *suffix;
+        } table[] = {
+                { USEC_PER_DAY,  "d"   },
+                { USEC_PER_HOUR, "h"   },
+                { USEC_PER_MIN,  "min" },
+                { USEC_PER_SEC,  "s"   },
+                { 1000,          "ms"  },
+                { 1,             "us"  },
+        };
+
+        size_t pos = 0;
+        bool first = true;
+
+        if (!buf || l == 0)
+                return NULL;
+
+        if (t == 0) {
+                if (snprintf(buf, l, "0") >= (int) l)
+                        return NULL;
+                return buf;
+        }
+
+        if (accuracy == 0)
+                accuracy = 1;
+
+        for (size_t i = 0; i < sizeof(table)/sizeof(table[0]); i++) {
+                usec_t u = table[i].usec;
+                usec_t v;
+
+                if (u < accuracy)
+                        break;
+
+                v = t / u;
+                if (v == 0)
+                        continue;
+
+                if (!first) {
+                        if (pos + 1 >= l)
+                                return NULL;
+                        buf[pos++] = ' ';
+                }
+
+                int n = snprintf(buf + pos, l - pos, "%" PRIu64 "%s", v, table[i].suffix);
+                if (n < 0 || (size_t) n >= l - pos)
+                        return NULL;
+
+                pos += (size_t) n;
+                t -= v * u;
+                first = false;
+        }
+
+        if (pos >= l)
+                return NULL;
+
+        buf[pos] = '\0';
+        return buf;
+}
 
 _warn_unused_result_
 static inline char* format_timestamp(char *buf, size_t l, usec_t t) {

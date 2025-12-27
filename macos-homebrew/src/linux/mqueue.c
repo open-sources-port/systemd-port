@@ -115,16 +115,11 @@ int mq_setattr(mqd_t mqdes,
         return -1;
     }
 
-    struct mq_shared *shm = mq_table[mqdes].shm;
-
-    pthread_mutex_lock(&shm->lock);
     if (oldattr)
         mq_getattr(mqdes, oldattr);
 
-    if (newattr)
-        shm->mq_flags = newattr->mq_flags;
+    /* Ignore newattr->mq_flags for now */
 
-    pthread_mutex_unlock(&shm->lock);
     return 0;
 }
 

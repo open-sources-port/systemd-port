@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <inttypes.h>
-#include <compat/compat_malloc.h>
+#include <sys_compat/malloc.h>
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/stat.h>

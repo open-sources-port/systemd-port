@@ -15,12 +15,6 @@
 #include <libproc.h>
 #include <sys/sysctl.h>
 
-/* ----------------------- raw_clone wrapper ----------------------- */
-inline pid_t raw_clone(unsigned long flags) {
-    (void)flags;
-    return fork();
-}
-
 /* ----------------------- program name ----------------------- */
 const char *program_invocation_short_name_fallback(void) {
     return getprogname();

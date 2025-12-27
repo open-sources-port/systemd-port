@@ -15,6 +15,7 @@
 #include "io-util.h"
 #include <basic/macro.h>
 #include <sys_compat/missing_syscall.h>
+#include <linux/memfd.h>
 #include "missing_threads.h"
 #include "random-util.h"
 #include "user-util.h"

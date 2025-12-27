@@ -3,6 +3,8 @@
 #include <fcntl.h>
 #include <sched.h>
 #include <sys/mount.h>
+#include <basic/missing_mount.h>
+#include <sys_compat/missing_syscall.h>
 #include <unistd.h>
 
 #include "sd-id128.h"
@@ -26,6 +28,8 @@
 #include "umask-util.h"
 #include "util.h"
 #include "virt.h"
+
+#include <sys_compat/missing_syscall.h>
 
 static int generate_machine_id(const char *root, sd_id128_t *ret) {
         const char *dbus_machine_id;
@@ -184,7 +188,8 @@ int machine_id_setup(const char *root, bool force_transient, sd_id128_t machine_
         log_full(force_transient ? LOG_DEBUG : LOG_INFO, "Installed transient %s file.", etc_machine_id);
 
         /* Mark the mount read-only */
-        r = mount_follow_verbose(LOG_WARNING, NULL, etc_machine_id, NULL, MS_BIND|MS_RDONLY|MS_REMOUNT, NULL);
+        // r = mount_follow_verbose(LOG_WARNING, NULL, etc_machine_id, NULL, MS_BIND|MS_RDONLY|MS_REMOUNT, NULL);
+        r = mount_follow_verbose(LOG_WARNING, NULL, etc_machine_id, NULL, MS_BIND|MS_RDONLY, NULL);
         if (r < 0)
                 return r;
 
@@ -270,7 +275,8 @@ int machine_id_commit(const char *root) {
         if (r < 0)
                 return log_warning_errno(r, "Failed to switch back to initial mount namespace: %m.\nWe'll keep transient %s file until next reboot.", etc_machine_id);
 
-        if (umount2(etc_machine_id, MNT_DETACH) < 0)
+        // if (umount2(etc_machine_id, MNT_DETACH) < 0)
+        if (unmount(etc_machine_id, 0) < 0)
                 return log_warning_errno(errno, "Failed to unmount transient %s file: %m.\nWe keep that mount until next reboot.", etc_machine_id);
 
         return 0;

@@ -1,13 +1,31 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <linux/fiemap.h>
+// #include <linux/fiemap.h>
 
 #include "hashmap.h"
 #include "time-util.h"
 
 #define DEFAULT_SUSPEND_ESTIMATION_USEC (1 * USEC_PER_HOUR)
 
+/* --- macOS stub for fiemap --- */
+struct fiemap {};  /* dummy struct for macOS */
+
+static inline int read_fiemap(int fd, struct fiemap **ret) {
+    (void)fd;
+    if (ret) *ret = NULL;
+    return -ENOTSUP;  /* fiemap not supported on macOS */
+}
+
+/* If you need a ret_offset, always return 0 or -ENOTSUP */
+static inline int get_fiemap_offset(int fd, uint64_t *ret_offset) {
+    (void)fd;
+    if (ret_offset) *ret_offset = 0;
+    return -ENOTSUP;
+}
+
+
+/* Original codes */
 typedef enum SleepOperation {
         SLEEP_SUSPEND,
         SLEEP_HIBERNATE,
@@ -45,7 +63,7 @@ DEFINE_TRIVIAL_CLEANUP_FUNC(SwapEntry*, swap_entry_free);
  * and the matching /proc/swap entry.
  */
 typedef struct HibernateLocation {
-        dev_t devno;
+        uint64_t devno;
         uint64_t offset;
         SwapEntry *swap;
 } HibernateLocation;

@@ -4,7 +4,7 @@
 ***/
 
 #include <errno.h>
-#include <signal.h>
+#include <sys_compat/signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
 

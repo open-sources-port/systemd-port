@@ -9,7 +9,7 @@
 #include "stat-util.h"
 
 static int check_btrfs(void) {
-        struct statfs sfs;
+        struct linux_statfs sfs;
 
         if (linux_statfs("/var/lib/machines", &sfs) < 0) {
                 if (errno != ENOENT)

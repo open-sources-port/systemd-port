@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <basic/missing_syscall.h>
+#include <sys_compat/missing_syscall.h>
 
 #ifdef __APPLE__  // macOS / BSD fallback
 int dup3(int oldfd, int newfd, int flags) {

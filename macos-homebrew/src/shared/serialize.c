@@ -8,6 +8,7 @@
 #include "fileio.h"
 #include "missing_mman.h"
 #include <sys_compat/missing_syscall.h>
+#include <linux/memfd.h>
 #include "parse-util.h"
 #include "process-util.h"
 #include "serialize.h"

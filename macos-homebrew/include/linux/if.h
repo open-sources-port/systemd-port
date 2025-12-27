@@ -32,6 +32,14 @@
 #define IF_PROTO_FR_ETH_PVC 0x200B
 #define IF_PROTO_RAW       0x200C
 
+#ifndef IFF_LOWER_UP
+#define IFF_LOWER_UP 0
+#endif
+
+#ifndef IFF_DORMANT
+#define IFF_DORMANT 0
+#endif
+
 /* RFC 2863 operational status */
 enum {
     IF_OPER_UNKNOWN,

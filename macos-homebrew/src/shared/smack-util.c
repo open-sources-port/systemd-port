@@ -23,6 +23,7 @@
 #include "stdio-util.h"
 #include "string-table.h"
 #include "xattr-util.h"
+#include <sys_compat/xattr.h>
 
 #if ENABLE_SMACK
 bool mac_smack_use(void) {
@@ -96,9 +97,9 @@ int mac_smack_apply_fd(int fd, SmackAttr attr, const char *label) {
                 return 0;
 
         if (label)
-                r = setxattr(FORMAT_PROC_FD_PATH(fd), smack_attr_to_string(attr), label, strlen(label), 0);
+                r = setxattr_portable(FORMAT_PROC_FD_PATH(fd), smack_attr_to_string(attr), label, strlen(label), 0);
         else
-                r = removexattr(FORMAT_PROC_FD_PATH(fd), smack_attr_to_string(attr));
+                r = removexattr_portable(FORMAT_PROC_FD_PATH(fd), smack_attr_to_string(attr));
         if (r < 0)
                 return -errno;
 
@@ -158,7 +159,7 @@ static int smack_fix_fd(
         else
                 return 0;
 
-        if (setxattr(FORMAT_PROC_FD_PATH(fd), "security.SMACK64", label, strlen(label), 0) < 0) {
+        if (setxattr_portable(FORMAT_PROC_FD_PATH(fd), "security.SMACK64", label, strlen(label), 0) < 0) {
                 _cleanup_free_ char *old_label = NULL;
 
                 r = -errno;

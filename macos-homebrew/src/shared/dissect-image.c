@@ -7,6 +7,7 @@
 #endif
 
 #include <compat/compat-glibc.h>
+#include <basic/missing_mount.h>
 
 #include <linux/dm-ioctl.h>
 #include <linux/loop.h>
@@ -15,6 +16,7 @@
 #include <sys_compat/prctl.h>
 #include <sys/wait.h>
 #include <sysexits.h>
+#include <sys/disk.h>
 
 #if HAVE_OPENSSL
 #include <openssl/err.h>
@@ -1408,6 +1410,20 @@ static int run_fsck(int node_fd, const char *fstype) {
         return 0;
 }
 
+static int get_block_device_size(int fd, uint64_t *size) {
+    uint64_t block_count = 0;
+    uint32_t block_size = 0;
+
+    if (ioctl(fd, DKIOCGETBLOCKCOUNT, &block_count) != 0)
+        return -errno;
+
+    if (ioctl(fd, DKIOCGETBLOCKSIZE, &block_size) != 0)
+        return -errno;
+
+    *size = block_count * (uint64_t)block_size;
+    return 0;
+}
+
 static int fs_grow(const char *node_path, const char *mount_path) {
         _cleanup_close_ int mount_fd = -1, node_fd = -1;
         uint64_t size, newsize;
@@ -1417,7 +1433,8 @@ static int fs_grow(const char *node_path, const char *mount_path) {
         if (node_fd < 0)
                 return log_debug_errno(errno, "Failed to open node device %s: %m", node_path);
 
-        if (ioctl(node_fd, BLKGETSIZE64, &size) != 0)
+        r = get_block_device_size(node_fd, &size);
+        if (r < 0)
                 return log_debug_errno(errno, "Failed to get block device size of %s: %m", node_path);
 
         mount_fd = open(mount_path, O_RDONLY|O_DIRECTORY|O_CLOEXEC);
@@ -1553,7 +1570,7 @@ static int mount_partition(
                 if (!strextend_with_separator(&options, ",", "norecovery"))
                         return -ENOMEM;
 
-        r = mount_nofollow_verbose(LOG_DEBUG, node, p, fstype, MS_NODEV|(rw ? 0 : MS_RDONLY), options);
+        r = mount_nofollow_verbose(LOG_DEBUG, node, p, fstype, MS_NODEV | (rw ? 0 : MS_RDONLY), options);
         if (r < 0)
                 return r;
 

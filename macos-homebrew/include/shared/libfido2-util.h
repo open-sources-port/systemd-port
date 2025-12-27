@@ -2,6 +2,7 @@
 #pragma once
 
 #include <basic/macro.h>
+#include <basic/log.h>
 
 typedef enum Fido2EnrollFlags {
         FIDO2ENROLL_PIN           = 1 << 0,

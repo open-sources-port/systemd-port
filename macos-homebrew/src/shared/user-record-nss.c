@@ -175,18 +175,24 @@ int nss_spwd_for_passwd(const struct passwd *pwd, struct spwd *ret_spwd, char **
 
         for (;;) {
                 _cleanup_free_ char *buf = NULL;
-                struct spwd spwd, *result;
 
                 buf = malloc(buflen);
                 if (!buf)
                         return -ENOMEM;
 
-                r = getspnam_r(pwd->pw_name, &spwd, buf, buflen, &result);
+                // r = getspnam_r(pwd->pw_name, &spwd, buf, buflen, &result);
+                struct spwd *tmp = getspnam(pwd->pw_name);
+                if (!tmp) {
+                        r = -1;
+                } else {
+                        r = 0;
+                }
+
                 if (r == 0) {
-                        if (!result)
+                        if (!tmp)
                                 return -ESRCH;
 
-                        *ret_spwd = *result;
+                        *ret_spwd = *tmp;
                         *ret_buffer = TAKE_PTR(buf);
                         return 0;
                 }
@@ -390,21 +396,35 @@ int nss_sgrp_for_group(const struct group *grp, struct sgrp *ret_sgrp, char **re
 
         for (;;) {
                 _cleanup_free_ char *buf = NULL;
-                struct sgrp sgrp, *result;
+                struct sgrp sgrp;
 
                 buf = malloc(buflen);
                 if (!buf)
                         return -ENOMEM;
 
-                r = getsgnam_r(grp->gr_name, &sgrp, buf, buflen, &result);
-                if (r == 0) {
-                        if (!result)
-                                return -ESRCH;
+                struct group *tmp = getgrnam(grp->gr_name);
+                if (!tmp) {
+                        r = -1;
+                } else {
+                        sgrp.sg_namp   = strdup(tmp->gr_name);  // group name
+                        sgrp.sg_passwd = NULL;                   // no shadow password on macOS
+                        sgrp.sg_mem    = tmp->gr_mem;            // members array
+                        sgrp.sg_adm    = NULL;                   // no admins on macOS
 
-                        *ret_sgrp = *result;
+                        r = 0;
+                }
+
+                if (r == 0) {
+                        // copy fields manually into ret_sgrp
+                        ret_sgrp->sg_namp   = strdup(sgrp.sg_namp);
+                        ret_sgrp->sg_passwd = NULL;
+                        ret_sgrp->sg_mem    = sgrp.sg_mem;
+                        ret_sgrp->sg_adm    = NULL;
+
                         *ret_buffer = TAKE_PTR(buf);
                         return 0;
                 }
+
                 if (r < 0)
                         return -EIO; /* Weird, this should not return negative! */
                 if (r != ERANGE)

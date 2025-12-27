@@ -15,6 +15,8 @@
 #include "strv.h"
 #include "unit-file.h"
 
+#include <libgen.h>
+
 bool unit_type_may_alias(UnitType type) {
         return IN_SET(type,
                       UNIT_SERVICE,
@@ -85,9 +87,17 @@ int unit_validate_alias_symlink_or_warn(int log_level, const char *filename, con
          * -EXDEV if the target filename is not a valid unit name or doesn't match the source,
          * -ELOOP for an alias to self.
          */
+        // src = basename(filename);
+        char filename_copy[PATH_MAX];
+        strncpy(filename_copy, filename, sizeof(filename_copy));
+        filename_copy[PATH_MAX-1] = '\0';
+        src = basename(filename_copy);
 
-        src = basename(filename);
-        dst = basename(target);
+        // dst = basename(target);
+        char target_copy[PATH_MAX];
+        strncpy(target_copy, target, sizeof(target_copy));
+        target_copy[PATH_MAX-1] = '\0';
+        dst = basename(target_copy);
 
         /* src checks */
 
@@ -588,7 +598,11 @@ int unit_file_build_name_map(
                 if (null_or_empty_path(dst) != 0)
                         continue;
 
-                dst = basename(dst);
+                char dst_copy[PATH_MAX];
+                strncpy(dst_copy, dst, sizeof(dst_copy));
+                dst_copy[PATH_MAX-1] = '\0';
+                src = basename(dst_copy);
+                // dst = basename(dst);
 
                 /* If we have an symlink from an instance name to a template name, it is an alias just for
                  * this specific instance, foo@id.service ↔ template@id.service. */
@@ -689,9 +703,13 @@ static int add_names(
                         if (r < 0 && !IN_SET(r, -ENOENT, -ENXIO))
                                 return log_debug_errno(r, "Cannot find instance fragment %s: %m", inst);
 
+                        char inst_fragment_copy[PATH_MAX];
+                        strncpy(inst_fragment_copy, inst_fragment, sizeof(inst_fragment_copy));
+                        inst_fragment_copy[PATH_MAX-1] = '\0';
+
                         if (inst_fragment &&
                             fragment_basename &&
-                            !streq(basename(inst_fragment), fragment_basename)) {
+                            !streq(basename(inst_fragment_copy), fragment_basename)) {
                                 log_debug("Instance %s has fragment %s and is not an alias of %s.",
                                           inst, inst_fragment, unit_name);
                                 continue;
@@ -761,14 +779,23 @@ int unit_file_find_fragment(
         }
 
         if (fragment && ret_names) {
-                const char *fragment_basename = basename(fragment);
+                char *fragment_copy = strdup(fragment);
+                if (!fragment_copy)
+                        return -ENOMEM;
+
+                const char *fragment_basename = basename(fragment_copy);
+
+                // const char *fragment_basename = basename(fragment);
 
                 if (!streq(fragment_basename, unit_name)) {
                         /* Add names based on the fragment name to the set of names */
                         r = add_names(unit_ids_map, unit_name_map, unit_name, fragment_basename, name_type, instance, &names, fragment_basename);
-                        if (r < 0)
+                        if (r < 0) {
+                                free(fragment_copy);
                                 return r;
+                        }
                 }
+                free(fragment_copy);
         }
 
         *ret_fragment_path = fragment;

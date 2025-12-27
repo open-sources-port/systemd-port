@@ -2,6 +2,7 @@
 #pragma once
 
 #include <linux/loop.h>
+#include <linux/types.h>
 
 #ifndef LOOP_CONFIGURE
 struct loop_config {
@@ -16,6 +17,9 @@ struct loop_config {
 
 #ifndef LO_FLAGS_DIRECT_IO
 #define LO_FLAGS_DIRECT_IO 16
+#endif
+
+#ifndef LOOP_SET_DIRECT_IO
 #define LOOP_SET_DIRECT_IO 0x4C08
 #endif
 

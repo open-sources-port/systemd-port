@@ -19,7 +19,8 @@ int quotactl_devnum(int cmd, dev_t devnum, int id, void *addr) {
         if (r < 0)
                 return r;
 
-        if (quotactl(cmd, devnode, id, addr) < 0)
+        // if (quotactl(cmd, devnode, id, addr) < 0)
+        if (quotactl(devnode, cmd, id, addr) < 0)
                 return -errno;
 
         return 0;

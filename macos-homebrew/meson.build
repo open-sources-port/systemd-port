@@ -14,6 +14,11 @@ project('systemd', 'c',
 libsystemd_version = '0.35.0'
 libudev_version = '1.7.5'
 
+enable_utmp = get_option('utmp')
+if host_machine.system() == 'darwin'
+    enable_utmp = false
+endif
+
 conf = configuration_data()
 conf.set_quoted('PROJECT_URL', 'https://systemd.io/')
 conf.set('PROJECT_VERSION',    meson.project_version(),
@@ -310,6 +315,8 @@ conf.set_quoted('STATUS_UNIT_FORMAT_DEFAULT_STR',             status_unit_format
 conf.set10('ENABLE_FIRST_BOOT_FULL_PRESET',                   get_option('first-boot-full-preset'))
 
 conf.set10('EFI_TPM_PCR_COMPAT',                              get_option('efi-tpm-pcr-compat'))
+
+conf.set('ENABLE_UTMP', enable_utmp ? 1 : 0)
 
 #####################################################################
 

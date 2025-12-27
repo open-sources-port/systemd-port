@@ -980,7 +980,8 @@ int table_add_many_internal(Table *t, TableDataType first_type, ...) {
                         break;
 
                 case TABLE_MODE:
-                        buffer.mode = va_arg(ap, mode_t);
+                        // buffer.mode = va_arg(ap, mode_t);
+                        buffer.mode = (mode_t) va_arg(ap, int);
                         data = &buffer.mode;
                         break;
 
@@ -1793,7 +1794,8 @@ static const char *table_data_format(Table *t, TableData *d, bool avoid_uppercas
                 if (!p)
                         return NULL;
 
-                sprintf(p, "%04o", d->mode & 07777);
+                // sprintf(p, "%04o", d->mode & 07777);
+                sprintf(p, "%04o", (unsigned int)(d->mode & 07777));
                 d->formatted = p;
                 break;
         }

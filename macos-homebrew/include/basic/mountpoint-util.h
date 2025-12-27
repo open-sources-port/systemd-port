@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
+struct file_handle;
 int name_to_handle_at_loop(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, int flags);
 
 int path_get_mnt_id(const char *path, int *ret);

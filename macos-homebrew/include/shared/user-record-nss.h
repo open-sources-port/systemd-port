@@ -4,7 +4,8 @@
 #include <grp.h>
 #include <shared/gshadow.h>
 #include <pwd.h>
-#include <shadow.h>
+// #include <shadow.h>
+#include <sys_compat/sgrp.h>
 
 #include "group-record.h"
 #include "user-record.h"

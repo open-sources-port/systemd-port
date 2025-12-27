@@ -397,7 +397,7 @@ static int output_timestamp_realtime(
                 switch (mode) {
 
                 case OUTPUT_SHORT_UNIX:
-                        xsprintf(buf, "%10"PRI_TIME".%06"PRIu64, t, ts->realtime % USEC_PER_SEC);
+                        xsprintf(buf, "%10"PRI_TIME".%06"PRIu64, (long long) t, ts->realtime % USEC_PER_SEC);
                         break;
 
                 case OUTPUT_SHORT_ISO:

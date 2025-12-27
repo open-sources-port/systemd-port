@@ -52,18 +52,6 @@ static inline int linux_statfs(const char *path, struct linux_statfs *buf) {
     return 0;
 }
 
-/* -----------------------
- * FD-based statfs wrapper
- * ----------------------- */
-static inline int linux_statfs_fd(int fd, struct linux_statfs *buf) {
-    if (fd < 0)
-        return -1;
-
-    char path[64];
-    snprintf(path, sizeof(path), "/dev/fd/%d", fd);
-    return linux_statfs(path, buf);
-}
-
 /* Convert macOS statfs -> Linux statfs */
 static inline void statfs_to_linux(const struct statfs *s, struct linux_statfs *ls) {
     ls->f_type   = s->f_type;
@@ -111,3 +99,18 @@ static inline void linux_to_statfs(const struct linux_statfs *ls, struct statfs 
     // macOS has no f_frsize, f_namelen, f_spare — ignore
 }
 
+/* -----------------------
+ * FD-based statfs wrapper
+ * ----------------------- */
+static inline int linux_statfs_fd(int fd, struct linux_statfs *buf) {
+    struct statfs s;
+
+    if (fd < 0)
+            return -EBADF;
+
+    if (fstatfs(fd, &s) < 0)
+            return -errno;
+
+    statfs_to_linux(&s, buf);
+    return 0;
+}

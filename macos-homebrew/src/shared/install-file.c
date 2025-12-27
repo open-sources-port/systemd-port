@@ -63,12 +63,14 @@ int fs_make_very_read_only(int fd) {
                 break;
 
         case S_IFBLK: {
-                int ro = 1;
+                // int ro = 1;
 
-                if (ioctl(fd, BLKROSET, &ro) < 0)
-                        return -errno;
+                // if (ioctl(fd, BLKROSET, &ro) < 0)
+                //         return -errno;
 
-                break;
+                // break;
+                /* macOS doesn't support BLKROSET. Skip or return an error */
+                return -ENOTSUP;
         }
 
         default:

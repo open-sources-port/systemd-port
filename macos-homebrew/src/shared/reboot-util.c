@@ -87,7 +87,7 @@ int reboot_with_parameter(RebootFlags flags) {
                         if (flags & REBOOT_DRY_RUN)
                                 return 0;
 
-                        (void) raw_reboot(LINUX_REBOOT_CMD_RESTART2, parameter);
+                        (void) raw_reboot(RAW_REBOOT_CMD_RESTART2, parameter);
 
                         log_full_errno(flags & REBOOT_LOG ? LOG_WARNING : LOG_DEBUG, errno,
                                        "Failed to reboot with parameter, retrying without: %m");

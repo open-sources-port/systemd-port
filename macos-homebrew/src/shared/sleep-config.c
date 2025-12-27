@@ -757,7 +757,9 @@ static int calculate_swap_file_offset(const SwapEntry *swap, uint64_t *ret_offse
         if (r < 0)
                 return log_debug_errno(r, "Unable to read extent map for '%s': %m", swap->device);
 
-        *ret_offset = fiemap->fm_extents[0].fe_physical / page_size();
+        // *ret_offset = fiemap->fm_extents[0].fe_physical / page_size();
+        /* macOS: no mapping info */
+        *ret_offset = 0;
         return 0;
 }
 
@@ -803,8 +805,8 @@ static bool location_is_resume_device(const HibernateLocation *location, dev_t s
         if (!location)
                 return false;
 
-        return  sys_resume > 0 &&
-                sys_resume == location->devno &&
+        return sys_resume > 0 &&
+                (uint64_t)sys_resume == location->devno &&
                 (sys_offset == location->offset || (sys_offset > 0 && location->offset == UINT64_MAX));
 }
 
@@ -949,12 +951,18 @@ int find_hibernate_location(HibernateLocation **ret_hibernate_location) {
 
         if (resume_match)
                 log_debug("Hibernation will attempt to use swap entry with path: %s, device: %u:%u, offset: %" PRIu64 ", priority: %i",
-                          hibernate_location->swap->device, major(hibernate_location->devno), minor(hibernate_location->devno),
-                          hibernate_location->offset, hibernate_location->swap->priority);
+                        hibernate_location->swap->device,
+                        (unsigned int)major((dev_t)hibernate_location->devno),
+                        (unsigned int)minor((dev_t)hibernate_location->devno),
+                        hibernate_location->offset,
+                        hibernate_location->swap->priority);
         else
                 log_debug("/sys/power/resume is not configured; attempting to hibernate with path: %s, device: %u:%u, offset: %" PRIu64 ", priority: %i",
-                          hibernate_location->swap->device, major(hibernate_location->devno), minor(hibernate_location->devno),
-                          hibernate_location->offset, hibernate_location->swap->priority);
+                        hibernate_location->swap->device,
+                        (unsigned int)major((dev_t)hibernate_location->devno),
+                        (unsigned int)minor((dev_t)hibernate_location->devno),
+                        hibernate_location->offset,
+                        hibernate_location->swap->priority);
 
         *ret_hibernate_location = TAKE_PTR(hibernate_location);
 
@@ -1008,87 +1016,87 @@ static bool enough_swap_for_hibernation(void) {
         return r;
 }
 
-int read_fiemap(int fd, struct fiemap **ret) {
-        _cleanup_free_ struct fiemap *fiemap = NULL, *result_fiemap = NULL;
-        struct stat statinfo;
-        uint32_t result_extents = 0;
-        uint64_t fiemap_start = 0, fiemap_length;
-        const size_t n_extra = DIV_ROUND_UP(sizeof(struct fiemap), sizeof(struct fiemap_extent));
+// int read_fiemap(int fd, struct fiemap **ret) {
+//         _cleanup_free_ struct fiemap *fiemap = NULL, *result_fiemap = NULL;
+//         struct stat statinfo;
+//         uint32_t result_extents = 0;
+//         uint64_t fiemap_start = 0, fiemap_length;
+//         const size_t n_extra = DIV_ROUND_UP(sizeof(struct fiemap), sizeof(struct fiemap_extent));
 
-        if (fstat(fd, &statinfo) < 0)
-                return log_debug_errno(errno, "Cannot determine file size: %m");
-        if (!S_ISREG(statinfo.st_mode))
-                return -ENOTTY;
-        fiemap_length = statinfo.st_size;
+//         if (fstat(fd, &statinfo) < 0)
+//                 return log_debug_errno(errno, "Cannot determine file size: %m");
+//         if (!S_ISREG(statinfo.st_mode))
+//                 return -ENOTTY;
+//         fiemap_length = statinfo.st_size;
 
-        /* Zero this out in case we run on a file with no extents */
-        fiemap = calloc(n_extra, sizeof(struct fiemap_extent));
-        if (!fiemap)
-                return -ENOMEM;
+//         /* Zero this out in case we run on a file with no extents */
+//         fiemap = calloc(n_extra, sizeof(struct fiemap_extent));
+//         if (!fiemap)
+//                 return -ENOMEM;
 
-        result_fiemap = malloc_multiply(n_extra, sizeof(struct fiemap_extent));
-        if (!result_fiemap)
-                return -ENOMEM;
+//         result_fiemap = malloc_multiply(n_extra, sizeof(struct fiemap_extent));
+//         if (!result_fiemap)
+//                 return -ENOMEM;
 
-        /*  XFS filesystem has incorrect implementation of fiemap ioctl and
-         *  returns extents for only one block-group at a time, so we need
-         *  to handle it manually, starting the next fiemap call from the end
-         *  of the last extent
-         */
-        while (fiemap_start < fiemap_length) {
-                *fiemap = (struct fiemap) {
-                        .fm_start = fiemap_start,
-                        .fm_length = fiemap_length,
-                        .fm_flags = FIEMAP_FLAG_SYNC,
-                };
+//         /*  XFS filesystem has incorrect implementation of fiemap ioctl and
+//          *  returns extents for only one block-group at a time, so we need
+//          *  to handle it manually, starting the next fiemap call from the end
+//          *  of the last extent
+//          */
+//         while (fiemap_start < fiemap_length) {
+//                 *fiemap = (struct fiemap) {
+//                         .fm_start = fiemap_start,
+//                         .fm_length = fiemap_length,
+//                         .fm_flags = FIEMAP_FLAG_SYNC,
+//                 };
 
-                /* Find out how many extents there are */
-                if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0)
-                        return log_debug_errno(errno, "Failed to read extents: %m");
+//                 /* Find out how many extents there are */
+//                 if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0)
+//                         return log_debug_errno(errno, "Failed to read extents: %m");
 
-                /* Nothing to process */
-                if (fiemap->fm_mapped_extents == 0)
-                        break;
+//                 /* Nothing to process */
+//                 if (fiemap->fm_mapped_extents == 0)
+//                         break;
 
-                /* Resize fiemap to allow us to read in the extents, result fiemap has to hold all
-                 * the extents for the whole file. Add space for the initial struct fiemap. */
-                if (!greedy_realloc0((void**) &fiemap, n_extra + fiemap->fm_mapped_extents, sizeof(struct fiemap_extent)))
-                        return -ENOMEM;
+//                 /* Resize fiemap to allow us to read in the extents, result fiemap has to hold all
+//                  * the extents for the whole file. Add space for the initial struct fiemap. */
+//                 if (!greedy_realloc0((void**) &fiemap, n_extra + fiemap->fm_mapped_extents, sizeof(struct fiemap_extent)))
+//                         return -ENOMEM;
 
-                fiemap->fm_extent_count = fiemap->fm_mapped_extents;
-                fiemap->fm_mapped_extents = 0;
+//                 fiemap->fm_extent_count = fiemap->fm_mapped_extents;
+//                 fiemap->fm_mapped_extents = 0;
 
-                if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0)
-                        return log_debug_errno(errno, "Failed to read extents: %m");
+//                 if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0)
+//                         return log_debug_errno(errno, "Failed to read extents: %m");
 
-                /* Resize result_fiemap to allow us to copy in the extents */
-                if (!greedy_realloc((void**) &result_fiemap,
-                                    n_extra + result_extents + fiemap->fm_mapped_extents, sizeof(struct fiemap_extent)))
-                        return -ENOMEM;
+//                 /* Resize result_fiemap to allow us to copy in the extents */
+//                 if (!greedy_realloc((void**) &result_fiemap,
+//                                     n_extra + result_extents + fiemap->fm_mapped_extents, sizeof(struct fiemap_extent)))
+//                         return -ENOMEM;
 
-                memcpy(result_fiemap->fm_extents + result_extents,
-                       fiemap->fm_extents,
-                       sizeof(struct fiemap_extent) * fiemap->fm_mapped_extents);
+//                 memcpy(result_fiemap->fm_extents + result_extents,
+//                        fiemap->fm_extents,
+//                        sizeof(struct fiemap_extent) * fiemap->fm_mapped_extents);
 
-                result_extents += fiemap->fm_mapped_extents;
+//                 result_extents += fiemap->fm_mapped_extents;
 
-                /* Highly unlikely that it is zero */
-                if (_likely_(fiemap->fm_mapped_extents > 0)) {
-                        uint32_t i = fiemap->fm_mapped_extents - 1;
+//                 /* Highly unlikely that it is zero */
+//                 if (_likely_(fiemap->fm_mapped_extents > 0)) {
+//                         uint32_t i = fiemap->fm_mapped_extents - 1;
 
-                        fiemap_start = fiemap->fm_extents[i].fe_logical +
-                                       fiemap->fm_extents[i].fe_length;
+//                         fiemap_start = fiemap->fm_extents[i].fe_logical +
+//                                        fiemap->fm_extents[i].fe_length;
 
-                        if (fiemap->fm_extents[i].fe_flags & FIEMAP_EXTENT_LAST)
-                                break;
-                }
-        }
+//                         if (fiemap->fm_extents[i].fe_flags & FIEMAP_EXTENT_LAST)
+//                                 break;
+//                 }
+//         }
 
-        memcpy(result_fiemap, fiemap, sizeof(struct fiemap));
-        result_fiemap->fm_mapped_extents = result_extents;
-        *ret = TAKE_PTR(result_fiemap);
-        return 0;
-}
+//         memcpy(result_fiemap, fiemap, sizeof(struct fiemap));
+//         result_fiemap->fm_mapped_extents = result_extents;
+//         *ret = TAKE_PTR(result_fiemap);
+//         return 0;
+// }
 
 static int can_sleep_internal(const SleepConfig *sleep_config, SleepOperation operation, bool check_allowed);
 
@@ -1101,10 +1109,10 @@ static bool can_s2h(const SleepConfig *sleep_config) {
 
         int r;
 
-        if (!clock_supported(CLOCK_BOOTTIME_ALARM)) {
-                log_debug("CLOCK_BOOTTIME_ALARM is not supported.");
-                return false;
-        }
+        // if (!clock_supported(CLOCK_BOOTTIME_ALARM)) {
+        //         log_debug("CLOCK_BOOTTIME_ALARM is not supported.");
+        //         return false;
+        // }
 
         for (size_t i = 0; i < ELEMENTSOF(operations); i++) {
                 r = can_sleep_internal(sleep_config, operations[i], false);

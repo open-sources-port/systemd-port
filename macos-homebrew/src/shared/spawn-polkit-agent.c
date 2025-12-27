@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
+#include <sys_compat/pipe.h>
+
 #include <errno.h>
 #include <poll.h>
 #include <signal.h>

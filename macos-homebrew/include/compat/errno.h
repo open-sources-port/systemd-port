@@ -62,3 +62,18 @@
 #ifndef EXFULL
 #define EXFULL ENOSPC
 #endif
+
+/* Link number out of range */
+#ifndef ELNRNG
+#define ELNRNG ERANGE
+#endif
+
+/* Name not unique */
+#ifndef ENOTUNIQ
+#define ENOTUNIQ EADDRINUSE
+#endif
+
+/* Linux-specific error codes not available on macOS */
+#define EL2HLT        51  /* arbitrary unused value */
+#define EL3HLT        52  /* arbitrary unused value */
+#define EKEYEXPIRED   127 /* arbitrary unused value */

@@ -1,8 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
+#include <valgrind/valgrind.h>
 #if HAVE_VALGRIND_MEMCHECK_H
 #include <valgrind/memcheck.h>
 #endif
+
+#include <basic/macro.h>
+#include <basic/missing_mount.h>
+#include <basic/missing_loop.h>
+#include <sys_compat/missing_syscall.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -559,7 +565,7 @@ static int loop_device_make_internal(
 
         d->backing_file = TAKE_PTR(backing_file);
 
-        log_debug("Successfully acquired %s, devno=%u:%u, nr=%i, diskseq=%" PRIu64,
+        log_debug("Successfully acquired %s, devno=%d:%d, nr=%i, diskseq=%" PRIu64,
                   d->node,
                   major(d->devno), minor(d->devno),
                   d->nr,
