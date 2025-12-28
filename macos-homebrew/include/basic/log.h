@@ -14,6 +14,10 @@
 #define RELATIVE_SOURCE_PATH ""
 #endif
 
+#define LOG_LEVEL_DEBUG   0
+#define LOG_LEVEL_WARNING 1
+#define LOG_LEVEL_ERROR   2
+
 /* Some structures we reference but don't want to pull in headers for */
 struct iovec;
 struct signalfd_siginfo;
@@ -372,10 +376,11 @@ int log_syntax_invalid_utf8_internal(
 
 void log_setup(void);
 
+typedef struct RateLimit RateLimit;
 typedef struct LogRateLimit {
         int error;
         int level;
-        RateLimit ratelimit;
+        RateLimit *ratelimit;
 } LogRateLimit;
 
 #define log_ratelimit_internal(_level, _error, _format, _file, _line, _func, ...)        \

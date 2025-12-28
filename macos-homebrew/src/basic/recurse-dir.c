@@ -5,10 +5,12 @@
 #include "fd-util.h"
 #include "fileio.h"
 #include <sys_compat/missing_syscall.h>
+#include <sys_compat/limits.h>
 #include "mountpoint-util.h"
 #include "recurse-dir.h"
 #include "sort-util.h"
 
+// Define flags if not defined
 #define DEFAULT_RECURSION_MAX 100
 
 static int sort_func(struct dirent * const *a, struct dirent * const *b) {
@@ -110,6 +112,57 @@ int readdir_all(int dir_fd,
                 *ret = TAKE_PTR(de);
 
         return 0;
+}
+
+#ifndef RECURSE_DIR_FOLLOW_SYMLINKS
+#define RECURSE_DIR_FOLLOW_SYMLINKS (1 << 0)
+#endif
+
+int recurse_dir(int dir_fd, const char *path, unsigned statx_mask, unsigned n_depth_max,
+                RecurseDirFlags flags, recurse_dir_func_t func, void *userdata) {
+
+    if (n_depth_max == 0)
+        return 0;
+
+    DIR *dir = opendir(path);
+    if (!dir)
+        return -errno;
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        // Skip "." and ".."
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        struct stat st;
+        int ret = fstatat(dir_fd, entry->d_name, &st,
+                          (flags & RECURSE_DIR_FOLLOW_SYMLINKS) ? 0 : AT_SYMLINK_NOFOLLOW);
+        if (ret < 0) {
+            closedir(dir);
+            return -errno;
+        }
+
+        // Call user callback (macOS expects 4 arguments)
+        int r = func(dir_fd, path, entry->d_name, &st, flags, n_depth_max, userdata);
+        if (r != 0) {
+            closedir(dir);
+            return r;
+        }
+
+        // Recurse into subdirectories
+        if (S_ISDIR(st.st_mode)) {
+            char child_path[PATH_MAX];
+            snprintf(child_path, sizeof(child_path), "%s/%s", path, entry->d_name);
+            r = recurse_dir(dir_fd, child_path, statx_mask, n_depth_max - 1, flags, func, userdata);
+            if (r != 0) {
+                closedir(dir);
+                return r;
+            }
+        }
+    }
+
+    closedir(dir);
+    return 0;
 }
 
 int recurse_dir_at(

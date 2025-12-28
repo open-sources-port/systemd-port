@@ -21,6 +21,120 @@
 
 #include <stdbool.h>
 
+/*
+ * macOS-only implementation
+ *
+ * flags:
+ *   AT_SYMLINK_NOFOLLOW -> XATTR_NOFOLLOW
+ *
+ * Unsupported:
+ *   AT_EMPTY_PATH
+ */
+int listxattr_at_malloc(int fd, const char *path, int flags, char **ret) {
+        ssize_t size;
+        char *buf = NULL;
+        int options = 0;
+
+        assert(ret);
+
+        *ret = NULL;
+
+        /* Validate arguments */
+        if (fd < 0 && !path)
+                return -EINVAL;
+
+#ifdef AT_EMPTY_PATH
+        if (flags & AT_EMPTY_PATH)
+                return -EOPNOTSUPP;
+#endif
+
+#ifdef AT_SYMLINK_NOFOLLOW
+        if (flags & AT_SYMLINK_NOFOLLOW)
+                options |= XATTR_NOFOLLOW;
+#endif
+
+        /* Step 1: query size */
+        if (path) {
+                size = listxattr(path, NULL, 0, options);
+        } else {
+                size = flistxattr(fd, NULL, 0, options);
+        }
+
+        if (size < 0)
+                return -errno;
+
+        /* No xattrs */
+        if (size == 0) {
+                *ret = strdup("");
+                if (!*ret)
+                        return -ENOMEM;
+                return 0;
+        }
+
+        /* Step 2: allocate */
+        buf = malloc((size_t) size);
+        if (!buf)
+                return -ENOMEM;
+
+        /* Step 3: fetch list */
+        if (path) {
+                size = listxattr(path, buf, (size_t) size, options);
+        } else {
+                size = flistxattr(fd, buf, (size_t) size, options);
+        }
+
+        if (size < 0) {
+                free(buf);
+                return -errno;
+        }
+
+        *ret = buf;
+        return 0;
+}
+
+int getxattr_at_malloc(int fd, const char *path, const char *name, int flags, char **ret) {
+    if (!name || !ret)
+        return -EINVAL;
+
+    *ret = NULL;
+    ssize_t size;
+
+    if (path) {
+        // getxattr on a path
+        size = getxattr(path, name, NULL, 0, 0, flags);
+    } else if (fd >= 0) {
+        // fgetxattr on a file descriptor
+        size = fgetxattr(fd, name, NULL, 0, 0, flags);
+    } else {
+        return -EINVAL;
+    }
+
+    if (size < 0)
+        return -errno;
+
+    // allocate memory
+    char *buf = malloc(size + 1); // +1 for safety (null-terminate)
+    if (!buf)
+        return -ENOMEM;
+
+    ssize_t ret_size;
+    if (path) {
+        ret_size = getxattr(path, name, buf, size, 0, flags);
+    } else {
+        ret_size = fgetxattr(fd, name, buf, size, 0, flags);
+    }
+
+    if (ret_size < 0) {
+        free(buf);
+        return -errno;
+    }
+
+    buf[ret_size] = '\0'; // null terminate just in case
+    *ret = buf;
+
+    return ret_size;
+}
+
 int fd_setcrtime(int fd, usec_t usec) {
     struct {
         struct timespec ts;

@@ -16,51 +16,49 @@ struct recurse_dir_userdata {
         Set *keymaps;
 };
 
-static int keymap_recurse_dir_callback(
-                RecurseDirEvent event,
-                const char *path,
-                int dir_fd,
-                int inode_fd,
-                const struct dirent *de,
-                const struct statx *sx,
-                void *userdata) {
+static int keymap_recurse_dir_adapter(
+        int fd,
+        const char *base_path,
+        const char *filename,
+        struct stat *st,
+        enum RecurseDirFlags flags,
+        unsigned int depth,
+        void *userdata) {
 
-        struct recurse_dir_userdata *data = userdata;
-        _cleanup_free_ char *p = NULL;
-        int r;
+    struct recurse_dir_userdata *data = userdata;
+    _cleanup_free_ char *p = NULL;
+    int r;
 
-        assert(de);
+    // Skip if no filename
+    if (!filename)
+        return 0;
 
-        /* If 'keymap_name' is non-NULL, return true if keymap 'keymap_name' is found.  Otherwise, add all
-         * keymaps to 'keymaps'. */
+    // Only consider regular files and symlinks
+    if (!S_ISREG(st->st_mode) && !S_ISLNK(st->st_mode))
+        return 0;
 
-        if (event != RECURSE_DIR_ENTRY)
-                return RECURSE_DIR_CONTINUE;
+    // Check file extension
+    const char *e = endswith(filename, ".map") ?: endswith(filename, ".map.gz");
+    if (!e)
+        return 0;
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK))
-                return RECURSE_DIR_CONTINUE;
+    p = strndup(filename, e - filename);
+    if (!p)
+        return -ENOMEM;
 
-        const char *e = endswith(de->d_name, ".map") ?: endswith(de->d_name, ".map.gz");
-        if (!e)
-                return RECURSE_DIR_CONTINUE;
+    if (data->keymap_name)
+        return streq(p, data->keymap_name) ? 1 : 0;
 
-        p = strndup(de->d_name, e - de->d_name);
-        if (!p)
-                return -ENOMEM;
+    assert(data->keymaps);
 
-        if (data->keymap_name)
-                return streq(p, data->keymap_name) ? 1 : RECURSE_DIR_CONTINUE;
+    if (!keymap_is_valid(p))
+        return 0;
 
-        assert(data->keymaps);
+    r = set_consume(data->keymaps, TAKE_PTR(p));
+    if (r < 0)
+        return r;
 
-        if (!keymap_is_valid(p))
-                return 0;
-
-        r = set_consume(data->keymaps, TAKE_PTR(p));
-        if (r < 0)
-                return r;
-
-        return RECURSE_DIR_CONTINUE;
+    return 0;
 }
 
 int get_keymaps(char ***ret) {
@@ -79,7 +77,7 @@ int get_keymaps(char ***ret) {
                                 /* statx_mask= */ 0,
                                 /* n_depth_max= */ UINT_MAX,
                                 RECURSE_DIR_IGNORE_DOT|RECURSE_DIR_ENSURE_TYPE,
-                                keymap_recurse_dir_callback,
+                                keymap_recurse_dir_adapter,
                                 &(struct recurse_dir_userdata) {
                                         .keymaps = keymaps,
                                 });
@@ -143,7 +141,7 @@ int keymap_exists(const char *name) {
                                 /* statx_mask= */ 0,
                                 /* n_depth_max= */ UINT_MAX,
                                 RECURSE_DIR_IGNORE_DOT|RECURSE_DIR_ENSURE_TYPE,
-                                keymap_recurse_dir_callback,
+                                keymap_recurse_dir_adapter,
                                 &(struct recurse_dir_userdata) {
                                         .keymap_name = name,
                                 });

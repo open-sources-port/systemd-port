@@ -178,8 +178,7 @@ libsystemd_shared = shared_library(
         # include_directories : libsystemd_includes,
         include_directories : all_includes,
         c_args : libsystemd_c_args,
-        link_with : [libbasic,
-                     libbasic_compress],
+        link_with : [liblinux, libbasic, libbasic_compress],
         dependencies : [threads],
                         # librt],
         build_by_default : false,
@@ -191,9 +190,8 @@ libsystemd_static = static_library(
         # include_directories : libsystemd_includes,
         include_directories : all_includes,
         c_args : libsystemd_c_args,
-        link_with : [libbasic, libbasic_compress, liblinux],
+        link_with : [liblinux, libbasic, libbasic_compress],
         dependencies : [threads],
-                        # librt],
         build_by_default : false)
 
 libsystemd_sym = files('libsystemd.sym')

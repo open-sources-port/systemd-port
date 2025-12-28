@@ -4592,6 +4592,8 @@ pkgconfiglibdir = join_paths(get_option('libdir'), 'pkgconfig')
 
 tests = []
 
+intl_dep = dependency('intl', required: false)
+
 subdir('src')
 # subdir('src/fundamental')
 # subdir('src/basic')

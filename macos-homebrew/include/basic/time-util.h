@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <errno.h>
+#include <ctype.h> 
+#include <basic/log.h>
 
 typedef uint64_t usec_t;
 typedef uint64_t nsec_t;

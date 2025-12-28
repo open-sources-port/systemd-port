@@ -39,23 +39,6 @@ typedef enum RecurseDirEvent {
 assert_cc(RECURSE_DIR_LEAVE_DIRECTORY < -ERRNO_MAX);
 assert_cc(RECURSE_DIR_SKIP_ENTRY < -ERRNO_MAX);
 
-/* Prototype for the callback function that is called whenever we enter or leave a dir inode, or find another dir entry. Return values are:
- *
- * RECURSE_DIR_CONTINUE (i.e. 0) → continue with next entry
- * RECURSE_DIR_LEAVE_DIRECTORY   → leave current directory immediately, don't process further siblings
- * RECURSE_DIR_SKIP_ENTRY        → skip this entry otherwise (only makes sense on RECURSE_DIR_ENTER)
- * others                        → terminate iteration entirely, return the specified value (idea is that
- *                                 < 0 indicates errors and > 0 indicates various forms of success)
- */
-typedef int (*recurse_dir_func_t)(
-                RecurseDirEvent event,
-                const char *path,        /* Full non-normalized path, i.e. the path specified during recurise_dir() with what we found appended */
-                int dir_fd,              /* fd of the current dir */
-                int inode_fd,            /* fd of the current entry in the current dir (O_DIRECTORY if directory, and O_PATH otherwise, but only if RECURSE_DIR_INODE_FD was set) */
-                const struct dirent *de, /* directory entry (always valid) */
-                const struct statx *sx,  /* statx data (only if statx_mask was non-zero) */
-                void *userdata);
-
 typedef enum RecurseDirFlags {
         /* Interpreted by readdir_all() */
         RECURSE_DIR_SORT         = 1 << 0,  /* sort file directory entries before processing them */
@@ -66,6 +49,31 @@ typedef enum RecurseDirFlags {
         RECURSE_DIR_SAME_MOUNT   = 1 << 3,  /* skips over subdirectories that are submounts */
         RECURSE_DIR_INODE_FD     = 1 << 4,  /* passes an opened inode fd (O_DIRECTORY fd in case of dirs, O_PATH otherwise) */
 } RecurseDirFlags;
+
+/* Prototype for the callback function that is called whenever we enter or leave a dir inode, or find another dir entry. Return values are:
+ *
+ * RECURSE_DIR_CONTINUE (i.e. 0) → continue with next entry
+ * RECURSE_DIR_LEAVE_DIRECTORY   → leave current directory immediately, don't process further siblings
+ * RECURSE_DIR_SKIP_ENTRY        → skip this entry otherwise (only makes sense on RECURSE_DIR_ENTER)
+ * others                        → terminate iteration entirely, return the specified value (idea is that
+ *                                 < 0 indicates errors and > 0 indicates various forms of success)
+ */
+// typedef int (*recurse_dir_func_t)(
+//                 RecurseDirEvent event,
+//                 const char *path,        /* Full non-normalized path, i.e. the path specified during recurise_dir() with what we found appended */
+//                 int dir_fd,              /* fd of the current dir */
+//                 int inode_fd,            /* fd of the current entry in the current dir (O_DIRECTORY if directory, and O_PATH otherwise, but only if RECURSE_DIR_INODE_FD was set) */
+//                 const struct dirent *de, /* directory entry (always valid) */
+//                 const struct statx *sx,  /* statx data (only if statx_mask was non-zero) */
+//                 void *userdata);
+typedef int (*recurse_dir_func_t)(
+    int dir_fd,
+    const char *path,
+    const char *name,
+    struct stat *st,
+    RecurseDirFlags flags,
+    unsigned n_depth,
+    void *userdata);
 
 typedef struct DirectoryEntries {
         size_t n_entries;
