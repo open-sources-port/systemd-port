@@ -15,6 +15,7 @@
 #include <stdlib.h>  // for getenv
 #include <fundamental/macro-fundamental.h>
 
+typedef uint64_t usec_t;  // microseconds
 
 /* stub chattr functions and FS_IMMUTABLE_FL */
 #ifndef FS_IMMUTABLE_FL

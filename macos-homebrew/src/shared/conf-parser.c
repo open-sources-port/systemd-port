@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <sys_compat/limits.h>
+#include <sys_compat/personality.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

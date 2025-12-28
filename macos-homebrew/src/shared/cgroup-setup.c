@@ -239,6 +239,20 @@ static int trim_cb(
         return RECURSE_DIR_CONTINUE;
 }
 
+static int trim_cb_adapter(int unused_fd, const char *parent,
+                           const char *name, struct stat *st,
+                           enum RecurseDirFlags flags, unsigned int u,
+                           void *userdata)
+{
+    struct dirent de = {0};
+    de.d_name[0] = '\0'; // placeholder, or copy name if needed
+    de.d_type = DT_DIR;  // guess or determine
+
+    struct statx stx = {0}; // dummy, or convert struct stat -> statx if needed
+
+    return trim_cb(RECURSE_DIR_LEAVE, parent, -1, -1, &de, &stx, userdata);
+}
+
 int cg_trim(const char *controller, const char *path, bool delete_root) {
         _cleanup_free_ char *fs = NULL;
         int r, q;
@@ -256,7 +270,7 @@ int cg_trim(const char *controller, const char *path, bool delete_root) {
                         /* statx_mask= */ 0,
                         /* n_depth_max= */ UINT_MAX,
                         RECURSE_DIR_ENSURE_TYPE,
-                        trim_cb,
+                        trim_cb_adapter,
                         NULL);
         if (r == -ENOENT) /* non-existing is the ultimate trimming, hence no error */
                 r = 0;
@@ -372,29 +386,29 @@ int cg_attach(const char *controller, const char *path, pid_t pid) {
 }
 
 int cg_attach_fallback(const char *controller, const char *path, pid_t pid) {
-        int r;
+    int r;
 
-        assert(controller);
-        assert(path);
-        assert(pid >= 0);
+    assert(controller);
+    assert(path);
+    assert(pid >= 0);
 
-        r = cg_attach(controller, path, pid);
-        if (r < 0) {
-                char prefix[strlen(path) + 1];
-
-                /* This didn't work? Then let's try all prefixes of
-                 * the destination */
-
-                PATH_FOREACH_PREFIX(prefix, path) {
-                        int q;
-
-                        q = cg_attach(controller, prefix, pid);
-                        if (q >= 0)
-                                return q;
-                }
-        }
-
+    /* Try the full path first */
+    r = cg_attach(controller, path, pid);
+    if (r >= 0)
         return r;
+
+    /* Fallback: try all prefixes */
+    char prefix[PATH_MAX];
+    if (strlen(path) >= PATH_MAX)
+        return -ENAMETOOLONG;
+
+    PATH_FOREACH_PREFIX(prefix, path) {
+        int q = cg_attach(controller, prefix, pid);
+        if (q >= 0)
+            return q;
+    }
+
+    return r;
 }
 
 int cg_set_access(

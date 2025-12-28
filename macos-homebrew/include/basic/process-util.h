@@ -68,6 +68,11 @@ typedef enum WaitFlags {
 
         /* A shortcut for requesting the most complete logging */
         WAIT_LOG = WAIT_LOG_ABNORMAL|WAIT_LOG_NON_ZERO_EXIT_STATUS,
+
+        WAIT_NONE       = 0,
+        WAIT_NOHANG     = 1 << 0,  // don't block
+        WAIT_UNTRACED   = 1 << 1,  // include stopped children
+        WAIT_IGNORE_SIG = 1 << 2,  // ignore signals
 } WaitFlags;
 
 int wait_for_terminate_and_check(const char *name, pid_t pid, WaitFlags flags);
@@ -92,13 +97,6 @@ int pid_from_same_root_fs(pid_t pid);
 bool is_main_thread(void);
 
 bool oom_score_adjust_is_valid(int oa);
-
-#ifndef PERSONALITY_INVALID
-/* personality(7) documents that 0xffffffffUL is used for querying the
- * current personality, hence let's use that here as error
- * indicator. */
-#define PERSONALITY_INVALID 0xffffffffLU
-#endif
 
 unsigned long personality_from_string(const char *p);
 const char *personality_to_string(unsigned long);

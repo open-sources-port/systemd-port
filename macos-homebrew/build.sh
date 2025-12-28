@@ -26,6 +26,9 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
       echo "Please check details in ${outputLogFile}!"
   elif [[ "$command" == "build"* ]]; then
       echo "Running build command..."
+      export CPPFLAGS="-I/opt/homebrew/include"
+      export LDFLAGS="-L/opt/homebrew/lib"
+      export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig"
       ninja -C build > "${outputLogFile}" 2>&1
       cat "${outputLogFile}"
       echo "Please check details in ${outputLogFile}!"

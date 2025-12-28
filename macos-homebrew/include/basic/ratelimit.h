@@ -2,7 +2,8 @@
 #pragma once
 
 #include <stdbool.h>
-
+#include <basic/macro.h>
+#include <linux/types.h>
 #include "time-util.h"
 
 typedef struct RateLimit {

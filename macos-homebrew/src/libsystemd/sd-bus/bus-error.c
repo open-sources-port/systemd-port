@@ -68,6 +68,14 @@ BUS_ERROR_MAP_ELF_REGISTER const sd_bus_error_map bus_standard_errors[] = {
         extern const size_t systemd_bus_error_map_size;
 #endif
 
+// Pointer version
+const sd_bus_error_map map_stub[] = {
+    { .name = NULL}
+};
+
+const sd_bus_error_map *systemd_bus_error_map = map_stub;
+const size_t systemd_bus_error_map_size = sizeof(map_stub) / sizeof(map_stub[0]);
+
 /* Additional maps registered with sd_bus_error_add_map() are in this
  * NULL terminated array */
 static const sd_bus_error_map **additional_error_maps = NULL;

@@ -296,8 +296,8 @@ shared_sources = files(
         # Mac does not support securebits
         # 'securebits-util.c',
         # join_paths(shared_inc_path, 'securebits-util.h'),
-        # 'selinux-util.c',
-        # join_paths(shared_inc_path, 'selinux-util.h'),
+        'selinux-util.c',
+        join_paths(shared_inc_path, 'selinux-util.h'),
         'serialize.c',
         join_paths(shared_inc_path, 'serialize.h'),
         'service-util.c',
@@ -478,7 +478,7 @@ libshared_deps = [threads,
                 #   libseccomp,
                 #   libselinux,
                   libzstd,
-                  libxz]
+                  libxz, intl_dep]
 
 libshared_sym_path = '@0@/libshared.sym'.format(meson.current_source_dir())
 

@@ -396,14 +396,41 @@ static int relabel_cb(
         }
 }
 
+static int relabel_cb_adapter(int unused_fd,
+                              const char *parent,
+                              const char *name,
+                              struct stat *st,
+                              enum RecurseDirFlags flags,
+                              unsigned int u,
+                              void *userdata)
+{
+    struct dirent de = {0}; // dummy dirent
+    struct statx sx = {0};  // dummy statx
+
+    // Optionally populate de.d_name from name
+    strncpy(de.d_name, name, sizeof(de.d_name) - 1);
+    de.d_name[sizeof(de.d_name)-1] = '\0';
+    de.d_type = DT_UNKNOWN; // macOS can't reliably provide type here
+
+    // Call the original relabel_cb
+    return relabel_cb(RECURSE_DIR_LEAVE, parent, -1, -1, &de, &sx, userdata);
+}
+
 static int relabel_tree(const char *path) {
-        int r;
+    int r;
 
-        r = recurse_dir_at(AT_FDCWD, path, 0, UINT_MAX, RECURSE_DIR_ENSURE_TYPE|RECURSE_DIR_SAME_MOUNT, relabel_cb, NULL);
-        if (r < 0)
-                log_debug_errno(r, "Failed to recursively relabel '%s': %m", path);
+    r = recurse_dir_at(AT_FDCWD,
+                       path,
+                       0,
+                       UINT_MAX,
+                       RECURSE_DIR_ENSURE_TYPE | RECURSE_DIR_SAME_MOUNT,
+                       relabel_cb_adapter, // use adapter here
+                       NULL);
 
-        return r;
+    if (r < 0)
+        log_debug_errno(r, "Failed to recursively relabel '%s': %m", path);
+
+    return r;
 }
 
 static int relabel_cgroup_filesystems(void) {

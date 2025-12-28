@@ -10,6 +10,11 @@
 #define IPPROTO_UDP     17
 #define IPPROTO_RAW     255
 
+#define IP_MULTICAST_ALL		49
+#define IP_UNICAST_IF			50
+#define IP_LOCAL_PORT_RANGE		51
+#define IP_PROTOCOL			52
+
 /* Include macOS socket headers for sockaddr_in, etc. */
 #include <netinet/in.h>
 #include <sys/socket.h>

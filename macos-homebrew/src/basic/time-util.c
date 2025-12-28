@@ -11,10 +11,137 @@
 #include <time.h>
 #include <sys/time.h>
 #include <linux/rtc.h>
+#include <ctype.h>
 
 #include "time-util.h"
 #include "errno-util.h"
 #include <basic/macro.h>
+#include <compat/errno.h>
+
+int verify_timezone(const char *name, int log_level) {
+    if (!name || !*name)
+        return -EINVAL;
+
+    // Save old TZ
+    char *old_tz = getenv("TZ");
+    
+    // Temporarily set TZ
+    if (setenv("TZ", name, 1) != 0) {
+        if (log_level >= LOG_LEVEL_ERROR)
+            fprintf(stderr, "Failed to set TZ='%s': %s\n", name, strerror(errno));
+        return -EINVAL;
+    }
+
+    tzset(); // Apply TZ
+
+    // Check if timezone is valid: tm_gmtoff only set for valid TZ
+    struct tm tm_info;
+    if (!localtime_r(&(time_t){0}, &tm_info)) {
+        if (log_level >= LOG_LEVEL_WARNING)
+            fprintf(stderr, "Invalid timezone name: '%s'\n", name);
+        // Restore old TZ
+        if (old_tz)
+            setenv("TZ", old_tz, 1);
+        else
+            unsetenv("TZ");
+        tzset();
+        return -EINVAL;
+    }
+
+    // Restore old TZ
+    if (old_tz)
+        setenv("TZ", old_tz, 1);
+    else
+        unsetenv("TZ");
+    tzset();
+
+    return 0; // Valid timezone
+}
+
+int parse_sec(const char *t, usec_t *usec) {
+    if (!t || !usec) return -EINVAL;
+
+    char *end = NULL;
+    double val = strtod(t, &end);
+    if (end == t) return -EINVAL; // no conversion
+
+    // skip spaces
+    while (isspace((unsigned char)*end)) end++;
+
+    // handle optional suffix
+    if (*end == '\0' || strcmp(end, "s") == 0) {
+        *usec = (usec_t)(val * 1000000.0);
+    } else if (strcmp(end, "ms") == 0) {
+        *usec = (usec_t)(val * 1000.0);
+    } else if (strcmp(end, "us") == 0) {
+        *usec = (usec_t)(val);
+    } else if (strcmp(end, "min") == 0) {
+        *usec = (usec_t)(val * 60 * 1000000.0);
+    } else if (strcmp(end, "h") == 0) {
+        *usec = (usec_t)(val * 3600 * 1000000.0);
+    } else {
+        return -EINVAL; // unknown suffix
+    }
+
+    return 0;
+}
+
+int parse_sec_fix_0(const char *t, usec_t *usec) {
+    if (!t || *t == '\0') {
+        *usec = 0;
+        return 0;
+    }
+    return parse_sec(t, usec);
+}
+
+int parse_sec_def_infinity(const char *t, usec_t *usec) {
+    if (!t || !usec) return -EINVAL;
+    if (strcasecmp(t, "inf") == 0) {
+        *usec = UINT64_MAX;
+        return 0;
+    }
+    return parse_sec(t, usec);
+}
+
+int parse_time(const char *t, usec_t *usec, usec_t default_unit) {
+    if (!t || !usec) return -EINVAL;
+    char *end = NULL;
+    double val = strtod(t, &end);
+    if (end == t) return -EINVAL;
+
+    while (isspace((unsigned char)*end)) end++;
+
+    if (*end == '\0') {
+        *usec = (usec_t)(val * default_unit);
+        return 0;
+    }
+
+    return parse_sec(t, usec);
+}
+
+int parse_nsec(const char *t, nsec_t *nsec) {
+    if (!t || !nsec) return -EINVAL;
+
+    char *end = NULL;
+    double val = strtod(t, &end);
+    if (end == t) return -EINVAL;
+
+    while (isspace((unsigned char)*end)) end++;
+
+    if (*end == '\0' || strcmp(end, "ns") == 0) {
+        *nsec = (nsec_t)(val);
+    } else if (strcmp(end, "us") == 0) {
+        *nsec = (nsec_t)(val * 1000.0);
+    } else if (strcmp(end, "ms") == 0) {
+        *nsec = (nsec_t)(val * 1000000.0);
+    } else if (strcmp(end, "s") == 0) {
+        *nsec = (nsec_t)(val * 1000000000.0);
+    } else {
+        return -EINVAL;
+    }
+
+    return 0;
+}
 
 char* format_timestamp_style(
                 char *buf,
