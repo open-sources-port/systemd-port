@@ -29,13 +29,13 @@ if [[ $# -lt 2 ]]; then
     exit 1
 fi
 
-binary=$(realpath "${1}")
+binary=$(grealpath "${1}")
 if [[ "${1}" =~ systemd-boot([[:alnum:]]+).efi ]]; then
     target="systemd-boot"
-    symbols=$(realpath "${1%efi}elf")
+    symbols=$(grealpath "${1%efi}elf")
 elif [[ "${1}" =~ linux([[:alnum:]]+).efi.stub ]]; then
     target="systemd-stub"
-    symbols=$(realpath "${1%efi.stub}elf.stub")
+    symbols=$(grealpath "${1%efi.stub}elf.stub")
 else
     echo "Cannot detect EFI binary '${1}'."
     exit 1

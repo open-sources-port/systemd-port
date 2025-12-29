@@ -28,7 +28,7 @@ conf.set('PROJECT_VERSION',    meson.project_version(),
 # the wrong result when systemd is being built as a meson subproject
 project_source_root = meson.current_source_dir()
 project_build_root = meson.current_build_dir()
-relative_source_path = run_command('realpath',
+relative_source_path = run_command('grealpath',
                                    '--relative-to=@0@'.format(project_build_root),
                                    project_source_root,
                                    check : true).stdout().strip()
