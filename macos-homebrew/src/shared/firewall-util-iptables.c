@@ -7,7 +7,7 @@
 
 #include <arpa/inet.h>
 #include <sys_compat/endian.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stddef.h>
 #include <string.h>
 #include <net/if.h>

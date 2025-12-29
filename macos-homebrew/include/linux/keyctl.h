@@ -2,7 +2,7 @@
 
 #ifdef __APPLE__
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdarg.h>
 #include <stdint.h>
 

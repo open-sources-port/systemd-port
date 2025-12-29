@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
 #include <sys_compat/limits.h>
@@ -18,7 +18,7 @@
 #include <sys/un.h>
 #include <termios.h>
 #include <unistd.h>
-#include <compat/errno.h>
+#include <sys_compat/errno.h>
 
 #include "alloc-util.h"
 #include "ask-password-api.h"

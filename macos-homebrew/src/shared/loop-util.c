@@ -10,7 +10,7 @@
 #include <basic/missing_loop.h>
 #include <sys_compat/missing_syscall.h>
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <fcntl.h>
 #include <linux/blkpg.h>
 #include <linux/fs.h>

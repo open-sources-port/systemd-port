@@ -6,7 +6,7 @@
 #include <valgrind/memcheck.h>
 #endif
 
-#include <compat/compat-glibc.h>
+#include <sys_compat/glibc.h>
 #include <basic/missing_mount.h>
 
 #include <linux/dm-ioctl.h>

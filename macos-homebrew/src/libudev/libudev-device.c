@@ -2,7 +2,7 @@
 
 #include <ctype.h>
 #include <dirent.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <fcntl.h>
 #include <linux/sockios.h>
 #include <net/if.h>

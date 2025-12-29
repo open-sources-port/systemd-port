@@ -10,7 +10,7 @@
  * The underlying algorithm used in this implementation is a Heap.
  */
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdlib.h>
 
 #include "alloc-util.h"

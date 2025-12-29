@@ -18,7 +18,7 @@
 #include <stddef.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 
 /* User-level do most of the mapping between kernel and user
    capabilities based on the version tag given by the kernel. The
@@ -456,8 +456,6 @@ struct vfs_ns_cap_data {
 /* Allow writing to ns_last_pid */
 
 #define CAP_CHECKPOINT_RESTORE	40
-
-#define CAP_LAST_CAP         CAP_CHECKPOINT_RESTORE
 
 #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
 

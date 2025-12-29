@@ -6,7 +6,7 @@
 #include <basic/macro.h>
 #include <basic/log.h>
 #include <stdarg.h>
-#include <compat/errno.h>
+#include <sys_compat/errno.h>
 
 DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(void*, dlclose, NULL);
 

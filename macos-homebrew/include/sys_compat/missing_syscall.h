@@ -3,7 +3,7 @@
 
 /* Missing glibc definitions to access certain kernel APIs */
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <fcntl.h>
 
 #include <linux/time_types.h>
@@ -16,7 +16,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <sys/resource.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 
 #ifdef ARCH_MIPS
 #include <asm/sgidefs.h>

@@ -6,7 +6,7 @@
 #include <valgrind/memcheck.h>
 #endif
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stddef.h>
 
 #include "sd-bus.h"

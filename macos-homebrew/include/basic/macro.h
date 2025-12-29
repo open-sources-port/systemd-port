@@ -2,7 +2,7 @@
 #pragma once
 
 #include <assert.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <sys/param.h>
@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <stddef.h> // for offsetof
 #include <assert.h> // for static_assert if needed
-#include <compat/errno.h>
+#include <sys_compat/errno.h>
 #include <unistd.h>  // getuid, geteuid, getgid, getegid
 #include <stdlib.h>  // for getenv
 #include <fundamental/macro-fundamental.h>

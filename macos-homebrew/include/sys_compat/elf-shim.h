@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 
 /* Minimal ELF-like definitions for macOS Mach-O */
 

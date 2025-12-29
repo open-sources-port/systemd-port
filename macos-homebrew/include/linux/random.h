@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <string.h>
 #include <stdlib.h> // for arc4random_buf
 

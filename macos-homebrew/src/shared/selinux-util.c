@@ -2,7 +2,7 @@
 
 #include "selinux-util.h"
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdlib.h>
 #include <string.h>
 

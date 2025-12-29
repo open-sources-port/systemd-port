@@ -3,7 +3,7 @@
 #ifdef __APPLE__
 #include <signal.h>
 #include <string.h>
-#include <compat/errno.h>
+#include <sys_compat/errno.h>
 #include <time.h>
 #include <sys/select.h>
 

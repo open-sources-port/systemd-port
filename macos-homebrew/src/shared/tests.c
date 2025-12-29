@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#include <compat/compat-glibc.h>
+#include <sys_compat/glibc.h>
 
 #include <sched.h>
 #include <signal.h>

@@ -1,6 +1,6 @@
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <sys_compat/missing_syscall.h>
 
 #ifdef __APPLE__  // macOS / BSD fallback

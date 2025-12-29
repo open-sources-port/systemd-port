@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>

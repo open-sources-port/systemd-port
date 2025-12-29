@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <fcntl.h>
 #include <printf.h>
 #include <stddef.h>
@@ -24,7 +24,7 @@
 #include "stdio-util.h"
 #include "string-util.h"
 #include "tmpfile-util.h"
-#include <compat/compat-glibc.h>
+#include <sys_compat/glibc.h>
 
 #define SNDBUF_SIZE (8*1024*1024)
 

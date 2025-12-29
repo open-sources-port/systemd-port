@@ -7,7 +7,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <stdint.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 
 /* Linux constants — define any used in your code */
 #define TIOCL_GET 1

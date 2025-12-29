@@ -2,7 +2,7 @@
 #pragma once
 
 #include <stdlib.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <sys_compat/limits.h>
 #include <malloc/malloc.h>
 #include <string.h>

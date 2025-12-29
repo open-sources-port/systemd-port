@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #include "process-util.h"
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +17,7 @@
 #include <sys/sysctl.h>
 #include <stdatomic.h>
 #include <sys_compat/personality.h>
+#include <sys_compat/glibc.h>
 
 /* Converts a string to a POSIX scheduling policy.
  * Returns -EINVAL if unknown. */

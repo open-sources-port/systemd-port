@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 
 /* -----------------------
  * Linux statfs structure

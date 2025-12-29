@@ -10,7 +10,6 @@
         "compat_malloc.h": "c",
         "msan_interface.h": "c",
         "memory-util.h": "c",
-        "compat_audit.h": "c",
         "util.h": "c",
         "user-util.h": "c",
         "unistd.h": "c",

@@ -21,7 +21,7 @@
 
 #include "_sd-common.h"
 #include <linux/types.h>
-#include <compat/errno.h>
+#include <sys_compat/errno.h>
 
 _SD_BEGIN_DECLARATIONS;
 

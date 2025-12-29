@@ -3,7 +3,7 @@
   Copyright © 2008 Alan Jenkins <alan.christopher.jenkins@googlemail.com>
 ***/
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <fnmatch.h>
 #include <inttypes.h>
 #include <stdio.h>

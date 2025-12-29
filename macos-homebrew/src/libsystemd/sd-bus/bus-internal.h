@@ -15,7 +15,7 @@
 #include "socket-util.h"
 #include "time-util.h"
 #include <linux/types.h>
-#include "compat/errno.h"
+#include <sys_compat/errno.h>
 
 /* Note that we use the new /run prefix here (instead of /var/run) since we require them to be aliases and
  * that way we become independent of /var being mounted */

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <compat/linux_if_infiniband.h>
+#include <linux/if_infiniband.h>
 #include <net/ethernet.h>
 #include <stdbool.h>
 

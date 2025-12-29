@@ -19,7 +19,7 @@
 
 #include <inttypes.h>
 #include <signal.h>
-#include <compat/errno.h>
+#include <sys_compat/errno.h>
 // #include <sys_compat/epoll.h>
 #include "sys_compat/epoll.h"
 #include <sys_compat/inotify.h>

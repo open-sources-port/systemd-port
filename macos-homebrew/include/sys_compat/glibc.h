@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 
 #if defined(__APPLE__)
 #include <crt_externs.h>

@@ -2,7 +2,7 @@
 #pragma once
 
 #include <stdint.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <unistd.h>
 
 /* Linux VT constants (dummy values) */

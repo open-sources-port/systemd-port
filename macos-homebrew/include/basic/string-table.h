@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <sys/types.h>
