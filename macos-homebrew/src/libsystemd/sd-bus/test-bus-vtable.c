@@ -6,7 +6,7 @@
 /* We use system assert.h here, because we don't want to keep macro.h and log.h C++ compatible */
 #undef NDEBUG
 #include <assert.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdio.h>
 
 #include "sd-bus-vtable.h"

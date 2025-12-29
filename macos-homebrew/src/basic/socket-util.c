@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <linux/socket.h>

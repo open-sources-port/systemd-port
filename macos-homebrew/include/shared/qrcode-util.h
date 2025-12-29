@@ -2,7 +2,7 @@
 
 #pragma once
 #include <stdio.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 
 #if HAVE_QRENCODE
 int dlopen_qrencode(void);

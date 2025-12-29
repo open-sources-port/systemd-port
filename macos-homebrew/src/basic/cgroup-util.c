@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <sys_compat/limits.h>
 #include <signal.h>
 #include <stddef.h>
@@ -40,7 +40,7 @@
 #include "xattr-util.h"
 
 #include <sys/xattr.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <sys_compat/xattr.h>
 
 static int cg_enumerate_items(const char *controller, const char *path, FILE **_f, const char *item) {

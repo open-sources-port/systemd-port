@@ -4,7 +4,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdio.h>
 #include <string.h>
 

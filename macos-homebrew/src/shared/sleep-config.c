@@ -3,7 +3,7 @@
   Copyright © 2018 Dell Inc.
 ***/
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <fcntl.h>
 #include <linux/fs.h>
 #include <linux/magic.h>

@@ -5,7 +5,7 @@
 
 #include <signal.h>
 #include <unistd.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdlib.h>
 
 /* Linux signalfd_siginfo layout (copied from <linux/signalfd.h>) */

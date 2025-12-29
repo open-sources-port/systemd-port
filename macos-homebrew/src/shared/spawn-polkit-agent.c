@@ -2,7 +2,7 @@
 
 #include <sys_compat/pipe.h>
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <poll.h>
 #include <signal.h>
 #include <stdlib.h>

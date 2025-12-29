@@ -3,7 +3,7 @@
   Copyright © 2010 ProFUSION embedded systems
 ***/
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <sys_compat/signal.h>
 #include <sys/wait.h>
 #include <unistd.h>

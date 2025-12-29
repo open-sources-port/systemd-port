@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <sched.h>
 #include <signal.h>
 #include <stdbool.h>
@@ -16,7 +16,6 @@
 #include <basic/macro.h>
 #include <basic/raw-clone.h>
 #include "time-util.h"
-#include <compat/compat-glibc.h>
 
 #ifndef SCHED_BATCH
 #define SCHED_BATCH  3 

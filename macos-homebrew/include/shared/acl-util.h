@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <unistd.h>
 
 int fd_acl_make_read_only_fallback(int fd);

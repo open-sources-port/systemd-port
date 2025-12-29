@@ -3,7 +3,7 @@
 
 #include <sys/mount.h>
 #include <stdio.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <limits.h>
 #include <unistd.h>
 #include <fcntl.h>

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 
 /* blkpg constants */
 #define BLKPG_ADD_PARTITION     1

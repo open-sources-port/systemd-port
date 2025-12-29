@@ -4,7 +4,7 @@
 #include <stddef.h>  // size_t
 #include <stdint.h>  // uint32_t, uint64_t etc
 #include <unistd.h>  // ssize_t, gid_t, uid_t
-#include <errno.h>   // errno constants
+#include <sys_compat/errno.h>   // errno constants
 #include <bsm/audit.h>
 
 #define AUDIT_FEATURE_ARG_LEN 1024

@@ -3,7 +3,7 @@
 #if defined(__i386__) || defined(__x86_64__)
 #include <cpuid.h>
 #endif
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>

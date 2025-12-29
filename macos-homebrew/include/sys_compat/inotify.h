@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <string.h>
 
 /* inotify event masks (Linux-only) */

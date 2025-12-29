@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include <linux/netlink.h>
 #include <linux/if_ether.h>
-#include <compat/linux_if_infiniband.h>
+#include <linux/if_infiniband.h>
 #include <sys_compat/ucred.h>
 #include <linux/if_packet.h>
 #include <netinet/in.h>

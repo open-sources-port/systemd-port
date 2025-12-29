@@ -7,7 +7,7 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdint.h>
 
 /* Linux constants */

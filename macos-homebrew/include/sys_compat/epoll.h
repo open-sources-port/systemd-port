@@ -7,7 +7,7 @@
 #include <sys/event.h>
 #include <sys/time.h>
 #include <unistd.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdlib.h>
 #include <fcntl.h>
 

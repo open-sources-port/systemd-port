@@ -6,7 +6,7 @@
 #include <elf.h>
 #endif
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <fcntl.h>
 #include <linux/random.h>
 #include <pthread.h>

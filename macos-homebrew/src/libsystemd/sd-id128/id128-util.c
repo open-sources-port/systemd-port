@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -12,7 +12,7 @@
 #include "string-util.h"
 #include "sync-util.h"
 #include "virt.h"
-#include <compat/errno.h>
+#include <sys_compat/errno.h>
 
 bool id128_is_valid(const char *s) {
         size_t l;

@@ -4,7 +4,7 @@
 #ifdef __APPLE__
 
 #include <time.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdbool.h>
 
 /* map Linux clocks to unique macOS values */

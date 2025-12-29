@@ -5,7 +5,7 @@
 #define RAW_REBOOT_H
 
 #include <unistd.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <sys/reboot.h>
 #include <sys/syscall.h>
 #include <stdlib.h>

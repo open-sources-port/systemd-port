@@ -773,10 +773,10 @@ foreach header : ['crypt.h',
                   'include/linux/memfd.h',
                   'include/linux/socket.h',
                   'include/compat/auxv.h',
-                  'include/compat/threads.h',
+                  'include/sys_compat/threads.h',
                   'include/valgrind/memcheck.h',
                   'include/valgrind/valgrind.h',
-                  'include/compat/time_types.h',
+                  'include/linux/time_types.h',
                   'include/compat/sdt.h',
                  ]
 
@@ -1085,7 +1085,7 @@ endif
 # endif
 
 libcap = declare_dependency(
-    include_directories: include_directories('include/compat')
+    include_directories: include_directories('include/sys_compat')
 )
 
 libcap = dependency('libcap', required : false)

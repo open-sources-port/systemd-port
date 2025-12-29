@@ -4,7 +4,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdio.h>
 #include <stdlib.h>     // for arc4random or random()
 #include <stdint.h>

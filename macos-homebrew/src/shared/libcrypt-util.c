@@ -14,7 +14,7 @@
 
 #endif
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdlib.h>
 
 #include "alloc-util.h"
@@ -30,7 +30,7 @@
 
 #include <unistd.h>
 #include <pthread.h>
-#include <compat/errno.h>
+#include <sys_compat/errno.h>
 
 /*
  * macOS only provides crypt(), which is NOT thread-safe.

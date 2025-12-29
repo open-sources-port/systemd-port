@@ -2,7 +2,7 @@
 
 #define _DARWIN_C_SOURCE
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -16,7 +16,7 @@
 #include "time-util.h"
 #include "errno-util.h"
 #include <basic/macro.h>
-#include <compat/errno.h>
+#include <sys_compat/errno.h>
 
 int verify_timezone(const char *name, int log_level) {
     if (!name || !*name)

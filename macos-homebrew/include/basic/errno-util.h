@@ -6,7 +6,7 @@
 
 #include <basic/log.h>
 #include <basic/macro.h>
-#include <compat/errno.h>
+#include <sys_compat/errno.h>
 #include "fundamental/macro-fundamental.h"
 
 /* strerror(3) says that glibc uses a maximum length of 1024 bytes. */

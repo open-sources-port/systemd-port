@@ -4,7 +4,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <string.h>
 
 // Linux constants

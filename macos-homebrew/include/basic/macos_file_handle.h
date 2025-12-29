@@ -2,7 +2,7 @@
 
 #if defined(__APPLE__)
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <fcntl.h>
 #include <sys_compat/limits.h>
 #include <stdlib.h>

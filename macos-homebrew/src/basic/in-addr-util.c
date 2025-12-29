@@ -2,7 +2,7 @@
 
 #include <arpa/inet.h>
 #include <sys_compat/endian.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <net/if.h>
 #include <stdint.h>
 #include <stdio.h>

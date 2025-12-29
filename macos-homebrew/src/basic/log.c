@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <compat/compat-glibc.h>
+#include <sys_compat/glibc.h>
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
 #include <sys_compat/limits.h>

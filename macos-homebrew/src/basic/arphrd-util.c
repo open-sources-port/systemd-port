@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <netinet/in.h>
 #include <net/if_arp.h>
-#include <compat/linux_if_infiniband.h>
+#include <linux/if_infiniband.h>
 #include <string.h>
 
 #include "arphrd-util.h"

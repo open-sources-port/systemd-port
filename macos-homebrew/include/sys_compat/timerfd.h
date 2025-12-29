@@ -4,7 +4,7 @@
 #ifdef __APPLE__
 #include <sys/event.h>
 #include <unistd.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>

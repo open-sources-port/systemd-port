@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
 #include <ctype.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <sys_compat/limits.h>
 #include <stddef.h>
 #include <stdio.h>

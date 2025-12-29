@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <ctype.h> 
 #include <basic/log.h>
 

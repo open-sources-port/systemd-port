@@ -1,6 +1,6 @@
 #pragma once
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <linux/capability.h>

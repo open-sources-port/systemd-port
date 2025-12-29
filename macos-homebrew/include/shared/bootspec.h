@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <sys/types.h>

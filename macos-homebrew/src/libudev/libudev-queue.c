@@ -3,7 +3,7 @@
   Copyright © 2009 Alan Jenkins <alan-jenkins@tuffmail.co.uk>
 ***/
 
-#include <errno.h>
+#include <sys_compat/errno.h>
 #include <unistd.h>
 
 #include "libudev.h"
