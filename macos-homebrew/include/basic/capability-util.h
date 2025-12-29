@@ -3,11 +3,10 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <sys_compat/capability.h>
 #include <sys/types.h>
 
 #include <basic/macro.h>
-#include "missing_capability.h"
+#include "linux/capability.h"
 #include "util.h"
 
 #define CAP_ALL UINT64_MAX

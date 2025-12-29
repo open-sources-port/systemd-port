@@ -23,7 +23,7 @@
 #pragma once
 
 // #include <byteswap.h>
-#include "compat/byteswap.h"
+#include "sys_compat/byteswap.h"
 #include <sys_compat/endian.h>
 #include <stdint.h>
 

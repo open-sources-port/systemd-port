@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "compat/byteswap.h"
+#include "sys_compat/byteswap.h"
 #include <stdbool.h>
 #include <sys/socket.h>
 

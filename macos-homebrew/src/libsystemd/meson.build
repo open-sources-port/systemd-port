@@ -42,8 +42,8 @@ if conf.get('HAVE_GCRYPT') == 1
 endif
 
 audit_type_includes = [config_h,
-                       missing_audit_h,
-                       'compat/compat_audit.h']
+                       audit_h,
+                       'linux/audit.h']
 if conf.get('HAVE_AUDIT') == 1
         audit_type_includes += 'libaudit.h'
 endif

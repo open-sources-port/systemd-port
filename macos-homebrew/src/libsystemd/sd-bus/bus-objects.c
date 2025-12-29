@@ -8,7 +8,7 @@
 #include "bus-signature.h"
 #include "bus-slot.h"
 #include "bus-type.h"
-#include "missing_capability.h"
+#include "linux/capability.h"
 #include "string-util.h"
 #include "strv.h"
 

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 basic_inc_path = '../../include/basic'
+linux_inc_path = '../../include/linux'
 sys_compat_inc_path = '../../include/sys_compat'
 # basic_includes = include_directories(basic_inc_path)
 basic_includes = [
@@ -102,39 +103,39 @@ basic_sources = files(
         join_paths(basic_inc_path, 'ioprio-util.h'),
         'limits-util.c',
         join_paths(basic_inc_path, 'limits-util.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/btrfs.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/btrfs_tree.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/can/netlink.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/can/vxcan.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/cfm_bridge.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/fib_rules.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/fou.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/genetlink.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/hdlc/ioctl.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/if.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/if_addr.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/if_bonding.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/if_bridge.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/if_ether.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/if_link.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/if_macsec.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/if_tun.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/if_tunnel.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/in.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/in6.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/ipv6_route.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/l2tp.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/libc-compat.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/mrp_bridge.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/netdevice.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/netfilter/nf_tables.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/netfilter/nfnetlink.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/netlink.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/nexthop.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/nl80211.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/pkt_sched.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/rtnetlink.h'),
-        join_paths(meson.project_source_root(), 'include', 'linux/wireguard.h'),
+        join_paths(linux_inc_path, 'btrfs.h'),
+        join_paths(linux_inc_path, 'btrfs_tree.h'),
+        join_paths(linux_inc_path, 'can/netlink.h'),
+        join_paths(linux_inc_path, 'can/vxcan.h'),
+        join_paths(linux_inc_path, 'cfm_bridge.h'),
+        join_paths(linux_inc_path, 'fib_rules.h'),
+        join_paths(linux_inc_path, 'fou.h'),
+        join_paths(linux_inc_path, 'genetlink.h'),
+        join_paths(linux_inc_path, 'hdlc/ioctl.h'),
+        join_paths(linux_inc_path, 'if.h'),
+        join_paths(linux_inc_path, 'if_addr.h'),
+        join_paths(linux_inc_path, 'if_bonding.h'),
+        join_paths(linux_inc_path, 'if_bridge.h'),
+        join_paths(linux_inc_path, 'if_ether.h'),
+        join_paths(linux_inc_path, 'if_link.h'),
+        join_paths(linux_inc_path, 'if_macsec.h'),
+        join_paths(linux_inc_path, 'if_tun.h'),
+        join_paths(linux_inc_path, 'if_tunnel.h'),
+        join_paths(linux_inc_path, 'in.h'),
+        join_paths(linux_inc_path, 'in6.h'),
+        join_paths(linux_inc_path, 'ipv6_route.h'),
+        join_paths(linux_inc_path, 'l2tp.h'),
+        join_paths(linux_inc_path, 'libc-compat.h'),
+        join_paths(linux_inc_path, 'mrp_bridge.h'),
+        join_paths(linux_inc_path, 'netdevice.h'),
+        join_paths(linux_inc_path, 'netfilter/nf_tables.h'),
+        join_paths(linux_inc_path, 'netfilter/nfnetlink.h'),
+        join_paths(linux_inc_path, 'netlink.h'),
+        join_paths(linux_inc_path, 'nexthop.h'),
+        join_paths(linux_inc_path, 'nl80211.h'),
+        join_paths(linux_inc_path, 'pkt_sched.h'),
+        join_paths(linux_inc_path, 'rtnetlink.h'),
+        join_paths(linux_inc_path, 'wireguard.h'),
         join_paths(basic_inc_path, 'list.h'),
         'locale-util.c',
         join_paths(basic_inc_path, 'locale-util.h'),
@@ -150,8 +151,8 @@ basic_sources = files(
         join_paths(basic_inc_path, 'memory-util.h'),
         'mempool.c',
         join_paths(basic_inc_path, 'mempool.h'),
-        join_paths(basic_inc_path, 'missing_audit.h'),
-        join_paths(basic_inc_path, 'missing_capability.h'),
+        join_paths(linux_inc_path, 'audit.h'),
+        join_paths(linux_inc_path, 'capability.h'),
         join_paths(basic_inc_path, 'missing_drm.h'),
         join_paths(basic_inc_path, 'missing_fcntl.h'),
         join_paths(basic_inc_path, 'missing_fs.h'),
@@ -276,8 +277,8 @@ basic_sources = files(
         join_paths(basic_inc_path, 'xattr-util.h'),
 )
 
-missing_audit_h = files(join_paths(basic_inc_path, 'missing_audit.h'))
-missing_capability_h = files(join_paths(basic_inc_path, 'missing_capability.h'))
+audit_h = files(join_paths(linux_inc_path, 'audit.h'))
+capability_h = files(join_paths(linux_inc_path, 'capability.h'))
 missing_socket_h = files(join_paths('../../include/linux', 'socket.h'))
 
 missing_syscall_def_h = files(join_paths(sys_compat_inc_path, 'missing_syscall_def.h'))
@@ -301,7 +302,7 @@ generate_cap_list = find_program('generate-cap-list.sh')
 cap_list_txt = custom_target(
         'cap-list.txt',
         output : 'cap-list.txt',
-        command : [generate_cap_list, cpp, config_h, missing_capability_h],
+        command : [generate_cap_list, cpp, config_h, capability_h],
         capture : true)
 
 generate_errno_list = find_program('generate-errno-list.sh')

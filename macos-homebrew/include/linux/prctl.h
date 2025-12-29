@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <sys_compat/capability.h>
+#include <linux/capability.h>
 #include <linux/types.h>
 
 #ifdef __cplusplus
